@@ -49,7 +49,7 @@ TEXT_EXTS = {
 ALWAYS_SCAN_NAMES = {"LICENSE", "NOTICE", ".gitattributes", ".gitignore", ".editorconfig"}
 SKIP_DIRS = {
     ".git", "bin", "obj", "publish", "__pycache__", "node_modules", ".vs",
-    ".vscode", "dist", "build", ".venv",
+    ".vscode", "dist", "build", ".venv", "TestResults",
 }
 # VS-generated project/solution files legitimately carry a UTF-8 BOM.
 BOM_OK_EXTS = {".sln", ".vcxproj", ".csproj"}

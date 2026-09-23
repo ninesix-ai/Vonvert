@@ -2,6 +2,8 @@
 
 > Language: [English](README.md) · [简体中文](README_zh.md)
 
+> **Download [v0.0.1](https://github.com/ninesix-ai/Vonvert/releases/tag/v0.0.1)** — Windows real-time voice changer (unsigned preview; see the [release notes](docs/RELEASE-NOTES-v0.0.1.md) for SmartScreen steps).
+
 **Real-time voice changer for Windows** — transform your voice while you speak, with low-latency WASAPI audio and five out-of-the-box voice presets.
 
 Vonvert captures your microphone, runs the signal through a real-time DSP chain (pitch shift, EQ, compressor, chorus, …) and sends the processed voice to any output — typically a virtual audio cable so chat apps / games use your new voice as their mic.

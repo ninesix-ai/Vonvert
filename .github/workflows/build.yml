@@ -42,6 +42,11 @@ jobs:
         # They are filtered out here; run them locally instead.
         run: dotnet test Vonvert.OSS.sln --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal --collect:"XPlat Code Coverage" --filter "FullyQualifiedName!~UIAutomation"
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
       - name: Release compliance scan
         # Content-compliance gate: fails the build if forbidden content (edition
         # gating, paid-feature names, internal markers / provenance leaks, non-English

@@ -1,0 +1,6 @@
+{
+  "_comment": "DSP effect default parameter values — single source of truth. Edit this file to adjust defaults without recompiling. Loaded as embedded resource by DspDefaults class.",
+  "basic": {
+    "preAmpGain": 1.0
+  }
+}

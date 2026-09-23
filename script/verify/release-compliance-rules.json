@@ -1,0 +1,111 @@
+{
+  "rules": [
+    {
+      "id": "commercial-gate",
+      "description": "Version/edition gating that must not exist in this open-source build",
+      "pattern": "#if\\s+COMMERCIAL_EDITION|\\bIncludeCommercial\\b|\\bFeatureGate\\b|\\bGatedFeature\\b|\\bIsCommercial\\b|\\bLicenseGate\\b|\\bTrialGate\\b|\\bIsLicensed\\b|#if\\s+\\w*COMMER",
+      "case_sensitive": false,
+      "scope_exts": "all"
+    },
+    {
+      "id": "paid-feature",
+      "description": "Reference to a gated/paid-only DSP capability name",
+      "pattern": "Formant|MultiPersona|VoiceLearner|VoiceLearning|VoiceClone|ProOnly|premium",
+      "case_sensitive": false,
+      "scope_exts": "all"
+    },
+    {
+      "id": "fix-version-trace",
+      "description": "Internal version/repair marker that belongs in a changelog, not source comments",
+      "pattern": "\\bFix\\s*\\d|\\bFix\\s+[A-Z]-\\d|\\bfix\\s+\\d\\.\\d|\\bhotfix\\b",
+      "case_sensitive": false,
+      "scope_exts": "all",
+      "exclude_files": ["*.md", ".github/**", "docs/**"]
+    },
+    {
+      "id": "internal-review-id",
+      "description": "Internal review/audit finding tag (single letter + number, e.g. M-2, L-6). Test-case IDs like BC-001 are exempt.",
+      "pattern": "\\b[A-Z]-\\d{1,2}\\b",
+      "case_sensitive": true,
+      "scope_exts": "all",
+      "exclude_if_line_matches": "DisplayName\\s*=|\\[Fact|\\[Theory|\\[InlineData|public\\s+(void|Task)\\s|SPDX-License-Identifier|MIT-License"
+    },
+    {
+      "id": "oss-port-provenance",
+      "description": "Provenance marker leaking that a file was copied from another internal tree",
+      "pattern": "Ported from|adapted from the OSS|from the OSS\\b|\\bOSS test suite|\\bOSS suite\\b|\\bOSS build\\b|\\bOSS 40|sibling OSS|from the OS test suite|OSS test",
+      "case_sensitive": false,
+      "scope_exts": "all"
+    },
+    {
+      "id": "review-finding-ref",
+      "description": "Prose reference to an internal review finding / gate-audit verdict",
+      "pattern": "review finding|Gate-A\\b|gate audit|GATE-AUDIT|INTERNAL REVIEW",
+      "case_sensitive": false,
+      "scope_exts": "all"
+    },
+    {
+      "id": "copyright-author",
+      "description": "Copyright header whose holder is not the project's canonical studio name",
+      "pattern": "Copyright\\s*\\(c\\)\\s*\\d{4}",
+      "case_sensitive": false,
+      "scope_exts": "all",
+      "exclude_if_line_matches": "ninesix"
+    },
+    {
+      "id": "chinese-in-source",
+      "description": "Non-English (CJK) comment left in source/markup (this repo keeps source comments in English)",
+      "pattern": "[\\u4e00-\\u9fff\\u3400-\\u4dbf]",
+      "case_sensitive": true,
+      "scope_exts": [".cs", ".xaml"]
+    },
+    {
+      "id": "commercial-wording",
+      "description": "Wording that implies a fuller paid edition or an anti-piracy mechanism",
+      "pattern": "watermark|commercial[- ]only|commercial implementation|paid feature|anti-?copy",
+      "case_sensitive": false,
+      "scope_exts": "all",
+      "exclude_files": ["LICENSE", "docs/**", "*.md", "README*"]
+    },
+    {
+      "id": "internal-doc-ref",
+      "description": "Reference to an internal numbered planning/review doc from source",
+      "pattern": "docs/\\d+|docs/[0-9]+-",
+      "case_sensitive": false,
+      "scope_exts": "all",
+      "path_prefixes": ["docs/"],
+      "path_prefix_mode": "exclude"
+    }
+  ],
+
+  "allowlist": [
+    {
+      "file": "Vonvert.App/MainWindow.xaml",
+      "rule": "chinese-in-source",
+      "pattern": "Content=\"中文\"",
+      "reason": "Language-combobox display name for the Chinese locale; legitimate UI text"
+    },
+    {
+      "file": "test/code/Vonvert.Tests/DSP/EffectRegistryTests.cs",
+      "rule": "commercial-wording",
+      "pattern": "Create(\"Watermark\")",
+      "reason": "Anti-leak guard test: asserts the effect name is not registered in this build"
+    },
+    {
+      "file": "test/code/Vonvert.Tests/DSP/DSPChainTests.cs",
+      "rule": "commercial-wording",
+      "pattern": "Contains(\"Watermark\"",
+      "reason": "Anti-leak guard: default chain must not contain that effect name"
+    },
+    {
+      "file": "LICENSE",
+      "rule": "commercial-wording",
+      "reason": "Standard Apache-2.0 clause wording ('commercial damages'); license boilerplate"
+    },
+    {
+      "file": "docs/VIRTUAL-AUDIO-DEVICES.md",
+      "rule": "commercial-wording",
+      "reason": "Objective description of a third-party driver; not product commercial info"
+    }
+  ]
+}

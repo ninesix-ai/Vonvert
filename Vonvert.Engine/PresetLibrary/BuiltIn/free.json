@@ -1,0 +1,36 @@
+[
+  {
+    "Name": "Normal", "Icon": "🎙️",
+    "PitchEnabled": false, "GateEnabled": true, "CompressEnabled": true
+  },
+  {
+    "Name": "Deep Male", "Icon": "🎺",
+    "PitchEnabled": true, "PitchOffset": -4,
+    "EqEnabled": true, "EqLowDb": 3, "EqHighDb": -2,
+    "CompressEnabled": true
+  },
+  {
+    "Name": "Female", "Icon": "🌸",
+    "PitchEnabled": true, "PitchOffset": 4,
+    "EqEnabled": true,
+    "EqLowDb": -4, "EqLowFreq": 160,
+    "EqMidDb": 3, "EqMidFreq": 2600, "EqMidQ": 1.1,
+    "EqHighDb": 3, "EqHighFreq": 9000,
+    "CompressEnabled": true, "CompStrength": 3, "CompCeilingDb": -15,
+    "ChorusEnabled": true, "ChorusSpeed": 1.2, "ChorusDepth": 0.12, "ChorusMix": 0.22,
+    "DeesserEnabled": true, "DeesserFreq": 6500, "DeesserThreshDb": -20, "DeesserRatio": 3, "DeesserQ": 1.5
+  },
+  {
+    "Name": "Robot", "Icon": "🤖",
+    "RobotEnabled": true,
+    "PitchEnabled": true, "PitchOffset": -2,
+    "ReverbEnabled": true, "RoomScale": 0.5, "ReverbMix": 0.15
+  },
+  {
+    "Name": "Demon", "Icon": "😈",
+    "PitchEnabled": true, "PitchOffset": -9,
+    "DistortEnabled": true, "DistortSaturation": 0.45,
+    "ReverbEnabled": true, "RoomScale": 0.7, "ReverbMix": 0.3,
+    "GateEnabled": true, "GateFloorDb": -65
+  }
+]

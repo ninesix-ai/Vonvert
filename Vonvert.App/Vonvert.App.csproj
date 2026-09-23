@@ -1,0 +1,46 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- Copyright (c) 2026 ninesix-ai studio -->
+
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Shared properties (TargetFramework, Nullable, ImplicitUsings, Platforms,
+       AllowUnsafeBlocks, AssemblyVersion, FileVersion, Version) come from Directory.Build.props -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>Vonvert</AssemblyName>
+    <RootNamespace>Vonvert.App</RootNamespace>
+    <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Release provenance metadata: embedded into the assembly so binaries are
+         traceable to the source repository (supply-chain / SBOM consumers). -->
+    <RepositoryUrl>https://github.com/ninesix-ai/Vonvert</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/ninesix-ai/Vonvert</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Vonvert.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="2.0.1" />
+    <!-- Embeds source-control provenance (commit, repo URL) into PDBs for traceable binaries.
+         Enable with -p:EnableSourceLinkGitHub=true when building from the public GitHub
+         repository (the local dev remote is a private monorepo, which cannot be linked). -->
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all"
+                      Condition="'$(EnableSourceLinkGitHub)' == 'true'" />
+    <ProjectReference Include="..\Vonvert.Engine\Vonvert.Engine.csproj" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="NAudio.WinMM" Version="2.2.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\icon.ico" />
+  </ItemGroup>
+  <!-- Embedded translation JSON files (one per supported language) -->
+  <ItemGroup>
+    <EmbeddedResource Include="Translations\*.json" LogicalName="Vonvert.App.Translations.%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

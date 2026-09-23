@@ -1,0 +1,108 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 ninesix-ai studio
+
+name: Build & Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  CONFIGURATION: Release
+
+jobs:
+  build:
+    name: Build & Test (Windows)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore NuGet packages
+        run: dotnet restore Vonvert.OSS.sln
+
+      - name: Build solution
+        run: dotnet build Vonvert.OSS.sln --configuration ${{ env.CONFIGURATION }} --no-restore
+
+      - name: Run tests
+        # The FlaUI GUI E2E tests (UIAutomation) launch the real exe and depend
+        # on a desktop session / audio environment, which is flaky on CI runners.
+        # They are filtered out here; run them locally instead.
+        run: dotnet test Vonvert.OSS.sln --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal --collect:"XPlat Code Coverage" --filter "FullyQualifiedName!~UIAutomation"
+
+      - name: Release compliance scan
+        # Content-compliance gate: fails the build if forbidden content (edition
+        # gating, paid-feature names, internal markers / provenance leaks, non-English
+        # source comments, encoding violations) is present in the public tree.
+        # Uses the committed PUBLIC ruleset; a stricter ruleset (matching specific
+        # maintainer identities) can be injected as a base64 repo secret without ever
+        # being committed to the public repo.
+        shell: pwsh
+        env:
+          FULL_RULES_B64: ${{ secrets.RELEASE_COMPLIANCE_RULES_FULL_B64 }}
+        run: |
+          $rules = "script/verify/release-compliance-rules.json"
+          if ($env:FULL_RULES_B64) {
+            $tmp = Join-Path $env:RUNNER_TEMP "release-compliance-rules.full.json"
+            [IO.File]::WriteAllBytes($tmp, [Convert]::FromBase64String($env:FULL_RULES_B64))
+            $rules = $tmp
+            Write-Host "Using FULL ruleset (injected via secret)"
+          } else {
+            Write-Host "Secret RELEASE_COMPLIANCE_RULES_FULL_B64 not set; using PUBLIC ruleset"
+          }
+          python script/verify/release_compliance_scan.py --path . --rules $rules
+          if ($LASTEXITCODE -ne 0) { throw "Release compliance scan FAILED (see findings above)" }
+
+      - name: Publish (self-contained)
+        run: dotnet publish Vonvert.App/Vonvert.App.csproj -c ${{ env.CONFIGURATION }} -r win-x64 --self-contained -o publish
+
+      # NSIS (makensis) is preinstalled on GitHub-hosted windows runners.
+      # Single-file exe keeps artifact name unique across push/PR runs (upload-artifact
+      # names are shared repo-wide). This is the form we will submit for SignPath signing.
+      - name: Build NSIS installer
+        shell: pwsh
+        run: |
+          $version = (Select-String -Path Directory.Build.props -Pattern '<Version>([^<]+)</Version>').Matches[0].Groups[1].Value
+          Write-Host "Installer version: $version"
+          if (-not (Get-Command makensis -ErrorAction SilentlyContinue)) {
+            # Runner image ships NSIS under Program Files (x86) but may not expose it on PATH
+            $env:Path += ";C:\Program Files (x86)\NSIS"
+          }
+          # makensis does not create the OutFile directory on a clean checkout
+          New-Item -ItemType Directory -Force installer\Output | Out-Null
+          # BUILD_DIR is resolved relative to the .nsi script directory
+          makensis /DBUILD_DIR=..\publish /DAPP_VERSION=$version installer\setup.oss.nsi
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vonvert-oss-build
+          path: publish/
+          retention-days: 14
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vonvert-oss-setup
+          path: installer/Output/Vonvert_Setup.exe
+          retention-days: 14
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: "**/TestResults/**"
+          retention-days: 7

@@ -1,0 +1,612 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- Copyright (c) 2026 ninesix-ai studio -->
+
+<Window x:Class="Vonvert.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Vonvert.App.UIServices"
+        Title="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AppName}" Height="640" Width="960"
+        MinHeight="480" MinWidth="680"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="CanResize"
+        WindowStartupLocation="CenterScreen"
+        xmlns:tb="http://www.hardcodet.net/taskbar"
+        xmlns:controls="clr-namespace:Vonvert.App"
+             xmlns:vc="clr-namespace:Vonvert.App.Controls">
+
+    <Window.Resources>
+        <!-- Global tooltip: fast response instead of default ~5s delay -->
+        <Style TargetType="ToolTip" BasedOn="{StaticResource {x:Type ToolTip}}">
+            <Setter Property="ToolTipService.InitialShowDelay" Value="400"/>
+        </Style>
+    </Window.Resources>
+
+    <!-- Root with rounded corners + shadow.
+         NOTE: WindowChrome was removed because it is incompatible with
+         AllowsTransparency="True" and caused the WPF window to render as a
+         blank black surface on this machine. The drop shadow is provided here
+         with a DropShadowEffect (same approach as v1, which renders correctly). -->
+    <Border x:Name="RootBorder" CornerRadius="16" Background="{DynamicResource Bg}"
+            BorderBrush="{DynamicResource Border}" BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="40" ShadowDepth="8" Color="#000000" Opacity="0.7"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>  <!-- Sidebar (Plan B icon rail) -->
+                <ColumnDefinition Width="*"/>     <!-- Header / Content / Bottom bar -->
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="44"/>   <!-- Header + Tab -->
+                <RowDefinition Height="*"/>    <!-- Main -->
+                <RowDefinition Height="64"/>   <!-- Bottom bar -->
+            </Grid.RowDefinitions>
+
+            <tb:TaskbarIcon x:Name="TrayIcon"
+                            IconSource="/Assets/icon.ico"
+                            ToolTipText="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AppName}"
+                            TrayMouseDoubleClick="TrayIcon_DoubleClick">
+                <tb:TaskbarIcon.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem x:Name="TrayOpenItem" Click="TrayOpen_Click" />
+                        <MenuItem x:Name="TrayQuitItem" Click="TrayQuit_Click" />
+                    </ContextMenu>
+                </tb:TaskbarIcon.ContextMenu>
+            </tb:TaskbarIcon>
+
+            <!-- ═══════════════════ SIDEBAR (Plan B icon rail) ═══════════════════ -->
+            <vc:SidebarNavRail x:Name="SidebarNav" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3"/>
+
+            <!-- ═══════════════════ HEADER (tools row; drag area) ═══════════════════ -->
+            <Border x:Name="HeaderBorder" Grid.Row="0" Grid.Column="1" Background="{DynamicResource HeaderGrad}"
+                    CornerRadius="0,16,0,0" MouseLeftButtonDown="Header_Drag">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"
+                            Margin="0,0,10,0">
+                    <!-- Tool buttons (window controls) -->
+                    <Button Style="{StaticResource OutlineButton}" Width="32" Padding="6,4"
+                            Click="Minimize_Click" Margin="0,0,4,0"
+                            ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MinimizeTip, Mode=OneWay}">
+                        <Image Source="{StaticResource VM_Minimize}" Width="16" Height="16"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
+                    <Button x:Name="MaximizeBtn" Style="{StaticResource OutlineButton}" Width="32" Padding="6,4"
+                            Click="Maximize_Click" Margin="0,0,4,0"
+                            ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MaximizeTip, Mode=OneWay}">
+                        <Image x:Name="MaximizeIcon" Source="{StaticResource VM_Maximize}" Width="16" Height="16"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
+                    <Button Style="{StaticResource OutlineButton}" Width="32" Padding="6,4"
+                            Click="Close_Click"
+                            ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=CloseMinTray, Mode=OneWay}">
+                        <Image Source="{StaticResource VM_Close}" Width="14" Height="14"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════════════════ MAIN CONTENT ═══════════════════ -->
+            <Grid Grid.Row="1" Grid.Column="1">
+                <!-- ── CONTENT AREA ── -->
+                <Grid>
+                <!-- content grid -->
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="36"/>  <!-- Section header -->
+                        <RowDefinition Height="*"/>   <!-- Tab content -->
+                    </Grid.RowDefinitions>
+
+                    <!-- Section Header -->
+                    <Border Grid.Row="0" Background="{DynamicResource Surface}"
+                            BorderBrush="{DynamicResource Border}" BorderThickness="0,0,0,1">
+                        <Grid Margin="16,0">
+                            <vc:SelectableTextBlock x:Name="SectionTitle"
+                                       Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SelectVoice, Mode=OneWay}"
+                                       FontSize="16" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextSub}"
+                                       VerticalAlignment="Center"
+                                       FontFamily="{StaticResource FontFallback}"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <!-- A/B Compare: segmented control (Dry / Normal / Wet) -->
+                                <Border x:Name="ABComparePanel" CornerRadius="8"
+                                        BorderBrush="{DynamicResource Border}" BorderThickness="1"
+                                        VerticalAlignment="Center" Margin="0,0,12,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button x:Name="SegDry"    Style="{StaticResource SegmentButton}"
+                                                Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SegDry, Mode=OneWay}"
+                                                Tag="Dry"     Click="CompareSegment_Click"
+                                                ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SegDryTip, Mode=OneWay}"/>
+                                        <Button x:Name="SegNormal" Style="{StaticResource SegmentButtonActive}"
+                                                Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SegNormal, Mode=OneWay}"
+                                                Tag="Normal"  Click="CompareSegment_Click"
+                                                ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SegNormalTip, Mode=OneWay}"/>
+                                        <Button x:Name="SegWet"    Style="{StaticResource SegmentButton}"
+                                                Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SegWet, Mode=OneWay}"
+                                                Tag="WetOnly" Click="CompareSegment_Click"
+                                                ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SegWetTip, Mode=OneWay}"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- TabControl -->
+                    <TabControl x:Name="MainTabs" Grid.Row="1" Background="Transparent" BorderThickness="0"
+                                SelectionChanged="MainTabs_SelectionChanged"
+                                AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccMainContent}">
+                        <TabControl.ItemContainerStyle>
+                            <Style TargetType="TabItem">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </Style>
+                        </TabControl.ItemContainerStyle>
+
+                        <!-- ═══ TAB 0: VOICES ═══ -->
+                        <TabItem x:Name="TabVoices">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="80"/> <!-- Spectrum + Pitch -->
+                                    <RowDefinition Height="*"/>   <!-- Content -->
+                                </Grid.RowDefinitions>
+
+                                <!-- Real-time FFT Spectrum + Pitch Visualizer (visibility toggled by the SpectrumAnalysis / PitchDetection tools) -->
+                                <Border x:Name="VizStripBorder" Grid.Row="0" Background="#0F1117" Margin="0,0,0,0"
+                                        BorderBrush="{DynamicResource Border}" BorderThickness="0,0,0,1">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="56"/>  <!-- Spectrum + Note overlay -->
+                                            <RowDefinition Height="24"/>  <!-- Pitch curve -->
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Spectrum Canvas with Note/Cents overlay -->
+                                        <Grid Grid.Row="0">
+                                            <Canvas x:Name="SpectrumCanvas" Margin="12,4,12,4" ClipToBounds="True"/>
+                                            <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=Spectrum, Mode=OneWay}" FontSize="11" FontWeight="Bold"
+                                                       Foreground="#AA6B7280" VerticalAlignment="Top"
+                                                       Margin="12,6,0,0" FontFamily="{StaticResource FontFallback}"/>
+
+                                            <!-- Pitch Info Overlay (right side) -->
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                                                        VerticalAlignment="Top" Margin="0,4,14,0">
+                                                <!-- Detected Note -->
+                                                <Border x:Name="PitchNoteBadge" CornerRadius="4" Padding="6,2"
+                                                        Background="#448B5CF6" Margin="0,0,4,0" Visibility="Collapsed">
+                                                    <vc:SelectableTextBlock x:Name="PitchNoteText" Text="—" FontSize="16" FontWeight="Bold"
+                                                               Foreground="#EE8B7CF6" FontFamily="{StaticResource FontFallback}"/>
+                                                </Border>
+                                                <!-- Cents Deviation -->
+                                                <Border x:Name="PitchCentsBadge" CornerRadius="4" Padding="5,2"
+                                                        Background="#2200CEC9" Margin="0,0,4,0" Visibility="Collapsed">
+                                                    <vc:SelectableTextBlock x:Name="PitchCentsText" Text="0 ¢" FontSize="11"
+                                                               Foreground="#DD00CEC9" FontFamily="{StaticResource FontFallback}"
+                                                               VerticalAlignment="Center"/>
+                                                </Border>
+                                                <!-- Frequency -->
+                                                <vc:SelectableTextBlock x:Name="PitchFreqText" Text="" FontSize="11"
+                                                           Foreground="#BB6B7280" VerticalAlignment="Center"
+                                                           FontFamily="{StaticResource FontFallback}"/>
+                                            </StackPanel>
+
+                                            <!-- Cents meter (horizontal bar centered) -->
+                                            <Canvas x:Name="CentsMeterCanvas" Height="4" VerticalAlignment="Bottom"
+                                                    Margin="12,0,12,6" ClipToBounds="True" Visibility="Collapsed"/>
+                                        </Grid>
+
+                                        <!-- Pitch Curve Canvas -->
+                                        <Border Grid.Row="1" Background="#0A0C12"
+                                                BorderBrush="#1A6B7280" BorderThickness="0,1,0,0">
+                                            <Grid>
+                                                <Canvas x:Name="PitchCurveCanvas" Margin="12,2,12,2" ClipToBounds="True"/>
+                                                <vc:SelectableTextBlock x:Name="PitchCurveLabel" Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=PitchCurve, Mode=OneWay}" FontSize="11" FontWeight="Bold"
+                                                           Foreground="#996B7280" VerticalAlignment="Top"
+                                                           Margin="12,3,0,0" FontFamily="{StaticResource FontFallback}"/>
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+
+
+                                <!-- Content area below spectrum -->
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Preset area: banner (row 0) + voice picker (row 1) -->
+                                    <Grid Grid.Column="0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Banner row 0: quick-start hint (overlaid by the no-mic warning when no mic) -->
+                                        <Border x:Name="QuickStartBorder" Grid.Row="0" Background="#0D8B5CF6"
+                                                BorderBrush="#228B5CF6" BorderThickness="1"
+                                                CornerRadius="8" Padding="12,8" Margin="12,8,12,4">
+                                            <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=QuickStartHint, Mode=OneWay}"
+                                                       FontSize="12" Foreground="#A89CF8"
+                                                       FontFamily="{StaticResource FontFallback}"
+                                                       VerticalAlignment="Center"/>
+                                        </Border>
+                                        <!-- No-mic warning banner (novice error guidance) -->
+                                        <Border x:Name="NoMicBanner" Grid.Row="0" Background="#22FFB020"
+                                                BorderBrush="#55FFB020" BorderThickness="1"
+                                                CornerRadius="8" Padding="12,8" Margin="12,8,12,4" Visibility="Collapsed">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <vc:SelectableTextBlock Text="⚠" FontSize="14" VerticalAlignment="Center"
+                                                           Margin="0,0,8,0" Foreground="{DynamicResource Warning}"/>
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=NoMicFound, Mode=OneWay}"
+                                                               FontSize="12" FontWeight="Bold" Foreground="{DynamicResource Warning}"
+                                                               FontFamily="{StaticResource FontFallback}"/>
+                                                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=NoMicHint, Mode=OneWay}"
+                                                               FontSize="11" Foreground="{DynamicResource TextSub}"
+                                                               FontFamily="{StaticResource FontFallback}"/>
+                                                </StackPanel>
+                                                <Button Style="{StaticResource OutlineButton}" Padding="10,2" Margin="12,0,0,0"
+                                                        VerticalAlignment="Center"
+                                                        Click="RefreshDevices_Click"
+                                                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=RefreshDevices}"
+                                                        FontSize="11" FontFamily="{StaticResource FontFallback}"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- Voice picker (single built-in female voice) -->
+                                        <vc:PresetPickerControl x:Name="MainPresetPicker" Grid.Row="1"/>
+                                    </Grid>
+
+                                    <!-- Right rail: expert parameter panel. Hidden until a voice is
+                                         picked; clicking the same voice again collapses it (matches OSS). -->
+                                    <Border x:Name="ParamRailBorder" Grid.Column="1" Width="0" Visibility="Collapsed"
+                                            ClipToBounds="True"
+                                            Background="{DynamicResource Surface}"
+                                            BorderBrush="{DynamicResource Border}" BorderThickness="1,0,0,0">
+                                        <DockPanel Margin="12,10,12,8">
+                                            <!-- Rail header: mode switch + save / reset -->
+                                            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <ComboBox x:Name="ExpertModeCombo" Grid.Column="0" HorizontalAlignment="Left" MinWidth="110"
+                                                          SelectionChanged="ExpertMode_Changed" FontFamily="{StaticResource FontFallback}">
+                                                    <ComboBoxItem Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SimpleMode, Mode=OneWay}"/>
+                                                    <ComboBoxItem Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=ProMode, Mode=OneWay}"/>
+                                                </ComboBox>
+                                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                                    <Button Style="{StaticResource OutlineButton}" Margin="0,0,6,0" Padding="8,2"
+                                                            Click="ExpertSaveAs_Click" FontSize="11" FontFamily="{StaticResource FontFallback}"
+                                                            Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SaveAsPreset, Mode=OneWay}"/>
+                                                    <Button Style="{StaticResource OutlineButton}" Padding="8,2"
+                                                            Click="ExpertReset_Click" FontSize="11" FontFamily="{StaticResource FontFallback}"
+                                                            Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=ResetToPreset, Mode=OneWay}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            <vc:ExpertParamsControl x:Name="ExpertPanel"/>
+                                        </DockPanel>
+                                    </Border>
+                            </Grid>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- ═══ TAB 1: SETTINGS (audio devices for VB-Cable) ═══ -->
+                        <TabItem x:Name="TabSettings" Loaded="TabSettings_Loaded">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,12">
+                                <StackPanel>
+                                    <!-- Language selector -->
+                                    <Border Background="{DynamicResource Surface}"
+                                            BorderBrush="{DynamicResource Border}" BorderThickness="1"
+                                            CornerRadius="12" Padding="16,14" Margin="0,0,0,12">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=LanguageLabel, Mode=OneWay}"
+                                                       FontSize="12" Foreground="{DynamicResource TextSub}"
+                                                       VerticalAlignment="Center" FontFamily="{StaticResource FontFallback}"/>
+                                            <ComboBox x:Name="LanguageSelector" Grid.Column="1" MinWidth="140"
+                                                      VerticalAlignment="Center"
+                                                      SelectionChanged="LanguageSelector_Changed">
+                                                <ComboBoxItem Tag="en" Content="English"/>
+                                                <ComboBoxItem Tag="zh" Content="中文"/>
+                                            </ComboBox>
+                                        </Grid>
+                                    </Border>
+                                    <Border Background="{DynamicResource Surface}"
+                                            BorderBrush="{DynamicResource Border}" BorderThickness="1"
+                                            CornerRadius="12" Padding="16,14">
+                                        <StackPanel>
+                                            <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AudioDevices, Mode=OneWay}"
+                                                       FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextSub}"
+                                                       Margin="0,0,0,10" FontFamily="{StaticResource FontFallback}"/>
+                                            <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=InputMic, Mode=OneWay}"
+                                                       FontSize="11" Foreground="{DynamicResource TextSub}" Margin="0,0,0,4"/>
+                                            <ComboBox x:Name="MicSelector" Margin="0,0,0,10"
+                                                      SelectionChanged="OnMicSelect"/>
+                                            <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=OutputVbCable, Mode=OneWay}"
+                                                       FontSize="11" Foreground="{DynamicResource TextSub}" Margin="0,0,0,4"/>
+                                            <ComboBox x:Name="OutSelector" Margin="0,0,0,10"
+                                                      SelectionChanged="OnOutSelect"/>
+                                            <!-- Refresh button + VB status (left) | Hear Myself label + toggle (right), grouped in one compact grid -->
+                                            <Grid Margin="0,0,0,10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <Button Grid.Row="0" Grid.Column="0"
+                                                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=RefreshDevices}"
+                                                        Style="{StaticResource OutlineButton}" HorizontalAlignment="Left"
+                                                        Click="OnRefreshDevices"/>
+                                                <ToggleButton x:Name="HearMyselfToggle" Grid.Row="0" Grid.Column="1"
+                                                              Style="{StaticResource MiniToggle}"
+                                                              HorizontalAlignment="Right"
+                                                              Checked="OnHearMyselfToggle" Unchecked="OnHearMyselfToggle"/>
+                                                <vc:SelectableTextBlock x:Name="VbStatusText" Grid.Row="1" Grid.Column="0"
+                                                           FontSize="11" Foreground="{DynamicResource TextSub}"
+                                                           HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                           Margin="0,6,0,0"/>
+                                                <vc:SelectableTextBlock Grid.Row="1" Grid.Column="1"
+                                                           Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=HearMyself, Mode=OneWay}"
+                                                           FontSize="11" Foreground="{DynamicResource TextSub}"
+                                                           FontFamily="{StaticResource FontFallback}"
+                                                           HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                           Margin="0,6,12,0"/>
+                                            </Grid>
+                                            <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=DeviceHint, Mode=OneWay}"
+                                                       FontSize="11" Foreground="{DynamicResource TextSub}"
+                                                       Margin="0,12,0,0" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- ═══ HOTKEYS card ═══ -->
+                                    <Border Background="{DynamicResource Surface}"
+                                            BorderBrush="{DynamicResource Border}" BorderThickness="1"
+                                            CornerRadius="12" Padding="16,14" Margin="0,12,0,0">
+                                        <StackPanel>
+                                            <!-- Header: title + Reset button (top-right), matching the gitee layout -->
+                                            <Grid Margin="0,0,0,4">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=HotkeySettings, Mode=OneWay}"
+                                                       FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextSub}" VerticalAlignment="Center" FontFamily="{StaticResource FontFallback}"/>
+                                                <Button Grid.Column="1" Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=HotkeyReset, Mode=OneWay}"
+                                                        Style="{StaticResource OutlineButton}" Padding="10,3" FontSize="11"
+                                                        Click="HotkeyReset_Click" FontFamily="{StaticResource FontFallback}"/>
+                                            </Grid>
+                                            <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=HotkeyCaptureTip, Mode=OneWay}"
+                                                       FontSize="11" Foreground="{DynamicResource TextSub}"
+                                                       Margin="0,0,0,10" TextWrapping="Wrap" FontFamily="{StaticResource FontFallback}"/>
+
+                                            <!-- On / Off -->
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=HotkeyToggleLabel, Mode=OneWay}"
+                                                           FontSize="12" Foreground="{DynamicResource TextSub}" VerticalAlignment="Center" FontFamily="{StaticResource FontFallback}"/>
+                                                <Button Grid.Column="1" Tag="TogglePower" Click="HotkeyBtn_Click"
+                                                        Style="{StaticResource OutlineButton}" MinWidth="96" HorizontalAlignment="Right">
+                                                    <vc:SelectableTextBlock x:Name="HotkeyToggleTxt" Text="F9" FontSize="12"/>
+                                                </Button>
+                                            </Grid>
+                                            <!-- Mute -->
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=HotkeyMuteLabel, Mode=OneWay}"
+                                                           FontSize="12" Foreground="{DynamicResource TextSub}" VerticalAlignment="Center" FontFamily="{StaticResource FontFallback}"/>
+                                                <Button Grid.Column="1" Tag="ToggleMute" Click="HotkeyBtn_Click"
+                                                        Style="{StaticResource OutlineButton}" MinWidth="96" HorizontalAlignment="Right">
+                                                    <vc:SelectableTextBlock x:Name="HotkeyMuteTxt" Text="F10" FontSize="12"/>
+                                                </Button>
+                                            </Grid>
+                                            <!-- Next Preset -->
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=HotkeyPresetLabel, Mode=OneWay}"
+                                                           FontSize="12" Foreground="{DynamicResource TextSub}" VerticalAlignment="Center" FontFamily="{StaticResource FontFallback}"/>
+                                                <Button Grid.Column="1" Tag="CyclePreset" Click="HotkeyBtn_Click"
+                                                        Style="{StaticResource OutlineButton}" MinWidth="96" HorizontalAlignment="Right">
+                                                    <vc:SelectableTextBlock x:Name="HotkeyPresetTxt" Text="F11" FontSize="12"/>
+                                                </Button>
+                                            </Grid>
+                                            <!-- Push to Talk -->
+                                            <Grid Margin="0,0,0,8">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=HotkeyPttLabel, Mode=OneWay}"
+                                                           FontSize="12" Foreground="{DynamicResource TextSub}" VerticalAlignment="Center" FontFamily="{StaticResource FontFallback}"/>
+                                                <Button Grid.Column="1" Tag="PushToTalk" Click="HotkeyBtn_Click"
+                                                        Style="{StaticResource OutlineButton}" MinWidth="96" HorizontalAlignment="Right">
+                                                    <vc:SelectableTextBlock x:Name="HotkeyPttTxt" Text="F12" FontSize="12"/>
+                                                </Button>
+                                            </Grid>
+
+                                            <!-- Conflict warning (shown only after a clashing re-bind attempt) -->
+                                            <Border x:Name="HotkeyConflict" Visibility="Collapsed"
+                                                    Background="#22FFB020" BorderBrush="#55FFB020" BorderThickness="1"
+                                                    CornerRadius="6" Padding="8,4" Margin="0,0,0,8">
+                                                <vc:SelectableTextBlock x:Name="HotkeyConflictTxt" FontSize="11"
+                                                           Foreground="{DynamicResource Warning}" TextWrapping="Wrap" FontFamily="{StaticResource FontFallback}"/>
+                                            </Border>
+
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- ═══ PUSH-TO-TALK MODE card (separate scope from key bindings) ═══ -->
+                                    <Border Background="{DynamicResource Surface}"
+                                            BorderBrush="{DynamicResource Border}" BorderThickness="1"
+                                            CornerRadius="12" Padding="16,14" Margin="0,12,0,0">
+                                        <StackPanel>
+                                            <vc:SelectableTextBlock x:Name="PttLabel"
+                                                       Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=PttMode, Mode=OneWay}"
+                                                       FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextSub}" Margin="0,0,0,6" FontFamily="{StaticResource FontFallback}"/>
+                                            <!-- Dynamic caption "When {key} is held:" — set in code so it tracks the live PTT binding -->
+                                            <vc:SelectableTextBlock x:Name="PttWhenHeldTxt" Text=""
+                                                       FontSize="12" Foreground="{DynamicResource TextSub}" Margin="0,0,0,8" FontFamily="{StaticResource FontFallback}"/>
+                                            <RadioButton x:Name="PttHoldToTalkRadio" GroupName="PttMode" Margin="0,0,0,10"
+                                                         Checked="PttModeRadio_Changed" FontFamily="{StaticResource FontFallback}">
+                                                <StackPanel>
+                                                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=PttHoldToTalk, Mode=OneWay}"
+                                                               FontSize="12" FontWeight="SemiBold"/>
+                                                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=PttHoldToTalkHint, Mode=OneWay}"
+                                                               FontSize="11" Foreground="{DynamicResource TextSub}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                            </RadioButton>
+                                            <RadioButton x:Name="PttHoldToMuteRadio" GroupName="PttMode"
+                                                         Checked="PttModeRadio_Changed" FontFamily="{StaticResource FontFallback}">
+                                                <StackPanel>
+                                                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=PttHoldToMute, Mode=OneWay}"
+                                                               FontSize="12" FontWeight="SemiBold"/>
+                                                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=PttHoldToMuteHint, Mode=OneWay}"
+                                                               FontSize="11" Foreground="{DynamicResource TextSub}" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                            </RadioButton>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- ═══ DATA LOCATION card ═══ -->
+                                    <Border Background="{DynamicResource Surface}"
+                                            BorderBrush="{DynamicResource Border}" BorderThickness="1"
+                                            CornerRadius="12" Padding="16,14" Margin="0,12,0,0">
+                                        <StackPanel>
+                                            <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=DataLocation, Mode=OneWay}"
+                                                       FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextSub}"
+                                                       Margin="0,0,0,6" FontFamily="{StaticResource FontFallback}"/>
+                                            <vc:SelectableTextBlock x:Name="DataRootText" Text="" FontSize="12"
+                                                       Foreground="{DynamicResource TextSub}" TextWrapping="Wrap"
+                                                       FontFamily="{StaticResource FontFallback}"/>
+                                            <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=DataLocationHint, Mode=OneWay}"
+                                                       FontSize="11" Foreground="{DynamicResource TextSub}" TextWrapping="Wrap"
+                                                       Margin="0,6,0,10" FontFamily="{StaticResource FontFallback}"/>
+                                            <Button Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=ChangeLocation, Mode=OneWay}"
+                                                    Style="{StaticResource OutlineButton}" HorizontalAlignment="Left"
+                                                    Click="DataLocation_Changed" FontFamily="{StaticResource FontFallback}"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <!-- ═══ TAB 2: ABOUT (version / runtime / dependency info) ═══ -->
+                        <TabItem x:Name="TabAbout" Loaded="TabAbout_Loaded">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,12">
+                                <StackPanel>
+                                    <Border Background="{DynamicResource Surface}"
+                                            BorderBrush="{DynamicResource Border}" BorderThickness="1"
+                                            CornerRadius="12" Padding="16,14">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                                <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AppName, Mode=OneWay}"
+                                                           FontSize="15" FontWeight="Bold" Foreground="{DynamicResource TextSub}"
+                                                           VerticalAlignment="Center" FontFamily="{StaticResource FontFallback}"/>
+                                                <vc:SelectableTextBlock x:Name="AboutVersionLine" FontSize="12"
+                                                           Foreground="{DynamicResource TextSub}" VerticalAlignment="Center"
+                                                           Margin="8,2,0,0" FontFamily="{StaticResource FontFallback}"/>
+                                            </StackPanel>
+                                            <Button x:Name="AboutCopyBtn"
+                                                    Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=CopyAll, Mode=OneWay}"
+                                                    Style="{StaticResource OutlineButton}" HorizontalAlignment="Left"
+                                                    FontSize="11" Margin="0,0,0,10" Click="AboutCopy_Click"
+                                                    FontFamily="{StaticResource FontFallback}"/>
+                                            <vc:SelectableTextBlock x:Name="VersionInfoText" FontSize="11"
+                                                           Foreground="{DynamicResource TextSub}"
+                                                           FontFamily="{StaticResource FontFallback}" TextWrapping="NoWrap"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- ── Third-Party Licenses & Attribution ── -->
+                                    <Border Background="{DynamicResource Surface}"
+                                            BorderBrush="{DynamicResource Border}" BorderThickness="1"
+                                            CornerRadius="12" Padding="16,14" Margin="0,10,0,0">
+                                        <StackPanel>
+                                            <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=ThirdPartyLicenses, Mode=OneWay}"
+                                                           FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextSub}"
+                                                           Margin="0,0,0,8" FontFamily="{StaticResource FontFallback}"/>
+                                            <TextBlock FontSize="11" Foreground="{DynamicResource TextSub}"
+                                                       TextWrapping="Wrap" LineHeight="16"
+                                                       FontFamily="{StaticResource FontFallback}">
+                                                <Run Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=LicenseIntro, Mode=OneWay}"/>
+                                                <LineBreak/>
+                                                <LineBreak/>
+                                                <Run Text="&#8226; NAudio / NAudio.WinMM (MIT License) &#8212; .NET audio library"/>
+                                                <LineBreak/>
+                                                <Run Text="&#8226; Newtonsoft.Json (MIT License) &#8212; JSON library"/>
+                                                <LineBreak/>
+                                                <Run Text="&#8226; Serilog / Serilog.Sinks.File (Apache-2.0 License) &#8212; Structured logging"/>
+                                                <LineBreak/>
+                                                <Run Text="&#8226; Hardcodet.NotifyIcon.Wpf (MIT License) &#8212; System tray component"/>
+                                                <LineBreak/>
+                                                <Run Text="&#8226; .NET Runtime (MIT License) &#8212; Runtime framework"/>
+                                                <LineBreak/>
+                                                <Run Text="&#8226; VB-Cable (VB-Audio) &#8212; Virtual audio driver"/>
+                                            </TextBlock>
+                                            <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=Trademarks, Mode=OneWay}"
+                                                           FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextSub}"
+                                                           Margin="0,12,0,8" FontFamily="{StaticResource FontFallback}"/>
+                                            <TextBlock FontSize="11" Foreground="{DynamicResource TextSub}"
+                                                       TextWrapping="Wrap" LineHeight="16"
+                                                       FontFamily="{StaticResource FontFallback}">
+                                                <Run Text="VST is a trademark of Steinberg Media Technologies GmbH."/>
+                                                <LineBreak/>
+                                                <Run Text="Discord is a trademark of Discord Inc."/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+
+                    </TabControl>
+                </Grid>
+            </Grid>
+
+            <!-- ═══════════════════ BOTTOM CONTROL BAR (Music Player) ═══════════════════ -->
+            <vc:BottomControlBar x:Name="BottomBar" Grid.Row="2" Grid.Column="1"/>
+
+            <!-- ═══════════════════ OVERLAY LAYER (toast + tour) ═══════════════════ -->
+            <!-- Wrapped in a separate Grid so floating elements do not affect
+                 the main Grid's column/row layout (prevents toast text from
+                 widening the sidebar or content columns). -->
+            <Grid Grid.Column="1" Grid.RowSpan="3">
+
+            <!-- ═══════════════════ TOAST NOTIFICATIONS (novice feedback) ═══════════════════ -->
+            <Border x:Name="ToastCard" Panel.ZIndex="100"
+                    HorizontalAlignment="Center" VerticalAlignment="Top"
+                    Margin="0,10,0,0" Visibility="Collapsed"
+                    Background="{DynamicResource SurfaceLift}"
+                    BorderBrush="{DynamicResource CtrlBorder}" BorderThickness="1"
+                    CornerRadius="12" Padding="14,9">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="18" ShadowDepth="3" Opacity="0.55"/>
+                </Border.Effect>
+                <StackPanel Orientation="Horizontal">
+                    <vc:SelectableTextBlock x:Name="ToastIcon" Text="✓" FontSize="15" FontWeight="Bold"
+                               VerticalAlignment="Center" Margin="0,0,9,0"/>
+                    <vc:SelectableTextBlock x:Name="ToastText" Text="" FontSize="12.5"
+                               VerticalAlignment="Center" MaxWidth="480" TextWrapping="NoWrap"
+                               Foreground="{DynamicResource TextPrimary}"
+                               FontFamily="{StaticResource FontFallback}"/>
+                </StackPanel>
+            </Border>
+
+            </Grid> <!-- /OVERLAY LAYER -->
+        </Grid>
+    </Border>
+</Window>

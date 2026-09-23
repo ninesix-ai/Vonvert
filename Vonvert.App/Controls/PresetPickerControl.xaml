@@ -1,0 +1,38 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- Copyright (c) 2026 ninesix-ai studio -->
+
+<UserControl x:Class="Vonvert.App.Controls.PresetPickerControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Vonvert.App.UIServices"
+             xmlns:vc="clr-namespace:Vonvert.App.Controls">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>      <!-- Preset Tiles -->
+            <RowDefinition Height="Auto"/>   <!-- Import / Export toolbar -->
+        </Grid.RowDefinitions>
+
+        <!-- Preset Tiles -->
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="0,0,0,0">
+            <WrapPanel x:Name="TilePanel" Orientation="Horizontal"
+                       Margin="12,4,12,12"/>
+        </ScrollViewer>
+
+        <!-- Preset I/O toolbar: bring in a shared .vopreset (Import) or write the
+             selected preset out (Export). Deleting a user preset is a right-click on
+             its tile. Built-in presets are read-only and cannot be deleted. -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center"
+                    Margin="12,0,12,10">
+            <Button x:Name="ImportBtn" Style="{StaticResource OutlineButton}"
+                    Padding="10,3" Margin="0,0,8,0" FontSize="11"
+                    FontFamily="{StaticResource FontFallback}"
+                    Click="ImportBtn_Click"
+                    Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=ImportPreset, Mode=OneWay}"/>
+            <Button x:Name="ExportBtn" Style="{StaticResource OutlineButton}"
+                    Padding="10,3" FontSize="11"
+                    FontFamily="{StaticResource FontFallback}"
+                    Click="ExportBtn_Click"
+                    Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=ExportPreset, Mode=OneWay}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

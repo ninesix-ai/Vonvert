@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 ninesix-ai studio
+
+# Normalize line endings: the repository stores and checks out LF for all
+# text files regardless of platform (Windows autocrlf would otherwise flip
+# files to CRLF on checkout).
+
+* text=auto
+
+# Text files — force LF both in the repository and on checkout.
+*.cs     text eol=lf
+*.xaml   text eol=lf
+*.json   text eol=lf
+*.csproj text eol=lf
+*.sln    text eol=lf
+*.props  text eol=lf
+*.targets text eol=lf
+*.md     text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+*.txt    text eol=lf
+*.py     text eol=lf
+*.ps1    text eol=lf
+*.config text eol=lf
+*.manifest text eol=lf
+*.gitignore text eol=lf
+*.gitattributes text eol=lf
+
+# Windows batch files stay CRLF: cmd.exe misparses some constructs
+# (notably labels/goto) in LF-only .bat files.
+*.bat    text eol=crlf
+
+# Binary files — never normalize, treat as opaque.
+*.ico    binary
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.pfx    binary
+*.p12    binary
+*.dll    binary
+*.pdb    binary

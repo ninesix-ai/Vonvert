@@ -1,0 +1,10 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- Copyright (c) 2026 ninesix-ai studio -->
+
+<UserControl x:Class="Vonvert.App.Controls.ExpertParamsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel x:Name="Host" Margin="0,4,0,0"/>
+    </ScrollViewer>
+</UserControl>

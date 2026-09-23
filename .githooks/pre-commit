@@ -1,0 +1,29 @@
+#!/bin/sh
+# Vonvert release-compliance pre-commit gate.
+#
+# Enable once per clone:
+#     git config core.hooksPath .githooks
+#
+# Scans STAGED files for content that must not ship in the open-source build
+# (edition gating, paid-feature names, internal markers, non-English source
+# comments, provenance/author leaks, encoding violations). Requires `python`
+# (3.8+) on PATH.
+#
+# By default it uses the PUBLIC ruleset committed alongside it. To also check
+# private identity terms locally (never committed), point VONVERT_FULL_RULES at
+# a stricter rules JSON file.
+
+set -e
+
+staged=$(git diff --cached --name-only --diff-filter=ACM)
+[ -z "$staged" ] && exit 0
+
+RULES="script/verify/release-compliance-rules.json"
+if [ -n "${VONVERT_FULL_RULES:-}" ] && [ -f "$VONVERT_FULL_RULES" ]; then
+  RULES="$VONVERT_FULL_RULES"
+fi
+
+count=$(printf '%s\n' "$staged" | grep -c .)
+echo "[pre-commit] release-compliance scan on ${count} staged file(s) ..."
+printf '%s\n' "$staged" | python script/verify/release_compliance_scan.py \
+  --path . --rules "$RULES" --files-from -

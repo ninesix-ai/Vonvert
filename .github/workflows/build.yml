@@ -82,7 +82,9 @@ jobs:
           $version = (Select-String -Path Directory.Build.props -Pattern '<Version>([^<]+)</Version>').Matches[0].Groups[1].Value
           Write-Host "Installer version: $version"
           if (-not (Get-Command makensis -ErrorAction SilentlyContinue)) {
-            # Runner image ships NSIS under Program Files (x86) but may not expose it on PATH
+            # Current windows runner images may not ship NSIS at all; install it.
+            Write-Host "makensis not found; installing NSIS via Chocolatey"
+            choco install nsis -y --no-progress
             $env:Path += ";C:\Program Files (x86)\NSIS"
           }
           # makensis does not create the OutFile directory on a clean checkout

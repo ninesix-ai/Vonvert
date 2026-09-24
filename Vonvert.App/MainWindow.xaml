@@ -574,6 +574,11 @@
                             </ScrollViewer>
                         </TabItem>
 
+                        <!-- ═══ TAB 3: RECORDING (file recorder + export) ═══ -->
+                        <TabItem x:Name="TabRecording">
+                            <controls:RecordingViewControl x:Name="RecordingView"/>
+                        </TabItem>
+
                     </TabControl>
                 </Grid>
             </Grid>

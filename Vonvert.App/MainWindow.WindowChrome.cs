@@ -226,6 +226,7 @@ public partial class MainWindow
         {
             case 1: SectionTitle.Text = L.Settings; break;
             case 2: SectionTitle.Text = L.About; break;
+            case 3: SectionTitle.Text = L.RecordingTitle; break;
             case 0 when _selectedPresetName != null: SectionTitle.Text = _selectedPresetName; break;
         }
     }

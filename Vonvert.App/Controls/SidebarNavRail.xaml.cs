@@ -14,7 +14,7 @@ namespace Vonvert.App.Controls;
 /// </summary>
 public partial class SidebarNavRail : UserControl
 {
-    /// <summary>Fired with the target tab index (0 = Voices, 1 = Settings, 2 = About) when the user checks a nav button.</summary>
+    /// <summary>Fired with the target tab index (0 = Voices, 1 = Settings, 2 = About, 3 = Recording) when the user checks a nav button.</summary>
     public event Action<int>? TabRequested;
 
     private bool _syncing;
@@ -30,13 +30,14 @@ public partial class SidebarNavRail : UserControl
     /// </summary>
     public void SetSelected(int index)
     {
-        if (index < 0 || index > 2) return;
+        if (index < 0 || index > 3) return;
         _syncing = true;
         try
         {
             var button = index == 0 ? NavVoicesBtn
                        : index == 1 ? NavSettingsBtn
-                       : NavAboutBtn;
+                       : index == 2 ? NavAboutBtn
+                       : NavRecordingBtn;
             if (button != null && button.IsChecked != true) button.IsChecked = true;
         }
         finally
@@ -55,6 +56,7 @@ public partial class SidebarNavRail : UserControl
         int target = btn == NavVoicesBtn    ? 0
                    : btn == NavSettingsBtn  ? 1
                    : btn == NavAboutBtn     ? 2
+                   : btn == NavRecordingBtn ? 3
                    : -1;
         if (target < 0) return;
         TabRequested?.Invoke(target);

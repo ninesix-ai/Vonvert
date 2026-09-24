@@ -48,6 +48,10 @@ public sealed class NullAudioProcessor : IAudioProcessor
     // Closed-loop pitch-register normalizer driven from the analyzer thread.
     private readonly AdaptivePitchNormalizer _pitchNormalizer = new();
 
+    // Optional file recorder. Fed from the real-time audio thread; the service
+    // uses non-blocking writes so a stalled disk can never underrun playback.
+    private RecordingService? _recording;
+
     public SpectrumAnalyzer Spectrum => _spectrum;
     public LoudnessMeter Loudness => _loudness;
     public IPitchAnalyzer Pitch => _pitch;
@@ -56,6 +60,10 @@ public sealed class NullAudioProcessor : IAudioProcessor
     /// <summary>Auto-pitch closed-loop control. Exposed on the concrete type only
     /// (not on IAudioProcessor).</summary>
     public IPitchNormalizerControl PitchNormalizer => _pitchNormalizer;
+
+    /// <summary>Attach (or detach with <c>null</c>) the file recorder that captures
+    /// the pre/post-DSP signal. Exposed on the concrete type only.</summary>
+    public void AttachRecordingService(RecordingService? service) => _recording = service;
 
     public NullAudioProcessor()
     {
@@ -85,6 +93,9 @@ public sealed class NullAudioProcessor : IAudioProcessor
 
     public void PreMix(Span<float> work, int read)
     {
+        // Original mode records the pre-DSP signal captured here.
+        if (_recording?.IsRecording == true && _recording.RecordMode == RecordMode.Original)
+            _recording.WriteRawSamples(work[..read]);
     }
 
     public void Process(Span<float> work) => Chain.Process(work);
@@ -94,6 +105,10 @@ public sealed class NullAudioProcessor : IAudioProcessor
         // Hand the heavy analyzers (FFT / AMDF / loudness) to the low-priority
         // pump thread — Submit only copies the block and returns immediately.
         _pump.Submit(work[..read]);
+
+        // Processed mode records the post-DSP signal captured here.
+        if (_recording?.IsRecording == true && _recording.RecordMode == RecordMode.Processed)
+            _recording.WriteSamples(work[..read]);
     }
 
     public void OnStart() { _pitchNormalizer.Reset(); _pump.Start(); }

@@ -314,6 +314,7 @@
                                             </ComboBox>
                                         </Grid>
                                     </Border>
+                                    <controls:SettingsMyPersonaView x:Name="MyPersonaView"/>
                                     <Border Background="{DynamicResource Surface}"
                                             BorderBrush="{DynamicResource Border}" BorderThickness="1"
                                             CornerRadius="12" Padding="16,14">
@@ -605,6 +606,9 @@
                                FontFamily="{StaticResource FontFallback}"/>
                 </StackPanel>
             </Border>
+
+            <!-- First-run guided tour spotlight; measured against this overlay host Grid -->
+            <vc:TourOverlay x:Name="TourOverlay" Panel.ZIndex="200"/>
 
             </Grid> <!-- /OVERLAY LAYER -->
         </Grid>

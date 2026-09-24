@@ -13,6 +13,11 @@ public partial class ExportDialog : Window
 {
     private readonly RecordingHistoryItem _item;
     private readonly LocalizationManager L;
+    // The format ComboBox's SelectedIndex="0" raises SelectionChanged during
+    // InitializeComponent(), before the constructor body has assigned L and built
+    // the parameter host. Guard so that early raise is a no-op; the panel is
+    // populated explicitly once at the end of the constructor instead.
+    private bool _ready;
     public ExportOptions Options { get; private set; } = new();
     public string OutputPath { get; private set; } = "";
 
@@ -24,11 +29,13 @@ public partial class ExportDialog : Window
 
         Title = loc.ExportDialogTitle;
         FilePathBox.Text = item.FilePath;
+        _ready = true;
         UpdateParameterPanel();
     }
 
     private void FormatChanged(object sender, SelectionChangedEventArgs e)
     {
+        if (!_ready) return;
         UpdateParameterPanel();
     }
 

@@ -27,6 +27,7 @@ public sealed class AppConfig
     {
         public int    ResizeBorderWidth   { get; set; } = 8;
         public double VuMeterMaxWidth     { get; set; } = 156;
+        public bool   RoleSystemEnabled   { get; set; } = true;
     }
 
     /// <summary>Network behaviour parameters (HTTP, update checker, retry).</summary>
@@ -49,6 +50,14 @@ public sealed class AppConfig
         public string OutputDeviceId  { get; set; } = string.Empty;
     }
 
+    /// <summary>Role/persona state persisted under the "persona" JSON key.
+    /// Plain POCO so RoleProfileService can Load/Save against a fresh instance in tests.</summary>
+    public sealed class PersonaSection
+    {
+        public List<string> ActivePersonas { get; set; } = new();
+        public string?      ComplexityLevelOverride { get; set; }
+    }
+
     // ── Singleton ───────────────────────────────────────────────────
 
     private static readonly Lazy<AppConfig> _lazy = new(() => new AppConfig());
@@ -61,6 +70,7 @@ public sealed class AppConfig
     public UiSection       Ui       { get; } = new();
     public NetworkSection  Network  { get; } = new();
     public AudioSection    Audio    { get; } = new();
+    public PersonaSection  Persona  { get; } = new();
 
     // ── Persistence ─────────────────────────────────────────────────
 
@@ -93,6 +103,9 @@ public sealed class AppConfig
             if (obj["audio"] is JObject audObj)
                 JsonConvert.PopulateObject(audObj.ToString(), Audio);
 
+            if (obj["persona"] is JObject perObj)
+                JsonConvert.PopulateObject(perObj.ToString(), Persona);
+
             AppLog.Information("AppConfig: loaded from {0}", FilePath);
         }
         catch (Exception ex)
@@ -114,6 +127,7 @@ public sealed class AppConfig
                 ["ui"] = JObject.FromObject(Ui),
                 ["network"] = JObject.FromObject(Network),
                 ["audio"] = JObject.FromObject(Audio),
+                ["persona"] = JObject.FromObject(Persona),
             };
 
             File.WriteAllText(FilePath, obj.ToString(Formatting.Indented));

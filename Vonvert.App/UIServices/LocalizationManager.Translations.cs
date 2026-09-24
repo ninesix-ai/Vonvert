@@ -20,6 +20,11 @@ public partial class LocalizationManager
     // looked up dynamically by the data-driven expert panel via GetParamLabel.
     private Dictionary<string, string> _paramStrings = new();
 
+    // Role/persona labels (role names, descriptions, group headings, complexity tiers)
+    // live in a separate "persona" JSON section (not "ui") for the same reason: they are
+    // looked up dynamically by persona key via GetPersonaLabel, so they don't need C# properties.
+    private Dictionary<string, string> _personaStrings = new();
+
     // ── Static preset name dictionaries (for completeness verification) ──
 
     private static readonly Dictionary<string, string> EnPresetNames = LoadStaticPresetNames("en");
@@ -62,6 +67,14 @@ public partial class LocalizationManager
     public string GetParamLabel(string key)
         => !string.IsNullOrEmpty(key) && _paramStrings.TryGetValue(key, out var v) ? v : key ?? "";
 
+    /// <summary>
+    /// Label for a data-driven persona key (from the JSON "persona" section): role names,
+    /// descriptions, group headings and complexity tiers. Falls back to English (merged at
+    /// load) then to the raw key.
+    /// </summary>
+    public string GetPersonaLabel(string key)
+        => !string.IsNullOrEmpty(key) && _personaStrings.TryGetValue(key, out var v) ? v : key ?? "";
+
     // ── Load translations from JSON ──────────────────────────────────
 
     /// <summary>
@@ -84,12 +97,14 @@ public partial class LocalizationManager
             _strings = obj["ui"]?.ToObject<Dictionary<string, string>>() ?? new();
             _presetNames = obj["presets"]?.ToObject<Dictionary<string, string>>() ?? new();
             _paramStrings = obj["params"]?.ToObject<Dictionary<string, string>>() ?? new();
+            _personaStrings = obj["persona"]?.ToObject<Dictionary<string, string>>() ?? new();
         }
         else
         {
             _strings = new();
             _presetNames = new();
             _paramStrings = new();
+            _personaStrings = new();
         }
 
         // English fallback: fill in any keys missing from the target language
@@ -108,6 +123,13 @@ public partial class LocalizationManager
                 foreach (var kv in enParams)
                     if (!_paramStrings.ContainsKey(kv.Key))
                         _paramStrings[kv.Key] = kv.Value;
+            }
+            var enPersona = enObj["persona"]?.ToObject<Dictionary<string, string>>();
+            if (enPersona != null)
+            {
+                foreach (var kv in enPersona)
+                    if (!_personaStrings.ContainsKey(kv.Key))
+                        _personaStrings[kv.Key] = kv.Value;
             }
         }
 

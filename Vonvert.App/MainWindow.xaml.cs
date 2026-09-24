@@ -72,6 +72,7 @@ public partial class MainWindow : Window, IAppServices
         try
         {
             InitializeComponent();
+            LoadRoleState();
         }
         catch (Exception diagEx)
         {
@@ -190,6 +191,12 @@ public partial class MainWindow : Window, IAppServices
         // Use InvokeAsync (not Invoke) to prevent deadlocks during shutdown.
         App.Devices.DevicesChanged += OnDeviceListChangedWrapper;
         App.Engine.DeviceLost += OnEngineDeviceDisconnectedWrapper;
+
+        // Role system: apply persisted complexity + run first-run wizard on idle.
+        try { InitRoleSystem(); } catch (Exception ex) { AppLog.Warning(ex, "InitRoleSystem failed"); }
+        if (MyPersonaView != null)
+            MyPersonaView.Changed += () => { ApplyRecommendedPresetForActiveRole(); ApplyRoleToPanel(); };
+        Dispatcher.BeginInvoke(new Action(MaybeRunOnboarding), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
     }
 
     // Named delegates so we can detach them cleanly during shutdown

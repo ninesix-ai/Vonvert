@@ -70,20 +70,35 @@
         </Style.Triggers>
     </Style>
 
-    <!-- Voices tab checked hue -->
+    <!-- Per-tab checked hues: each nav tab takes a distinct accent color -->
     <Style x:Key="NavSideVoices" TargetType="RadioButton" BasedOn="{StaticResource NavSideBtn}">
         <Style.Triggers>
             <Trigger Property="IsChecked" Value="True">
-                <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+                <Setter Property="Foreground" Value="{DynamicResource IconVoices}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
 
-    <!-- Settings tab checked hue -->
+    <Style x:Key="NavSideRecording" TargetType="RadioButton" BasedOn="{StaticResource NavSideBtn}">
+        <Style.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource IconRecord}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
     <Style x:Key="NavSideSettings" TargetType="RadioButton" BasedOn="{StaticResource NavSideBtn}">
         <Style.Triggers>
             <Trigger Property="IsChecked" Value="True">
-                <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+                <Setter Property="Foreground" Value="{DynamicResource IconSettings}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="NavSideAbout" TargetType="RadioButton" BasedOn="{StaticResource NavSideBtn}">
+        <Style.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource IconAbout}"/>
             </Trigger>
         </Style.Triggers>
     </Style>

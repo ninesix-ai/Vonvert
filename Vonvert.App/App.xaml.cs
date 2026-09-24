@@ -22,6 +22,7 @@ public partial class App : Application
     public static AudioDeviceHub    Devices    { get; private set; } = null!;
     public static PresetManager    Presets    { get; private set; } = null!;
     public static HotkeyService?   Hotkeys    { get; private set; }
+    public static RecordingService? Recording { get; private set; }
 
     // Register in the constructor — fires BEFORE InitializeComponent() and OnStartup
     // so we catch EVERY possible exception including BAML resource loading failures
@@ -210,6 +211,11 @@ public partial class App : Application
                 Engine  = new VoiceEngine();
                 AppLog.Information("VoiceEngine done");
 
+                // File recorder fed by the real-time pipeline (Original/Processed modes).
+                Recording = new RecordingService();
+                (Engine.Pipeline as NullAudioProcessor)?.AttachRecordingService(Recording);
+                AppLog.Information("RecordingService attached");
+
                 // Restore the user's device selection (mic / VB-Cable) if the
                 // saved devices still exist on this machine.
                 var savedAudio = AppConfig.Instance.Audio;
@@ -356,6 +362,7 @@ public partial class App : Application
             try { (MainWindow as Vonvert.App.MainWindow)?.CleanupExternalServices(); } catch { /* cleanup is best-effort (idempotent) */ }
             try { Engine?.Stop(); Engine?.Dispose(); } catch { /* engine dispose is best-effort */ }
             try { Devices?.Dispose(); } catch { /* audio devices dispose is best-effort */ }
+            try { Recording?.Dispose(); } catch { /* recording dispose is best-effort */ }
 
             try
             {

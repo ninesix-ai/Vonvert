@@ -9,6 +9,7 @@ Third-party components
 ----------------------
 NAudio                      MIT License
 NAudio.WinMM                MIT License
+NAudio.Lame                 MIT License (bundles the LAME MP3 encoder, LGPL)
 Newtonsoft.Json             MIT License
 Serilog                     Apache License, Version 2.0
 Serilog.Sinks.File          Apache License, Version 2.0
@@ -27,6 +28,14 @@ Licensed under the Apache License, Version 2.0.
 
 This product includes software developed by the Serilog project
 (https://serilog.net/).
+
+NAudio.Lame notices
+-------------------
+NAudio.Lame
+Copyright (c) Mark Heath
+Licensed under the MIT License. The NuGet package bundles a native build of the
+LAME MP3 encoder, which is itself distributed under the GNU Lesser General Public
+License (LGPL); the LGPL terms apply to that bundled encoder component.
 
 Trademarks
 ----------

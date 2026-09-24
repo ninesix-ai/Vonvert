@@ -60,9 +60,9 @@ public sealed class RecordingService : IDisposable
 
     public RecordingService()
     {
-        _recordingsFolder = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "Vonvert", "Recordings");
+        // Everything user-facing lives under the single, user-relocatable
+        // AppPaths.Root (publisher-namespaced), alongside presets/config/logs.
+        _recordingsFolder = Path.Combine(AppPaths.Root, "Recordings");
 
         Directory.CreateDirectory(_recordingsFolder);
         LoadHistory();

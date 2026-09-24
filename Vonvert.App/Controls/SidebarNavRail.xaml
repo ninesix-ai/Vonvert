@@ -63,7 +63,7 @@
                     </StackPanel>
                 </RadioButton>
 
-                <RadioButton x:Name="NavRecordingBtn" Style="{StaticResource NavSideSettings}"
+                <RadioButton x:Name="NavRecordingBtn" Style="{StaticResource NavSideRecording}"
                              Checked="NavTab_Checked" Margin="0,0,0,6"
                              AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=NavRecording, Mode=OneWay}"
                              ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=NavRecording, Mode=OneWay}">
@@ -101,7 +101,7 @@
                     </StackPanel>
                 </RadioButton>
 
-                <RadioButton x:Name="NavAboutBtn" Style="{StaticResource NavSideSettings}"
+                <RadioButton x:Name="NavAboutBtn" Style="{StaticResource NavSideAbout}"
                              Checked="NavTab_Checked" Margin="0,0,0,6"
                              AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=NavAbout, Mode=OneWay}"
                              ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=NavAbout, Mode=OneWay}">

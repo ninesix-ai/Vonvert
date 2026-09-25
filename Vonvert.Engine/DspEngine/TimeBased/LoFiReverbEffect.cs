@@ -20,11 +20,15 @@ namespace Vonvert.Engine.DspEngine.TimeBased;
  *   - BitCrush:   quantisation depth in bits (16 = bypass)
  *   - Mix:        dry/wet blend (0 = unprocessed)
  *
- * The comb sum is scaled by (1 - Decay) so lengthening the tail does not also
- * raise the perceived loudness — a comb loop's steady-state gain is
- * 1/(1-feedback), which otherwise reaches 20x at Decay=0.95.
+ * The comb sum is scaled by sqrt(1 - Decay^2) (and 1/sqrt(comb count)) so the
+ * diffuse tail keeps a constant level as it lengthens: a comb loop's noise gain
+ * is 1/sqrt(1-feedback^2). The coherent low-frequency gain still rises with
+ * Decay, which is what a longer reverb does to bass content anyway.
  *
  * All buffers are allocated once at construction; no heap allocation in Process().
+ * Parameters are plain 4-byte writes from the UI thread — lock-free best effort.
+ * Recalculate() must only write elements of the existing tap arrays; never
+ * replace or rebuild them, that would race with the audio thread.
  */
 public sealed class LoFiReverbEffect : IAudioEffect
 {
@@ -90,7 +94,11 @@ public sealed class LoFiReverbEffect : IAudioEffect
     // glides the tap length instead of stepping it (which would click).
     private static readonly float TapSlew = 1f - MathF.Exp(-1f / (0.05f * AudioConstants.EngineRate));
 
-    // Allpass delays
+    // Allpass-style phase-diffusion stages (gain ≈ +4.5 dB tilt, not strictly
+    // unity — matches the shared convention in VxReverb).
+    // The buffer length here IS the delay length, so % Length stays correct;
+    // if these ever get a separate capacity, switch to bitmask tap-offset reads
+    // like the comb bank above.
     private static readonly int[] AllpassDelays = [225, 150];
     private readonly float[][] _allpassBuffers;
     private readonly int[] _allpassIndices;
@@ -127,7 +135,9 @@ public sealed class LoFiReverbEffect : IAudioEffect
         float wet       = _mix;
         float dry       = 1f - wet;
         float feedback  = _decay;
-        float combNorm  = 0.25f * (1f - _decay);   // 4 combs, loudness-compensated
+        // Diffuse-power normalisation: N parallel combs sum to sqrt(N) times the
+        // single-comb level, whose own noise gain is 1/sqrt(1 - feedback^2).
+        float combNorm  = MathF.Sqrt((1f - _decay * _decay) / CombBaseTaps.Length);
         int   dsFactor  = _downsample;
         float levels    = MathF.Pow(2f, _bitCrush);
         float invLevels = 1f / levels;
@@ -135,6 +145,9 @@ public sealed class LoFiReverbEffect : IAudioEffect
         for (int i = 0; i < buf.Length; i++)
         {
             float input = buf[i];
+            // Anti-denormal bias keeps the rings out of subnormal arithmetic once
+            // a long tail has decayed to silence (same guard as VxReverb).
+            float excitation = input + 1e-25f;
             float reverbOut = 0f;
 
             // ── Parallel comb filter bank ────────────────────────────────
@@ -153,7 +166,7 @@ public sealed class LoFiReverbEffect : IAudioEffect
                 int r1 = (pos - d0 - 1 + CombCapacity) & CombWrapMask;
                 float delayed = ring[r0] + fr * (ring[r1] - ring[r0]);
 
-                ring[pos] = input + delayed * feedback;
+                ring[pos] = excitation + delayed * feedback;
                 _combWritePos[c] = (pos + 1) & CombWrapMask;
                 reverbOut += delayed;
             }
@@ -194,6 +207,9 @@ public sealed class LoFiReverbEffect : IAudioEffect
         foreach (var b in _allpassBuffers) Array.Clear(b);
         Array.Clear(_allpassIndices);
         Array.Clear(_combWritePos);
+        // Snap the taps to their target rather than reslewing: the rings are empty,
+        // so a fresh pass must reproduce the same impulse response as a newly
+        // constructed effect (this is what makes LR-012's arrival index exact).
         Array.Copy(_combTapTarget, _combTapCurrent, _combTapTarget.Length);
         _holdCounter = 0;
         _heldSample = 0f;

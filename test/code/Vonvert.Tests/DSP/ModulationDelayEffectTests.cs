@@ -110,4 +110,44 @@ public sealed class ModulationDelayEffectTests
         fx.Mix = 2f;
         Assert.Equal(1f, fx.Mix);
     }
+
+    [Fact(DisplayName = "MD-007: ModDepth actually modulates the delay time")]
+    public void MD007_Depth_AffectsDelay()
+    {
+        // The whole point of this effect is that the source envelope moves the
+        // delay time; a flat-delay implementation must not pass.
+        static float[] Run(float depth)
+        {
+            var fx = new ModulationDelayEffect
+            {
+                IsEnabled = true, BaseDelayMs = 10f, ModDepth = depth,
+                Feedback = 0f, Mix = 1f,
+            };
+            var buf = AudioTestHelpers.GenerateVoiceLike(120f, 4800, 0.4f);   // syllable envelope
+            fx.Process(buf.AsSpan());
+            return buf;
+        }
+
+        Assert.False(AudioTestHelpers.SpanEqual(Run(0f), Run(1f)),
+            "ModDepth=1 must bend the delay time relative to ModDepth=0");
+    }
+
+    [Fact(DisplayName = "MD-008: Feedback sustains the wet tail")]
+    public void MD008_Feedback_SustainsTail()
+    {
+        static float TailRms(float feedback)
+        {
+            var fx = new ModulationDelayEffect
+            {
+                IsEnabled = true, BaseDelayMs = 10f, ModDepth = 0f,
+                Feedback = feedback, Mix = 1f,
+            };
+            var buf = AudioTestHelpers.GenerateImpulse(9600, 0, 1f);   // 200 ms
+            fx.Process(buf.AsSpan());
+            return AudioTestHelpers.ComputeRMS(buf.AsSpan(4800));      // last 100 ms
+        }
+
+        Assert.True(TailRms(0.8f) > TailRms(0f) * 2f,
+            $"feedback=0.8 should ring far longer than 0, got {TailRms(0.8f):G4} vs {TailRms(0f):G4}");
+    }
 }

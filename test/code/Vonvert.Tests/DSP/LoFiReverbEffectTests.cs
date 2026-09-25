@@ -187,4 +187,54 @@ public sealed class LoFiReverbEffectTests
         Assert.False(AudioTestHelpers.SpanEqual(Run(0f), Run(1f)),
             "RoomSize must alter the reverb structure");
     }
+
+    [Fact(DisplayName = "LR-011: tail level stays constant as Decay lengthens it")]
+    public void LR011_Decay_KeepsDiffuseLevelConstant()
+    {
+        static float SteadyRms(float decay)
+        {
+            var fx = new LoFiReverbEffect
+            {
+                IsEnabled = true, Decay = decay, RoomSize = 0.5f,
+                Mix = 1f, Downsample = 1, BitCrush = 16f,
+            };
+            var buf = AudioTestHelpers.GenerateWhiteNoise(48000, 0.5f, 11);   // 1 s
+            fx.Process(buf.AsSpan());
+            return AudioTestHelpers.ComputeRMS(buf.AsSpan(24000));           // settled half
+        }
+
+        float quietDecay = SteadyRms(0.2f);
+        float longDecay  = SteadyRms(0.9f);
+        // Within +/-2 dB: the diffuse noise gain must not ride the comb's
+        // 1/sqrt(1-feedback^2) growth, or every persona's Decay change would also
+        // be a loudness change.
+        float ratio = longDecay / quietDecay;
+        Assert.True(ratio is > 0.79f and < 1.26f,
+            $"decay=0.9 vs 0.2 level ratio must stay near unity, got {ratio:G4} (quiet={quietDecay:G4}, long={longDecay:G4})");
+    }
+
+    [Fact(DisplayName = "LR-012: RoomSize sets the first comb arrival index exactly")]
+    public void LR012_RoomSize_SetsTapLength()
+    {
+        static int FirstNonZeroSample(float roomSize)
+        {
+            // Base taps are 600/720/840/960 scaled by 1 + 2*roomSize; the shortest
+            // comb decides the first wet sample. Reset() snaps the taps to their
+            // target so the slew cannot smear the arrival index.
+            var fx = new LoFiReverbEffect
+            {
+                IsEnabled = true, RoomSize = roomSize, Decay = 0.7f,
+                Mix = 1f, Downsample = 1, BitCrush = 16f,
+            };
+            fx.Reset();
+            var buf = AudioTestHelpers.GenerateImpulse(4800, 0, 1f);
+            fx.Process(buf.AsSpan());
+            for (int i = 0; i < buf.Length; i++)
+                if (buf[i] != 0f) return i;
+            return -1;
+        }
+
+        Assert.Equal(600,  FirstNonZeroSample(0f));    // 600 * 1.0
+        Assert.Equal(1800, FirstNonZeroSample(1f));    // 600 * 3.0
+    }
 }

@@ -119,4 +119,57 @@ public sealed class RingModEffectTests
             Assert.All(buf, s => Assert.True(float.IsFinite(s)));
         }
     }
+
+    [Fact(DisplayName = "RM-008: each carrier waveform produces a different output shape")]
+    public void RM008_Waveforms_Differ()
+    {
+        var sine = RunOnDc(RingModEffect.CarrierWaveform.Sine, 200f, 0f);
+        foreach (var other in new[]
+        {
+            RingModEffect.CarrierWaveform.Square,
+            RingModEffect.CarrierWaveform.Sawtooth,
+            RingModEffect.CarrierWaveform.Triangle,
+        })
+        {
+            Assert.False(AudioTestHelpers.SpanEqual(sine, RunOnDc(other, 200f, 0f)),
+                $"{other} carrier must not collapse onto the sine result");
+        }
+    }
+
+    [Fact(DisplayName = "RM-009: CarrierFreq sets the output pitch of a constant input")]
+    public void RM009_CarrierFreq_SetsPitch()
+    {
+        // Multiplying a DC signal by the carrier leaves the carrier itself, so the
+        // zero-crossing rate of the output IS the carrier frequency. The window is
+        // 100 ms, so the estimator resolves in steps of +/-5 Hz (one half period).
+        Assert.InRange(DominantFreqOf(80f),  70d,  90d);
+        Assert.InRange(DominantFreqOf(800f), 760d, 840d);
+    }
+
+    [Fact(DisplayName = "RM-010: HarmonicDepth changes the carrier timbre")]
+    public void RM010_HarmonicDepth_ChangesOutput()
+    {
+        Assert.False(AudioTestHelpers.SpanEqual(
+            RunOnDc(RingModEffect.CarrierWaveform.Sine, 200f, 0f),
+            RunOnDc(RingModEffect.CarrierWaveform.Sine, 200f, 1f)));
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────
+
+    /// <summary>Wet-only pass of a DC signal, which leaves the carrier waveform alone.</summary>
+    private static float[] RunOnDc(RingModEffect.CarrierWaveform waveform, float carrierHz, float harmonicDepth)
+    {
+        var fx = new RingModEffect
+        {
+            IsEnabled = true, Waveform = waveform,
+            CarrierFreq = carrierHz, HarmonicDepth = harmonicDepth, Mix = 1f,
+        };
+        var buf = new float[4800];
+        for (int i = 0; i < buf.Length; i++) buf[i] = 0.5f;
+        fx.Process(buf.AsSpan());
+        return buf;
+    }
+
+    private static double DominantFreqOf(float carrierHz)
+        => AudioTestHelpers.EstimateDominantFrequency(RunOnDc(RingModEffect.CarrierWaveform.Sine, carrierHz, 0f));
 }

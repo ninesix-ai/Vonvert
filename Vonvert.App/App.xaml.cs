@@ -25,6 +25,7 @@ public partial class App : Application
     public static HotkeyService?   Hotkeys    { get; private set; }
     public static RecordingService? Recording { get; private set; }
     public static SoundboardManager? Soundboard { get; private set; }
+    public static SoundboardAuditionPlayer? Audition { get; private set; }
 
     // Register in the constructor — fires BEFORE InitializeComponent() and OnStartup
     // so we catch EVERY possible exception including BAML resource loading failures
@@ -230,10 +231,14 @@ public partial class App : Application
                 (Engine.Pipeline as NullAudioProcessor)?.AttachRecordingService(Recording);
                 AppLog.Information("RecordingService attached");
 
-                // Soundboard one-shot catalogue. Playback routes through Engine's
-                // soundboard mixer; holds no OS handles, so no OnExit release is needed.
+                // Soundboard one-shot catalogue. Live-mode playback routes through the
+                // engine mixer; local audition owns a playback handle released in OnExit.
                 Soundboard = new SoundboardManager();
-                AppLog.Information("SoundboardManager initialized");
+                // Local-only audition channel, independent of the voice engine.
+                Audition = new SoundboardAuditionPlayer();
+                Soundboard.Audition = Audition;
+                Soundboard.LiveMode = AppConfig.Instance.Audio.SoundboardLiveMode;
+                AppLog.Information("SoundboardManager initialized (liveMode={Live})", Soundboard.LiveMode);
 
                 // Restore the user's device selection (mic / VB-Cable) if the
                 // saved devices still exist on this machine.
@@ -382,6 +387,7 @@ public partial class App : Application
             try { Engine?.Stop(); Engine?.Dispose(); } catch { /* engine dispose is best-effort */ }
             try { Devices?.Dispose(); } catch { /* audio devices dispose is best-effort */ }
             try { Recording?.Dispose(); } catch { /* recording dispose is best-effort */ }
+            try { Audition?.Dispose(); } catch { /* audition dispose is best-effort */ }
 
             try
             {

@@ -49,4 +49,11 @@ public partial class VoiceProfile
     public float VibratoRate     { get; set; } = 5f;      // 0.5 – 12 Hz
     public float VibratoDepth    { get; set; } = 0.4f;    // 0 – 1
     public float VibratoMix      { get; set; } = 1.0f;    // 0 – 1
+    // ── Lo-Fi Reverb (comb/allpass + sample-rate & bit-depth crush) ───
+    public bool  LoFiReverbEnabled    { get; set; } = false;
+    public float LoFiReverbRoomSize   { get; set; } = 0.5f;   // 0 – 1
+    public float LoFiReverbDecay      { get; set; } = 0.6f;   // 0 – 0.95
+    public float LoFiReverbDownsample { get; set; } = 4f;     // 1 – 20, integer-valued
+    public float LoFiReverbBitCrush   { get; set; } = 8f;     // 1 – 16 bits
+    public float LoFiReverbMix        { get; set; } = 0.35f;  // 0 – 1
 }

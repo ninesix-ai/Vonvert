@@ -115,6 +115,18 @@ public partial class VoiceProfile
             chain.Add(new VxRobot { IsEnabled = true });
         }
 
+        // ── Ring Modulation ────────────────────────────────────────────
+        if (RingModEnabled)
+        {
+            chain.Add(new RingModEffect
+            {
+                IsEnabled = true,
+                CarrierFreq = RingModCarrierFreq,
+                Mix = RingModMix,
+                HarmonicDepth = RingModHarmonicDepth
+            });
+        }
+
         // ── Distortion / Drive ───────────────────────────────────────────
         if (DistortEnabled)
         {
@@ -211,6 +223,19 @@ public partial class VoiceProfile
             });
         }
 
+        // ── Modulation Delay ───────────────────────────────────────────
+        if (ModulationDelayEnabled)
+        {
+            chain.Add(new ModulationDelayEffect
+            {
+                IsEnabled = true,
+                BaseDelayMs = ModDelayBaseMs,
+                ModDepth = ModDelayDepth,
+                Feedback = ModDelayFeedback,
+                Mix = ModDelayMix
+            });
+        }
+
         // ── Reverb ───────────────────────────────────────────────────────
         if (ReverbEnabled)
         {
@@ -220,6 +245,20 @@ public partial class VoiceProfile
                 RoomSize = RoomScale,
                 Damping = ReverbAbsorb,
                 Wet = ReverbMix
+            });
+        }
+
+        // ── Lo-Fi Reverb ───────────────────────────────────────────────
+        if (LoFiReverbEnabled)
+        {
+            chain.Add(new LoFiReverbEffect
+            {
+                IsEnabled = true,
+                RoomSize = LoFiReverbRoomSize,
+                Decay = LoFiReverbDecay,
+                Downsample = (int)LoFiReverbDownsample,
+                BitCrush = LoFiReverbBitCrush,
+                Mix = LoFiReverbMix
             });
         }
 

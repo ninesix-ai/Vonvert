@@ -6,9 +6,10 @@
       "id": "free",
       "resourceName": "Vonvert.Engine.PresetLibrary.BuiltIn.free.json",
       "tier": "Free",
-      "description": "5 free built-in presets",
+      "description": "8 free built-in presets",
       "presetNames": [
-        "Normal", "Deep Male", "Female", "Robot", "Demon"
+        "Normal", "Deep Male", "Female", "Robot", "Demon",
+        "Android", "Radio Ghost", "Tape Wobble"
       ]
     }
   ]

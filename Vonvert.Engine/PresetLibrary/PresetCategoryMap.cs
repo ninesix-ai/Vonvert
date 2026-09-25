@@ -13,11 +13,14 @@ public static class PresetCategoryMap
 {
     private static readonly Dictionary<string, string> Map = new()
     {
-        ["Normal"]    = "Voice",
-        ["Deep Male"] = "Voice",
-        ["Female"]    = "Voice",
-        ["Robot"]     = "FX",
-        ["Demon"]     = "FX",
+        ["Normal"]      = "Voice",
+        ["Deep Male"]   = "Voice",
+        ["Female"]      = "Voice",
+        ["Robot"]       = "FX",
+        ["Demon"]       = "FX",
+        ["Android"]     = "FX",
+        ["Radio Ghost"] = "FX",
+        ["Tape Wobble"] = "FX",
     };
 
     /// <summary>Look up the gallery category for a built-in preset name.</summary>

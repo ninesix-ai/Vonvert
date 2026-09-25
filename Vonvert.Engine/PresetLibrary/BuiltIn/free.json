@@ -32,5 +32,22 @@
     "DistortEnabled": true, "DistortSaturation": 0.45,
     "ReverbEnabled": true, "RoomScale": 0.7, "ReverbMix": 0.3,
     "GateEnabled": true, "GateFloorDb": -65
+  },
+  {
+    "Name": "Android", "Icon": "🦾",
+    "RingModEnabled": true, "RingModCarrierFreq": 120, "RingModMix": 0.6, "RingModHarmonicDepth": 0.3,
+    "GateEnabled": true, "CompressEnabled": true
+  },
+  {
+    "Name": "Radio Ghost", "Icon": "📻",
+    "LoFiReverbEnabled": true, "LoFiReverbRoomSize": 0.7, "LoFiReverbDecay": 0.7,
+    "LoFiReverbDownsample": 8, "LoFiReverbBitCrush": 5, "LoFiReverbMix": 0.5,
+    "GateEnabled": true, "CompressEnabled": true
+  },
+  {
+    "Name": "Tape Wobble", "Icon": "📼",
+    "ModulationDelayEnabled": true, "ModDelayBaseMs": 18, "ModDelayDepth": 0.7,
+    "ModDelayFeedback": 0.35, "ModDelayMix": 0.45,
+    "GateEnabled": true, "CompressEnabled": true
   }
 ]

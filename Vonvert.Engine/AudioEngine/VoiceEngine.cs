@@ -256,6 +256,9 @@ public sealed class VoiceEngine : IDisposable
     /// </summary>
     public void PlaySoundboardBytes(byte[] pcm, float volume) => _sb.Enqueue(pcm, volume);
 
+    /// <summary>Test seam: number of broadcast soundboard clips currently queued.</summary>
+    internal int SoundboardVoices => _sb.ActiveVoices;
+
     // --- Graph init ---
 
     private void InitGraph(AudioDeviceHub devices)

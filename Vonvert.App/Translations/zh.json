@@ -251,7 +251,10 @@
     "Deep Male": "低沉男声",
     "Female": "女声",
     "Robot": "机器人",
-    "Demon": "恶魔"
+    "Demon": "恶魔",
+    "Android": "仿生人",
+    "Radio Ghost": "电台残响",
+    "Tape Wobble": "磁带摇曳"
   },
   "params": {
     "GrpGain": "增益",
@@ -323,6 +326,26 @@
     "P_VibratoDepth": "深度",
     "P_VibratoMix": "混合",
     "P_TremoloRate": "速率（Hz）",
-    "P_TremoloDepth": "深度"
+    "P_TremoloDepth": "深度",
+    "GrpRingMod": "环状调制",
+    "P_RingModCarrierHz": "载波（Hz）",
+    "P_RingModMix": "混合",
+    "P_RingModHarmonic": "谐波",
+    "P_RingModHarmonicTip": "为载波叠加奇次谐波——0 为平滑音色，1 趋向金属感",
+    "GrpLoFiReverb": "失真混响",
+    "P_LoFiRoomSize": "空间大小",
+    "P_LoFiRoomSizeTip": "空间听感大小，拉长混响延迟长度",
+    "P_LoFiDecay": "衰减",
+    "P_LoFiDecayTip": "尾音持续时长；变长过程中音量保持恒定",
+    "P_LoFiDownsample": "采样率压扁",
+    "P_LoFiDownsampleTip": "1 为干净；数值越高，湿信号每个采样保持越久，尾音越呈颗粒状",
+    "P_LoFiBitCrush": "位深",
+    "P_LoFiMix": "混合",
+    "GrpModulationDelay": "调制延迟",
+    "P_ModDelayBaseMs": "基础延迟（ms）",
+    "P_ModDelayDepth": "摇曳",
+    "P_ModDelayDepthTip": "语音音量对延迟时间的拉扯程度，大声处摆动更明显",
+    "P_ModDelayFeedback": "反馈",
+    "P_ModDelayMix": "混合"
   }
 }

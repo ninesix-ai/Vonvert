@@ -251,7 +251,10 @@
     "Deep Male": "Deep Male",
     "Female": "Female",
     "Robot": "Robot",
-    "Demon": "Demon"
+    "Demon": "Demon",
+    "Android": "Android",
+    "Radio Ghost": "Radio Ghost",
+    "Tape Wobble": "Tape Wobble"
   },
   "params": {
     "GrpGain": "Gain",
@@ -323,6 +326,26 @@
     "P_VibratoDepth": "Depth",
     "P_VibratoMix": "Mix",
     "P_TremoloRate": "Rate (Hz)",
-    "P_TremoloDepth": "Depth"
+    "P_TremoloDepth": "Depth",
+    "GrpRingMod": "Ring Modulation",
+    "P_RingModCarrierHz": "Carrier (Hz)",
+    "P_RingModMix": "Mix",
+    "P_RingModHarmonic": "Harmonics",
+    "P_RingModHarmonicTip": "Adds odd harmonics to the carrier - 0 is a smooth tone, 1 turns metallic",
+    "GrpLoFiReverb": "Lo-Fi Reverb",
+    "P_LoFiRoomSize": "Room size",
+    "P_LoFiRoomSizeTip": "How large the space sounds; lengthens the reverb delays",
+    "P_LoFiDecay": "Decay",
+    "P_LoFiDecayTip": "How long the tail lasts; the level stays constant while it grows",
+    "P_LoFiDownsample": "Sample-rate crush",
+    "P_LoFiDownsampleTip": "1 = clean; higher holds each wet sample longer for a pixelated tail",
+    "P_LoFiBitCrush": "Bit depth",
+    "P_LoFiMix": "Mix",
+    "GrpModulationDelay": "Modulation Delay",
+    "P_ModDelayBaseMs": "Base delay (ms)",
+    "P_ModDelayDepth": "Wobble",
+    "P_ModDelayDepthTip": "How much the loudness of your voice bends the delay time",
+    "P_ModDelayFeedback": "Feedback",
+    "P_ModDelayMix": "Mix"
   }
 }

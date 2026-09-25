@@ -206,6 +206,30 @@ public static class DspParameterCatalog
                 DspParam.Range("P_TremoloDepth", 0f, 1f, 0.5f, p => p.TremoloDepth, (p, v) => p.TremoloDepth = v),
             }, p => p.TremoloEnabled, (p, v) => p.TremoloEnabled = v),
 
+            new("GrpRingMod", new[]
+            {
+                DspParam.Range("P_RingModCarrierHz", 10f, 2000f, 80f, p => p.RingModCarrierFreq, (p, v) => p.RingModCarrierFreq = v),
+                DspParam.Range("P_RingModMix", 0f, 1f, 0.5f, p => p.RingModMix, (p, v) => p.RingModMix = v),
+                DspParam.Range("P_RingModHarmonic", 0f, 1f, 0f, p => p.RingModHarmonicDepth, (p, v) => p.RingModHarmonicDepth = v, tipKey: "P_RingModHarmonicTip"),
+            }, p => p.RingModEnabled, (p, v) => p.RingModEnabled = v),
+
+            new("GrpLoFiReverb", new[]
+            {
+                DspParam.Range("P_LoFiRoomSize", 0f, 1f, 0.5f, p => p.LoFiReverbRoomSize, (p, v) => p.LoFiReverbRoomSize = v, tipKey: "P_LoFiRoomSizeTip"),
+                DspParam.Range("P_LoFiDecay", 0f, 0.95f, 0.6f, p => p.LoFiReverbDecay, (p, v) => p.LoFiReverbDecay = v, tipKey: "P_LoFiDecayTip"),
+                DspParam.Range("P_LoFiDownsample", 1f, 20f, 4f, p => p.LoFiReverbDownsample, (p, v) => p.LoFiReverbDownsample = v, step: 1f, tipKey: "P_LoFiDownsampleTip"),
+                DspParam.Range("P_LoFiBitCrush", 1f, 16f, 8f, p => p.LoFiReverbBitCrush, (p, v) => p.LoFiReverbBitCrush = v),
+                DspParam.Range("P_LoFiMix", 0f, 1f, 0.35f, p => p.LoFiReverbMix, (p, v) => p.LoFiReverbMix = v),
+            }, p => p.LoFiReverbEnabled, (p, v) => p.LoFiReverbEnabled = v),
+
+            new("GrpModulationDelay", new[]
+            {
+                DspParam.Range("P_ModDelayBaseMs", 1f, 50f, 10f, p => p.ModDelayBaseMs, (p, v) => p.ModDelayBaseMs = v),
+                DspParam.Range("P_ModDelayDepth", 0f, 1f, 0.5f, p => p.ModDelayDepth, (p, v) => p.ModDelayDepth = v, tipKey: "P_ModDelayDepthTip"),
+                DspParam.Range("P_ModDelayFeedback", 0f, 0.85f, 0.3f, p => p.ModDelayFeedback, (p, v) => p.ModDelayFeedback = v),
+                DspParam.Range("P_ModDelayMix", 0f, 1f, 0.4f, p => p.ModDelayMix, (p, v) => p.ModDelayMix = v),
+            }, p => p.ModulationDelayEnabled, (p, v) => p.ModulationDelayEnabled = v),
+
             GraphicEqGroup(),
         };
     }

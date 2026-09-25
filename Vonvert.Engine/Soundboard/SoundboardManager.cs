@@ -33,6 +33,14 @@ public sealed class SoundboardManager
     /// <summary>Master volume for soundboard playback (0.0 .. 1.0).</summary>
     public float Volume { get; set; } = 0.35f;
 
+    /// <summary>Local-only audition channel. Always played on <see cref="Play"/>;
+    /// wired by the App layer. Null degrades to broadcast-only behaviour.</summary>
+    public IAuditionPlayer? Audition { get; set; }
+
+    /// <summary>When true, <see cref="Play"/> also broadcasts through the engine so
+    /// others hear it; when false (default) pads are heard only locally.</summary>
+    public bool LiveMode { get; set; }
+
     /// <summary>Current hotkey bindings (read-only view).</summary>
     public IReadOnlyDictionary<string, SoundHotkeyBinding> HotkeyBindings => _hotkeyBindings;
 
@@ -81,15 +89,20 @@ public sealed class SoundboardManager
         try
         {
             var data = GetSoundData(soundId);
-            if (data.Length > 0)
-            {
-                engine.PlaySoundboardBytes(data, Volume);
-                AppLog.Debug("[Soundboard] Playing: {Id} ({Bytes} bytes)", soundId, data.Length);
-            }
-            else
+            if (data.Length == 0)
             {
                 AppLog.Warning("[Soundboard] Play requested but no data for: {Id}", soundId);
+                return;
             }
+
+            // Local audition always (device-independent, works with engine stopped).
+            Audition?.Play(data, Volume);
+
+            // Broadcast to others only in live mode.
+            if (LiveMode)
+                engine.PlaySoundboardBytes(data, Volume);
+
+            AppLog.Debug("[Soundboard] Played: {Id} (live={Live}, {Bytes} bytes)", soundId, LiveMode, data.Length);
         }
         catch (Exception ex)
         {

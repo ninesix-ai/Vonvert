@@ -140,7 +140,6 @@
     "SoundboardModeAudition": "试听",
     "SoundboardModeLive": "直播",
     "SoundboardLiveModeNotice": "已切到直播模式：音效会同时发给他人。",
-    "SoundboardAuditionHint": "试听模式：音效只从你的扬声器出声。",
     "ImportSound": "导入",
     "RemoveSound": "移除",
     "AssignHotkey": "绑定热键",

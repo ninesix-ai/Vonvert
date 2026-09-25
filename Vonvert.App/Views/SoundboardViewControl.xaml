@@ -129,6 +129,14 @@
             <StackPanel>
                 <DockPanel LastChildFill="True">
                     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <RadioButton x:Name="ModeAuditionChip" Style="{StaticResource SbChip}"
+                                     GroupName="SbMode" VerticalAlignment="Center" Margin="0,0,6,0"
+                                     Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SoundboardModeAudition, Mode=OneWay}"
+                                     Checked="OnModeAudition_Checked"/>
+                        <RadioButton x:Name="ModeLiveChip" Style="{StaticResource SbChip}"
+                                     GroupName="SbMode" VerticalAlignment="Center" Margin="0,0,12,0"
+                                     Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SoundboardModeLive, Mode=OneWay}"
+                                     Checked="OnModeLive_Checked"/>
                         <Button x:Name="ImportBtn" Style="{StaticResource OutlineButton}"
                                 Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=ImportSound, Mode=OneWay}"
                                 Click="Import_Click" Padding="10,4" FontSize="11" Margin="0,0,10,0"

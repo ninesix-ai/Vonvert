@@ -140,7 +140,6 @@
     "SoundboardModeAudition": "Audition",
     "SoundboardModeLive": "Live",
     "SoundboardLiveModeNotice": "Live mode on: soundboard pads are now heard by others too.",
-    "SoundboardAuditionHint": "Audition mode: pads play only on your speakers.",
     "ImportSound": "Import",
     "RemoveSound": "Remove",
     "AssignHotkey": "Assign hotkey",

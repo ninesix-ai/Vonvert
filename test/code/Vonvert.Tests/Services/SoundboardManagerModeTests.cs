@@ -10,8 +10,8 @@ using Vonvert.Engine.Soundboard;
 using Xunit;
 
 // Guards the mode-based playback routing: preview mode is local-only, live mode also
-// broadcasts through the engine, and a null audition channel never throws. No commercial
-// gating is reintroduced (see SoundboardManagerTests.SBMgr-001).
+// broadcasts through the engine, and a null audition channel never throws. No licensing
+// or upgrade gating is reintroduced (see SoundboardManagerTests.SBMgr-001).
 [Collection("AppPathsSeam")]
 public sealed class SoundboardManagerModeTests : IDisposable
 {

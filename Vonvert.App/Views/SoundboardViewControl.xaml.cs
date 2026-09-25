@@ -14,6 +14,7 @@ using Vonvert.App.UIServices;
 using Vonvert.Engine.AudioEngine;
 using Vonvert.Engine.ProceduralAudio;
 using Vonvert.Engine.Soundboard;
+using Vonvert.Engine.Services;
 
 namespace Vonvert.App;
 
@@ -52,6 +53,7 @@ public partial class SoundboardViewControl : UserControl
         L.PropertyChanged += OnLanguageChanged;
 
         RebuildPads();
+        UpdateModeChips();
         UpdateEngineHint();
     }
 
@@ -78,7 +80,10 @@ public partial class SoundboardViewControl : UserControl
     private void UpdateEngineHint()
     {
         bool running = App.Engine != null && App.Engine.State == EngineStatus.Active;
-        EngineHint.Visibility = running ? Visibility.Collapsed : Visibility.Visible;
+        bool live = Board?.LiveMode ?? false;
+        // Audition mode plays locally regardless of engine state, so the "start the
+        // engine" hint (bound to SoundboardEngineHint) is only relevant in live mode.
+        EngineHint.Visibility = (live && !running) ? Visibility.Visible : Visibility.Collapsed;
     }
 
     // ════════ Catalogue ════════
@@ -171,6 +176,29 @@ public partial class SoundboardViewControl : UserControl
         var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(320) };
         timer.Tick += (_, _) => { timer.Stop(); vm.IsPlaying = false; };
         timer.Start();
+    }
+
+    // ════ Audition / Live mode ════
+
+    private void OnModeAudition_Checked(object s, RoutedEventArgs e) => SetLiveMode(false);
+    private void OnModeLive_Checked(object s, RoutedEventArgs e) => SetLiveMode(true);
+
+    private void SetLiveMode(bool live)
+    {
+        if (Board == null) return;
+        Board.LiveMode = live;
+        AppConfig.Instance.Audio.SoundboardLiveMode = live;
+        AppConfig.Instance.Save();
+        if (live) AppServices?.ShowNotification(L.SoundboardLiveModeNotice, "warning");
+        UpdateModeChips();
+        UpdateEngineHint();
+    }
+
+    private void UpdateModeChips()
+    {
+        bool live = Board?.LiveMode ?? false;
+        ModeAuditionChip.IsChecked = !live;
+        ModeLiveChip.IsChecked = live;
     }
 
     private void Pad_ClearHotkey(object sender, MouseButtonEventArgs e)

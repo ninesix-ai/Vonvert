@@ -88,6 +88,9 @@ public sealed class VoiceEngine : IDisposable
     // --- Push-to-Talk ---
     private volatile bool _muted;
 
+    // --- Soundboard one-shot mixer (mixed post-DSP into the render/monitor feed) ---
+    private readonly SoundboardMixer _sb = new();
+
     // --- Public API ---
 
     public void Start(AudioDeviceHub devices)
@@ -207,6 +210,7 @@ public sealed class VoiceEngine : IDisposable
         _capture = null; _render = null; _monitor = null;
 
         _rxRing.Purge();
+        _sb.Clear();
         _pipeline.OnStop();
         SetState(EngineStatus.Idle);
         AppLog.Information("VoiceEngine.Stop: engine stopped");
@@ -243,6 +247,14 @@ public sealed class VoiceEngine : IDisposable
     public void SetCompareMode(CompareMode mode) => Settings.Compare = mode;
     public void SetMute(bool m)               => _muted = m;
     public bool Muted                         => _muted;
+
+    /// <summary>
+    /// Queue a soundboard clip for playback (float32 mono PCM at <see cref="AudioConstants.EngineRate"/>).
+    /// The clip is mixed into the outgoing frame after the voice DSP chain, so it is
+    /// heard on the render/monitor path but never pitch-shifted. No-op until the engine
+    /// is running (there is no output graph to write to).
+    /// </summary>
+    public void PlaySoundboardBytes(byte[] pcm, float volume) => _sb.Enqueue(pcm, volume);
 
     // --- Graph init ---
 
@@ -461,6 +473,10 @@ public sealed class VoiceEngine : IDisposable
                 Stats.LatencyMs    = _sw.Elapsed.TotalMilliseconds;
                 Stats.Underruns    = _underruns;
 
+                // Mix soundboard one-shots into the outgoing frame AFTER the voice DSP
+                // chain, so clips are un-pitched and excluded from the analyzer feed.
+                _sb.MixInto(work);
+
                 // Float span → byte array → BufferedWaveProvider
                 int outLen = work.Length * 4;
                 MemoryMarshal.AsBytes(work).CopyTo(_outBuf);
@@ -534,6 +550,7 @@ public sealed class VoiceEngine : IDisposable
         _capture = null; _render = null; _monitor = null;
 
         _rxRing.Purge();
+        _sb.Clear();
         SetState(EngineStatus.Idle);
 
         _gate.Dispose();

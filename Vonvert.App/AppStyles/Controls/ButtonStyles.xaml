@@ -87,6 +87,14 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Key="NavSideSoundboard" TargetType="RadioButton" BasedOn="{StaticResource NavSideBtn}">
+        <Style.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource IconSoundboard}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
     <Style x:Key="NavSideSettings" TargetType="RadioButton" BasedOn="{StaticResource NavSideBtn}">
         <Style.Triggers>
             <Trigger Property="IsChecked" Value="True">

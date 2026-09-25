@@ -22,7 +22,7 @@ namespace Vonvert.App.UIServices;
 public static class TabChromePolicy
 {
     /// <summary>Ordered tabs of the main window (values match TabControl.SelectedIndex).</summary>
-    public enum AppTab { Voices = 0, Settings = 1, About = 2, Recording = 3 }
+    public enum AppTab { Voices = 0, Settings = 1, About = 2, Recording = 3, Soundboard = 4 }
 
     /// <summary>Shared section-header controls whose visibility is tab-scoped.</summary>
     public enum HeaderControl { AbCompare }

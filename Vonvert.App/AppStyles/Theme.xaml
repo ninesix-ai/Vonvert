@@ -24,7 +24,8 @@
     <Color x:Key="C_IconVoices">#FF22D3EE</Color>
     <Color x:Key="C_IconRecord">#FFFB7185</Color>
     <Color x:Key="C_IconSettings">#FF6366F1</Color>
-    <Color x:Key="C_IconAbout">#FF34D399</Color>
+        <Color x:Key="C_IconAbout">#FF34D399</Color>
+        <Color x:Key="C_IconSoundboard">#FFFBBF24</Color>
 
     <!-- Control tokens (for Controls.xaml) -->
     <Color x:Key="C_CtrlBorder">#FF37315A</Color>
@@ -54,7 +55,8 @@
     <SolidColorBrush x:Key="IconVoices"   Color="{StaticResource C_IconVoices}"/>
     <SolidColorBrush x:Key="IconRecord"   Color="{StaticResource C_IconRecord}"/>
     <SolidColorBrush x:Key="IconSettings" Color="{StaticResource C_IconSettings}"/>
-    <SolidColorBrush x:Key="IconAbout"    Color="{StaticResource C_IconAbout}"/>
+        <SolidColorBrush x:Key="IconAbout"    Color="{StaticResource C_IconAbout}"/>
+        <SolidColorBrush x:Key="IconSoundboard" Color="{StaticResource C_IconSoundboard}"/>
 
     <!-- Control brushes -->
     <SolidColorBrush x:Key="CtrlBorder"    Color="{StaticResource C_CtrlBorder}"/>

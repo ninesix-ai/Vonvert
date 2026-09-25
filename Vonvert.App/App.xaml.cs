@@ -11,6 +11,7 @@ using System.Threading;
 using Vonvert.Engine;
 using Vonvert.Engine.AudioEngine;
 using Vonvert.Engine.PresetLibrary;
+using Vonvert.Engine.Soundboard;
 using Vonvert.App.Controls;
 using Vonvert.App.UIServices;
 
@@ -23,6 +24,7 @@ public partial class App : Application
     public static PresetManager    Presets    { get; private set; } = null!;
     public static HotkeyService?   Hotkeys    { get; private set; }
     public static RecordingService? Recording { get; private set; }
+    public static SoundboardManager? Soundboard { get; private set; }
 
     // Register in the constructor — fires BEFORE InitializeComponent() and OnStartup
     // so we catch EVERY possible exception including BAML resource loading failures
@@ -227,6 +229,11 @@ public partial class App : Application
                 Recording = new RecordingService();
                 (Engine.Pipeline as NullAudioProcessor)?.AttachRecordingService(Recording);
                 AppLog.Information("RecordingService attached");
+
+                // Soundboard one-shot catalogue. Playback routes through Engine's
+                // soundboard mixer; holds no OS handles, so no OnExit release is needed.
+                Soundboard = new SoundboardManager();
+                AppLog.Information("SoundboardManager initialized");
 
                 // Restore the user's device selection (mic / VB-Cable) if the
                 // saved devices still exist on this machine.

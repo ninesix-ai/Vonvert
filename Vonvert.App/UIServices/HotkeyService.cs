@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using Vonvert.Engine;
+using Vonvert.Engine.Soundboard;
 
 namespace Vonvert.App.UIServices;
 
@@ -80,6 +81,16 @@ public sealed class HotkeyService : IDisposable
     private int      _nextId = ID_BASE;
     private readonly Dictionary<HotkeyAction, int> _actionToId = new();
 
+    // ── Dynamic per-sound hotkey slots (soundboard) ──────────────────────
+    // Registered on a separate id range so they never collide with the discrete
+    // actions above. Pressing one raises <see cref="SoundHotkeyFired"/>.
+    private const int DYN_ID_BASE = 20000;
+    private int _nextDynId = DYN_ID_BASE;
+    private readonly Dictionary<int, string> _idToSound = new();
+
+    /// <summary>Fires on the UI thread when a registered soundboard hotkey is pressed, with the sound id.</summary>
+    public event Action<string>? SoundHotkeyFired;
+
     /// <summary>Default bindings factory.</summary>
     public static Dictionary<HotkeyAction, HotkeyBinding> DefaultBindings => new()
     {
@@ -143,6 +154,35 @@ public sealed class HotkeyService : IDisposable
         RegisterAll();
         InstallPttHook();
         SaveConfig();
+    }
+
+    /// <summary>
+    /// (Re)register global hotkeys for soundboard sounds. Each binding is given its own
+    /// Win32 id on a dedicated range; a prior set is cleared first. Invalid virtual-key
+    /// codes are skipped.
+    /// </summary>
+    public void RegisterSoundHotkeys(IEnumerable<KeyValuePair<string, SoundHotkeyBinding>> bindings)
+    {
+        UnregisterSoundHotkeys();
+        if (_hwnd == IntPtr.Zero || bindings == null) return;
+        foreach (var kv in bindings)
+        {
+            var b = kv.Value;
+            if (b == null || b.VirtualKey < 0x01 || b.VirtualKey > 0xFE) continue;
+            uint mod = (b.Ctrl ? 2u : 0u) | (b.Alt ? 1u : 0u) | (b.Shift ? 4u : 0u) | MOD_NOREPEAT;
+            int id = _nextDynId++;
+            if (RegisterHotKey(_hwnd, id, mod, (uint)b.VirtualKey))
+                _idToSound[id] = kv.Key;
+        }
+    }
+
+    /// <summary>Unregister all soundboard hotkeys, freeing their Win32 ids.</summary>
+    public void UnregisterSoundHotkeys()
+    {
+        if (_hwnd != IntPtr.Zero)
+            foreach (var id in _idToSound.Keys) UnregisterHotKey(_hwnd, id);
+        _idToSound.Clear();
+        _nextDynId = DYN_ID_BASE;
     }
 
     /// <summary>
@@ -214,9 +254,12 @@ public sealed class HotkeyService : IDisposable
                 if (actionId == id)
                 {
                     HotkeyPressed?.Invoke(action);
-                    break;
+                    handled = true;
+                    return IntPtr.Zero;
                 }
             }
+            if (_idToSound.TryGetValue(id, out var soundId))
+                SoundHotkeyFired?.Invoke(soundId);
             handled = true;
         }
         return IntPtr.Zero;
@@ -380,6 +423,7 @@ public sealed class HotkeyService : IDisposable
     public void Dispose()
     {
         UnregisterAll();
+        UnregisterSoundHotkeys();
         if (_hookId != IntPtr.Zero)
         {
             UnhookWindowsHookEx(_hookId);

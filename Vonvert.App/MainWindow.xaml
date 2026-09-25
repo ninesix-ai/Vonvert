@@ -579,6 +579,11 @@
                             <controls:RecordingViewControl x:Name="RecordingView"/>
                         </TabItem>
 
+                        <!-- ═══ TAB 4: SOUNDBOARD (procedural one-shot effects) ═══ -->
+                        <TabItem x:Name="TabSoundboard">
+                            <controls:SoundboardViewControl x:Name="SoundboardView"/>
+                        </TabItem>
+
                     </TabControl>
                 </Grid>
             </Grid>

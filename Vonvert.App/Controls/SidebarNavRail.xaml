@@ -63,6 +63,25 @@
                     </StackPanel>
                 </RadioButton>
 
+                <RadioButton x:Name="NavSoundboardBtn" Style="{StaticResource NavSideSoundboard}"
+                             Checked="NavTab_Checked" Margin="0,0,0,6"
+                             AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=NavSoundboard, Mode=OneWay}"
+                             ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=NavSoundboard, Mode=OneWay}">
+                    <StackPanel>
+                        <Grid Width="38" Height="38" HorizontalAlignment="Center">
+                            <Border CornerRadius="11" Opacity="0.15"
+                                    Background="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+                            <Path Data="{StaticResource GeoNavSoundboard}" Width="20" Height="20" Stretch="Uniform"
+                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                  StrokeThickness="2"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                        </Grid>
+                        <TextBlock x:Name="NavSoundboardLbl" Margin="0,5,0,0" HorizontalAlignment="Center" FontSize="10"
+                                   TextWrapping="Wrap" TextAlignment="Center" MaxWidth="68"
+                                   Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=NavSoundboard, Mode=OneWay}"/>
+                    </StackPanel>
+                </RadioButton>
+
                 <RadioButton x:Name="NavRecordingBtn" Style="{StaticResource NavSideRecording}"
                              Checked="NavTab_Checked" Margin="0,0,0,6"
                              AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=NavRecording, Mode=OneWay}"

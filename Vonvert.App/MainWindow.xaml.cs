@@ -12,8 +12,8 @@ namespace Vonvert.App;
 
 /// <summary>
 /// Main window — real-time voice changer.
-/// Layout: header (window controls) → spectrum/pitch strip → preset tiles → bottom bar.
-/// No settings, no recording, no soundboard, no offline conversion.
+/// Layout: nav rail → shared section header → hidden tab control (Voices /
+/// Settings / About / Recording / Soundboard), driven by SidebarNavRail.
 /// </summary>
 public partial class MainWindow : Window, IAppServices
 {

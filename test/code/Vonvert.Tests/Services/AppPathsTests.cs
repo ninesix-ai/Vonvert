@@ -13,6 +13,7 @@ using System.IO;
 using Vonvert.Engine;
 using Xunit;
 
+[Collection("AppPathsSeam")]
 public sealed class AppPathsTests : IDisposable
 {
     private const string FakeDefault = @"C:\Users\test\AppData\Roaming\ninesix-ai\Vonvert";

@@ -42,8 +42,36 @@ public partial class MainWindow
         if (hwnd != IntPtr.Zero)
             hk.Register(hwnd);
 
+        // Soundboard global hotkeys: register persisted bindings, re-register on
+        // change, and play the mapped sound when one fires.
+        if (App.Soundboard != null)
+        {
+            hk.SoundHotkeyFired += OnSoundHotkeyFired;
+            App.Soundboard.HotkeysChanged += ReregisterSoundHotkeys;
+            ReregisterSoundHotkeys();
+        }
+
         UpdateHotkeyButtonLabels();
         KeyDown += OnWindowKeyDown;
+    }
+
+    private void ReregisterSoundHotkeys()
+    {
+        var hk = App.Hotkeys;
+        var sb = App.Soundboard;
+        if (hk == null || sb == null) return;
+        hk.RegisterSoundHotkeys(sb.HotkeyBindings);
+    }
+
+    private void OnSoundHotkeyFired(string soundId)
+    {
+        // Fires on the UI thread (WndProc); InvokeAsync is safe during shutdown.
+        Dispatcher.InvokeAsync(() =>
+        {
+            if (!_servicesInitialized) return;
+            try { App.Soundboard?.Play(soundId, App.Engine); }
+            catch (Exception ex) { AppLog.Warning(ex, "Soundboard hotkey play failed: {Id}", soundId); }
+        });
     }
 
     // ── Hotkey dispatch ──

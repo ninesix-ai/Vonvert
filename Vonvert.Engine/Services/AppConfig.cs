@@ -48,6 +48,9 @@ public sealed class AppConfig
     {
         public string InputDeviceId   { get; set; } = string.Empty;
         public string OutputDeviceId  { get; set; } = string.Empty;
+        /// <summary>When true, soundboard pads also broadcast through the engine
+        /// (heard by others); when false, pads play as local-only auditions.</summary>
+        public bool   SoundboardLiveMode { get; set; } = false;
     }
 
     /// <summary>Role/persona state persisted under the "persona" JSON key.

@@ -96,6 +96,18 @@ public partial class App : Application
         base.OnStartup(e);
         AppLog.Information("OnStartup begin");
 
+        // Uninstaller-invoked data purge: run before the single-instance mutex so
+        // cleanup can execute without launching the GUI or contending for the lock.
+        if (StartupArgs.IsPurgeMode(e.Args))
+        {
+            var purge = new Vonvert.Engine.UserDataPurger().Purge(
+                Vonvert.Engine.PurgeOptions.FromEnvironment());
+            AppLog.Information($"[Purge] deleted={purge.DeletedPaths.Count} " +
+                $"skipped={purge.SkippedPaths.Count} failed={purge.FailedPaths.Count}");
+            Environment.Exit(purge.ExitCode);
+            return;
+        }
+
         bool isNewInstance;
         _singleInstanceMutex = new Mutex(true, "Vonvert_SingleInstance_Mutex", out isNewInstance);
         if (!isNewInstance)

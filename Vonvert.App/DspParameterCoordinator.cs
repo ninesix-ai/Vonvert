@@ -47,6 +47,16 @@ public sealed class DspParameterCoordinator
     private readonly PhaserEffect   _phaser;
     private readonly TremoloEffect  _tremolo;
     private readonly VibratoEffect  _vibrato;
+    private readonly RingModEffect        _ringMod;
+    private readonly LoFiReverbEffect     _loFiReverb;
+    private readonly ModulationDelayEffect _modulationDelay;
+
+    /// <summary>
+    /// Every effect instance this coordinator reads and writes. Built from the
+    /// fields themselves so <see cref="ManagedEffectNames"/> cannot drift from
+    /// what is actually mapped.
+    /// </summary>
+    private readonly IAudioEffect[] _managed;
 
     /// <summary>
     /// Create a coordinator bound to the given engine and effect instances.
@@ -59,7 +69,8 @@ public sealed class DspParameterCoordinator
         VxGate gate, VxEq eq, NoiseReductionEffect noiseRed,
         DelayEffect delay, DeesserEffect deesser, VxRobot robot, VxDrive drive,
         TiltEQEffect tiltEq, GraphicEQEffect graphicEq, BitcrusherEffect bitcrusher,
-        FlangerEffect flanger, PhaserEffect phaser, TremoloEffect tremolo, VibratoEffect vibrato)
+        FlangerEffect flanger, PhaserEffect phaser, TremoloEffect tremolo, VibratoEffect vibrato,
+        RingModEffect ringMod, LoFiReverbEffect loFiReverb, ModulationDelayEffect modulationDelay)
     {
         _engine  = engine;
         _pitch   = pitch;   _reverb = reverb; _chorus = chorus; _comp = comp;
@@ -68,6 +79,30 @@ public sealed class DspParameterCoordinator
         _robot   = robot;   _drive = drive;
         _tiltEq  = tiltEq;  _graphicEq = graphicEq; _bitcrusher = bitcrusher;
         _flanger = flanger; _phaser = phaser; _tremolo = tremolo; _vibrato = vibrato;
+        _ringMod = ringMod; _loFiReverb = loFiReverb; _modulationDelay = modulationDelay;
+
+        _managed = new IAudioEffect[]
+        {
+            _pitch, _reverb, _chorus, _comp, _gate, _eq, _noiseRed, _delay, _deesser,
+            _robot, _drive, _tiltEq, _graphicEq, _bitcrusher,
+            _flanger, _phaser, _tremolo, _vibrato,
+            _ringMod, _loFiReverb, _modulationDelay,
+        };
+    }
+
+    /// <summary>
+    /// Names of the effect instances this coordinator actually reads and writes.
+    /// The wiring-invariant test uses it to prove that every effect carried by
+    /// the default chain is either mapped here or explicitly exempt.
+    /// </summary>
+    public IReadOnlyList<string> ManagedEffectNames
+    {
+        get
+        {
+            var names = new string[_managed.Length];
+            for (int i = 0; i < _managed.Length; i++) names[i] = _managed[i].Name;
+            return names;
+        }
     }
 
     // ════════════════════════════════════════════════════════════════════
@@ -200,6 +235,38 @@ public sealed class DspParameterCoordinator
         _vibrato.Rate      = p.VibratoRate;
         _vibrato.Depth     = p.VibratoDepth;
         _vibrato.Mix       = p.VibratoMix;
+
+        // ── Ring modulation / lo-fi space / warble (ported set) ──
+        ApplyRingMod(p);
+        ApplyLoFiReverb(p);
+        ApplyModulationDelay(p);
+    }
+
+    private void ApplyRingMod(VoiceProfile p)
+    {
+        _ringMod.IsEnabled     = p.RingModEnabled;
+        _ringMod.CarrierFreq   = p.RingModCarrierFreq;
+        _ringMod.Mix           = p.RingModMix;
+        _ringMod.HarmonicDepth = p.RingModHarmonicDepth;
+    }
+
+    private void ApplyLoFiReverb(VoiceProfile p)
+    {
+        _loFiReverb.IsEnabled  = p.LoFiReverbEnabled;
+        _loFiReverb.RoomSize   = p.LoFiReverbRoomSize;
+        _loFiReverb.Decay      = p.LoFiReverbDecay;
+        _loFiReverb.Downsample = (int)p.LoFiReverbDownsample;
+        _loFiReverb.BitCrush   = p.LoFiReverbBitCrush;
+        _loFiReverb.Mix        = p.LoFiReverbMix;
+    }
+
+    private void ApplyModulationDelay(VoiceProfile p)
+    {
+        _modulationDelay.IsEnabled   = p.ModulationDelayEnabled;
+        _modulationDelay.BaseDelayMs = p.ModDelayBaseMs;
+        _modulationDelay.ModDepth    = p.ModDelayDepth;
+        _modulationDelay.Feedback    = p.ModDelayFeedback;
+        _modulationDelay.Mix         = p.ModDelayMix;
     }
 
     // ════════════════════════════════════════════════════════════════════
@@ -321,6 +388,37 @@ public sealed class DspParameterCoordinator
             VibratoMix      = _vibrato.Mix,
         };
 
+        CaptureRingMod(p);
+        CaptureLoFiReverb(p);
+        CaptureModulationDelay(p);
+
         return p;
+    }
+
+    private void CaptureRingMod(VoiceProfile p)
+    {
+        p.RingModEnabled       = _ringMod.IsEnabled;
+        p.RingModCarrierFreq   = _ringMod.CarrierFreq;
+        p.RingModMix           = _ringMod.Mix;
+        p.RingModHarmonicDepth = _ringMod.HarmonicDepth;
+    }
+
+    private void CaptureLoFiReverb(VoiceProfile p)
+    {
+        p.LoFiReverbEnabled    = _loFiReverb.IsEnabled;
+        p.LoFiReverbRoomSize   = _loFiReverb.RoomSize;
+        p.LoFiReverbDecay      = _loFiReverb.Decay;
+        p.LoFiReverbDownsample = _loFiReverb.Downsample;
+        p.LoFiReverbBitCrush   = _loFiReverb.BitCrush;
+        p.LoFiReverbMix        = _loFiReverb.Mix;
+    }
+
+    private void CaptureModulationDelay(VoiceProfile p)
+    {
+        p.ModulationDelayEnabled = _modulationDelay.IsEnabled;
+        p.ModDelayBaseMs         = _modulationDelay.BaseDelayMs;
+        p.ModDelayDepth          = _modulationDelay.ModDepth;
+        p.ModDelayFeedback       = _modulationDelay.Feedback;
+        p.ModDelayMix            = _modulationDelay.Mix;
     }
 }

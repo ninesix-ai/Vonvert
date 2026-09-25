@@ -63,6 +63,9 @@ public partial class MainWindow : Window, IAppServices
     private PhaserEffect    _phaser    = new();
     private TremoloEffect   _tremolo   = new();
     private VibratoEffect   _vibrato   = new();
+    private RingModEffect         _ringMod         = new();
+    private LoFiReverbEffect      _loFiReverb      = new();
+    private ModulationDelayEffect _modulationDelay = new();
 
     /// <summary>Centralized VoiceProfile ↔ Engine parameter mapping (WPF-free, testable).</summary>
     private DspParameterCoordinator? _dspCoordinator;
@@ -237,11 +240,15 @@ public partial class MainWindow : Window, IAppServices
         _phaser     = chain.Effects.OfType<PhaserEffect>().FirstOrDefault()      ?? new PhaserEffect();
         _tremolo    = chain.Effects.OfType<TremoloEffect>().FirstOrDefault()     ?? new TremoloEffect();
         _vibrato    = chain.Effects.OfType<VibratoEffect>().FirstOrDefault()     ?? new VibratoEffect();
+        _ringMod         = chain.Effects.OfType<RingModEffect>().FirstOrDefault()        ?? new RingModEffect();
+        _loFiReverb      = chain.Effects.OfType<LoFiReverbEffect>().FirstOrDefault()      ?? new LoFiReverbEffect();
+        _modulationDelay = chain.Effects.OfType<ModulationDelayEffect>().FirstOrDefault() ?? new ModulationDelayEffect();
 
         // Build the centralized parameter coordinator (WPF-free, testable)
         _dspCoordinator = new DspParameterCoordinator(
             App.Engine, _pitch, _reverb, _chorus, _comp, _gate, _eq, _noiseRed, _delay, _deesser, _robot, _drive,
-            _tiltEq, _graphicEq, _bitcrusher, _flanger, _phaser, _tremolo, _vibrato);
+            _tiltEq, _graphicEq, _bitcrusher, _flanger, _phaser, _tremolo, _vibrato,
+            _ringMod, _loFiReverb, _modulationDelay);
     }
 
     // ════ Power ════

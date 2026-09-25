@@ -20,7 +20,7 @@ public partial class PresetPickerControl : UserControl
 {
     private static LocalizationManager L => LocalizationManager.Instance;
 
-    // ── Category → accent color mapping ──
+    // ── Category → accent color mapping (secondary grouping cue; selection still wins) ──
     private static readonly Dictionary<string, Color> s_categoryColors = new(StringComparer.OrdinalIgnoreCase)
     {
         ["Voice"]      = Color.FromRgb(0x5B, 0x6B, 0xFF),
@@ -30,6 +30,9 @@ public partial class PresetPickerControl : UserControl
         ["Character"]  = Color.FromRgb(0xFF, 0x55, 0x77),
     };
 
+    // Section display order for grouped preset tiles.
+    private static readonly string[] s_categoryOrder = { "Voice", "FX", "Fun", "Space", "Character" };
+
     // ── State ──
     private bool _tilesBuilt;
     private Button? _selectedTile;
@@ -37,6 +40,9 @@ public partial class PresetPickerControl : UserControl
     private bool _userOverrode;
     private Button? _hoveredTile;
     private DispatcherTimer? _hoverTimer;
+    private readonly List<Button> _allTiles = new();
+    private bool _chipsBuilt;
+    private string? _selectedCategory;   // null = All
 
     // ══════════════════════════════════════════════════════════════
     //  Public API
@@ -74,6 +80,8 @@ public partial class PresetPickerControl : UserControl
                 return;
             if (!_tilesBuilt)
                 BuildPresetButtons();
+            if (!_chipsBuilt)
+                BuildCategoryChips();
         };
     }
 
@@ -166,50 +174,129 @@ public partial class PresetPickerControl : UserControl
         var all = App.Presets.Presets;
         var builtIn = all.Where(p => BuiltInPresets.AllNames.Contains(p.Name)).OrderBy(p => p.Name);
         var user    = all.Where(p => !BuiltInPresets.AllNames.Contains(p.Name)).OrderBy(p => p.Name);
-        return builtIn.Concat(user);
+        var seq = builtIn.Concat(user);
+        if (_selectedCategory != null)
+            seq = seq.Where(p => CategoryOf(p) == _selectedCategory);
+        return seq;
     }
 
     /// <summary>A preset is deletable only when it is not a built-in pack voice.</summary>
     private static bool IsUserPreset(VoiceProfile p) => !BuiltInPresets.AllNames.Contains(p.Name);
 
+    private string CategoryOf(VoiceProfile p)
+    {
+        if (IsUserPreset(p)) return "User";
+        return App.Presets.Index.GetMetadata(p.Name)?.Category ?? "Other";
+    }
+
+    /// <summary>Maps an internal category key to its localized display name (group header / chip label).</summary>
+    private string CategoryLabel(string key) => key switch
+    {
+        "Voice"     => L.CategoryVoice,
+        "FX"        => L.CategoryFx,
+        "Fun"       => L.CategoryFun,
+        "Space"     => L.CategorySpace,
+        "Character" => L.CategoryCharacter,
+        "User"      => L.CategoryUser,
+        "Other"     => L.CategoryOther,
+        _           => key,
+    };
+
+    // ════════════════════════════════════════════════════════════
+    //  Category filter chips
+    // ════════════════════════════════════════════════════════════
+
+    private void BuildCategoryChips()
+    {
+        if (_chipsBuilt) return;
+        if (App.Presets?.Presets == null) return;
+        _chipsBuilt = true;
+
+        var allCats = App.Presets.Presets.Select(p => CategoryOf(p))
+            .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
+        var ordered = new List<string>();
+        foreach (var c in s_categoryOrder)
+            if (allCats.Contains(c, StringComparer.OrdinalIgnoreCase)) ordered.Add(c);
+        foreach (var c in allCats
+                     .Where(c => !s_categoryOrder.Contains(c, StringComparer.OrdinalIgnoreCase)
+                                 && c != "User" && c != "Other")
+                     .OrderBy(c => c, StringComparer.OrdinalIgnoreCase))
+            ordered.Add(c);
+        if (allCats.Contains("Other", StringComparer.OrdinalIgnoreCase)) ordered.Add("Other");
+        if (allCats.Contains("User", StringComparer.OrdinalIgnoreCase)) ordered.Add("User");
+
+        ChipPanel.Children.Add(MakeChip(null, L.CategoryAll));
+        foreach (var c in ordered)
+            ChipPanel.Children.Add(MakeChip(c, CategoryLabel(c)));
+    }
+
+    private RadioButton MakeChip(string? cat, string label)
+    {
+        var rb = new RadioButton
+        {
+            Content   = label,
+            Tag       = cat,
+            GroupName = "CatFilter",
+            IsChecked = cat == null,
+            Style     = TryFindResource("CategoryChip") as Style,
+        };
+        rb.Checked += (_, _) => { _selectedCategory = cat; BuildPresetButtons(); };
+        return rb;
+    }
+
     private void BuildPresetButtons()
     {
         if (App.Presets?.Presets == null) return;
 
-        // Preserve current selection across rebuilds
         var prevName = _selectedPresetName;
         _tilesBuilt = true;
 
-        // Unsubscribe events from old buttons (prevent memory leak)
         UnsubscribeTileEvents();
-        TilePanel.Children.Clear();
+        GroupPanel.Children.Clear();
+        _allTiles.Clear();
 
-        foreach (var preset in GetVisiblePresets())
+        // Bucket visible presets by category.
+        var byCat = new Dictionary<string, List<VoiceProfile>>(StringComparer.OrdinalIgnoreCase);
+        foreach (var p in GetVisiblePresets())
         {
-            var btn = new Button
+            var key = CategoryOf(p);
+            if (!byCat.TryGetValue(key, out var list)) byCat[key] = list = new List<VoiceProfile>();
+            list.Add(p);
+        }
+
+        // Fixed display order first, then any other categories, then "User" last.
+        var sectionKeys = new List<string>();
+        foreach (var c in s_categoryOrder)
+            if (byCat.ContainsKey(c)) sectionKeys.Add(c);
+        foreach (var key in byCat.Keys.OrderBy(k => k, StringComparer.OrdinalIgnoreCase))
+            if (!s_categoryOrder.Contains(key, StringComparer.OrdinalIgnoreCase) && key != "User")
+                sectionKeys.Add(key);
+        if (byCat.ContainsKey("User")) sectionKeys.Add("User");
+
+        foreach (var key in sectionKeys)
+        {
+            var section = new StackPanel { Margin = new Thickness(0, 0, 0, 14) };
+            var header = new TextBlock
             {
-                Content   = preset.Icon,
-                Tag       = L.GetPresetDisplayName(preset.Name),
-                Style     = FindResource("PresetTile") as Style,
+                Text       = CategoryLabel(key),
+                FontSize   = 11,
+                FontWeight = FontWeights.SemiBold,
+                Margin     = new Thickness(0, 0, 0, 6),
             };
-            btn.SetValue(ToolTipService.ToolTipProperty, L.GetPresetDisplayName(preset.Name));
-            btn.BorderBrush = GetCategoryBorderBrush(preset.Name);
+            header.SetResourceReference(TextBlock.ForegroundProperty, "TextSub");
+            header.FontFamily = (FontFamily)FindResource("FontFallback");
+            section.Children.Add(header);
 
-            btn.Click += PresetTile_Click;
-            btn.MouseEnter += PresetTile_MouseEnter;
-            btn.MouseLeave += PresetTile_MouseLeave;
-
-            // User presets are removable; built-in pack voices are read-only.
-            if (IsUserPreset(preset))
+            var wrap = new WrapPanel { Orientation = Orientation.Horizontal };
+            foreach (var preset in byCat[key])
             {
-                var menu = new ContextMenu();
-                var delete = new MenuItem { Header = L.DeletePreset };
-                delete.Click += (_, _) => DeleteRequested?.Invoke(preset);
-                menu.Items.Add(delete);
-                btn.ContextMenu = menu;
+                var btn = MakeTile(preset);
+                wrap.Children.Add(btn);
+                _allTiles.Add(btn);
             }
-
-            TilePanel.Children.Add(btn);
+            section.Children.Add(wrap);
+            GroupPanel.Children.Add(section);
         }
 
         // Restore previously selected preset highlight
@@ -217,16 +304,40 @@ public partial class PresetPickerControl : UserControl
             SelectTile(prevName, fireChanged: false);
     }
 
+    private Button MakeTile(VoiceProfile preset)
+    {
+        var btn = new Button
+        {
+            Content = preset.Icon,
+            Tag     = L.GetPresetDisplayName(preset.Name),
+            Style   = FindResource("PresetTile") as Style,
+        };
+        btn.SetValue(ToolTipService.ToolTipProperty, L.GetPresetDisplayName(preset.Name));
+        btn.BorderBrush = GetCategoryBorderBrush(preset.Name);
+
+        btn.Click += PresetTile_Click;
+        btn.MouseEnter += PresetTile_MouseEnter;
+        btn.MouseLeave += PresetTile_MouseLeave;
+
+        // User presets are removable; built-in pack voices are read-only.
+        if (IsUserPreset(preset))
+        {
+            var menu = new ContextMenu();
+            var delete = new MenuItem { Header = L.DeletePreset };
+            delete.Click += (_, _) => DeleteRequested?.Invoke(preset);
+            menu.Items.Add(delete);
+            btn.ContextMenu = menu;
+        }
+        return btn;
+    }
+
     private void UnsubscribeTileEvents()
     {
-        foreach (var child in TilePanel.Children)
+        foreach (var btn in _allTiles)
         {
-            if (child is Button btn)
-            {
-                btn.Click -= PresetTile_Click;
-                btn.MouseEnter -= PresetTile_MouseEnter;
-                btn.MouseLeave -= PresetTile_MouseLeave;
-            }
+            btn.Click -= PresetTile_Click;
+            btn.MouseEnter -= PresetTile_MouseEnter;
+            btn.MouseLeave -= PresetTile_MouseLeave;
         }
     }
 
@@ -254,18 +365,14 @@ public partial class PresetPickerControl : UserControl
         var preset = App.Presets.Presets.FirstOrDefault(p => L.GetPresetDisplayName(p.Name) == displayName);
         if (preset == null) return;
 
-        foreach (var child in TilePanel.Children)
+        var btn = _allTiles.FirstOrDefault(b => b.Tag as string == displayName);
+        if (btn != null)
         {
-            if (child is not Button btn) continue;
-            if (btn.Tag as string == displayName)
-            {
-                ResetAllTiles();
-                HighlightTile(btn);
-                _selectedPresetName = displayName;
-                SelectedPreset = preset;
-                if (fireChanged) PresetChanged?.Invoke(preset);
-                return;
-            }
+            ResetAllTiles();
+            HighlightTile(btn);
+            _selectedPresetName = displayName;
+            SelectedPreset = preset;
+            if (fireChanged) PresetChanged?.Invoke(preset);
         }
     }
 
@@ -280,20 +387,21 @@ public partial class PresetPickerControl : UserControl
 
     private void ResetAllTiles()
     {
-        foreach (var child in TilePanel.Children)
+        foreach (var b in _allTiles)
         {
-            if (child is not Button b || b.Tag is not string tileName) continue;
-            var tilePreset = App.Presets.Presets.FirstOrDefault(p => L.GetPresetDisplayName(p.Name) == tileName);
-            if (tilePreset != null) b.BorderBrush = GetCategoryBorderBrush(tilePreset.Name);
-            else b.SetResourceReference(Border.BorderBrushProperty, "Border");
+            b.SetValue(SelectionState.IsSelectedProperty, false);
+            if (b.Tag is string dn)
+            {
+                var p = App.Presets.Presets.FirstOrDefault(x => L.GetPresetDisplayName(x.Name) == dn);
+                b.BorderBrush = p != null ? GetCategoryBorderBrush(p.Name) : (Brush)FindResource("Border");
+            }
             b.SetResourceReference(Button.BackgroundProperty, "TileSurface");
         }
     }
 
     private void HighlightTile(Button tile)
     {
-        tile.SetResourceReference(Button.BorderBrushProperty, "Accent");
-        tile.SetResourceReference(Button.BackgroundProperty, "TileSelected");
+        tile.SetValue(SelectionState.IsSelectedProperty, true);
         _selectedTile = tile;
     }
 

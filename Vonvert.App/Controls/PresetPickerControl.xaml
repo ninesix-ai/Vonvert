@@ -8,20 +8,25 @@
              xmlns:vc="clr-namespace:Vonvert.App.Controls">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>   <!-- Category filter chips -->
             <RowDefinition Height="*"/>      <!-- Preset Tiles -->
             <RowDefinition Height="Auto"/>   <!-- Import / Export toolbar -->
         </Grid.RowDefinitions>
 
-        <!-- Preset Tiles -->
-        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="0,0,0,0">
-            <WrapPanel x:Name="TilePanel" Orientation="Horizontal"
-                       Margin="12,4,12,12"/>
+        <!-- Category filter chips: experts click to focus one category; default "All" keeps the grouped browse view for newcomers. -->
+        <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="12,8,12,0">
+            <StackPanel x:Name="ChipPanel" Orientation="Horizontal"/>
+        </ScrollViewer>
+
+        <!-- Preset Tiles (grouped by category) -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,0,0">
+            <StackPanel x:Name="GroupPanel" Margin="12,4,12,12"/>
         </ScrollViewer>
 
         <!-- Preset I/O toolbar: bring in a shared .vopreset (Import) or write the
              selected preset out (Export). Deleting a user preset is a right-click on
              its tile. Built-in presets are read-only and cannot be deleted. -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center"
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center"
                     Margin="12,0,12,10">
             <Button x:Name="ImportBtn" Style="{StaticResource OutlineButton}"
                     Padding="10,3" Margin="0,0,8,0" FontSize="11"

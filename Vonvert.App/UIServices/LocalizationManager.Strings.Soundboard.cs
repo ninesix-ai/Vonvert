@@ -18,6 +18,12 @@ public partial class LocalizationManager
     public string SoundboardPressKey    => G();
     public string SoundboardImportFailed => G();
 
+    // ── Audition / live mode switch ──
+    public string SoundboardModeAudition   => G();
+    public string SoundboardModeLive       => G();
+    public string SoundboardLiveModeNotice => G();
+    public string SoundboardAuditionHint   => G();
+
     // ── Soundboard categories ──
     public string CatDrums   => G();
     public string CatTones   => G();

@@ -127,6 +127,12 @@ Section "Uninstall"
     Delete "$DESKTOP\${APP_NAME}.lnk"
     RMDir /r "$SMPROGRAMS\${APP_NAME}"
 
+    ; Optional data purge: default No (keep data). Only on Yes do we invoke the
+    ; app's purge command; Vonvert.exe still lives in $INSTDIR until the last line.
+    MessageBox MB_YESNO|MB_ICONEXCLAMATION "$(UNWI_PURGE_PROMPT)" IDNO purgeSkip
+        nsExec::ExecToLog '"$INSTDIR\${APP_EXE}" --purge-user-data'
+    purgeSkip:
+
     DeleteRegKey HKCU "Software\${APP_NAME}"
     DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}"
 
@@ -140,6 +146,10 @@ LangString DESC_SecStartMenu ${LANG_ENGLISH} "Create Start Menu shortcuts for ${
 LangString DESC_SecStartMenu ${LANG_SIMPCHINESE} "\xe5\x88\x9b\xe5\xbb\xba ${APP_NAME} \xe5\xbc\x80\xe5\xa7\x8b\xe8\x8f\x9c\xe5\x8d\x95\xe5\xbf\xab\xe6\x8d\xb7\xe6\x96\xb9\xe5\xbc\x8f\xe3\x80\x82"
 LangString DESC_SecDesktop ${LANG_ENGLISH} "Create a desktop shortcut for ${APP_NAME}."
 LangString DESC_SecDesktop ${LANG_SIMPCHINESE} "\xe5\x88\x9b\xe5\xbb\xba ${APP_NAME} \xe6\xa1\x8c\xe9\x9d\xa2\xe5\xbf\xab\xe6\x8d\xb7\xe6\x96\xb9\xe5\xbc\x8f\xe3\x80\x82"
+
+; -- Uninstall purge prompt ----------------------------------------------------
+LangString UNWI_PURGE_PROMPT ${LANG_ENGLISH} "Also delete all Vonvert user data and settings (presets, config, logs)? This cannot be undone."
+LangString UNWI_PURGE_PROMPT ${LANG_SIMPCHINESE} "\xe6\x98\xaf\xe5\x90\xa6\xe5\x90\x8c\xe6\x97\xb6\xe5\x88\xa0\xe9\x99\xa4\xe6\x89\x80\xe6\x9c\x89 Vonvert \xe7\x94\xa8\xe6\x88\xb7\xe6\x95\xb0\xe6\x8d\xae\xe4\xb8\x8e\xe8\xae\xbe\xe7\xbd\xae\xef\xbc\x88\xe9\xa2\x84\xe8\xae\xbe\xe3\x80\x81\xe9\x85\x8d\xe7\xbd\xae\xe3\x80\x81\xe6\x97\xa5\xe5\xbf\x97\xef\xbc\x89\xef\xbc\x9f\xe6\xad\xa4\xe6\x93\x8d\xe4\xbd\x9c\xe4\xb8\x8d\xe5\x8f\xaf\xe6\x92\xa4\xe9\x94\x80\xe3\x80\x82"
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
     !insertmacro MUI_DESCRIPTION_TEXT ${SecApp} $(DESC_SecApp)

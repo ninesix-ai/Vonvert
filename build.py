@@ -9,6 +9,7 @@ Builds the Vonvert application (Engine + App).
 Usage:
     build.py              Build (publish self-contained EXE)
     build.py --sign       Build + sign with code-signing certificate
+    build.py --package    Build + create the NSIS installer
     build.py --clean      Clean then build
     build.py --clean-only Clean and exit
     build.py --no-pause   Build without waiting at end
@@ -157,6 +158,46 @@ def publish():
     return True
 
 
+# ── NSIS installer (packaging) ───────────────────────────────
+def check_nsis() -> str:
+    found = shutil.which("makensis")
+    if found:
+        return found
+    for p in [
+        r"C:\Program Files (x86)\NSIS\makensis.exe",
+        r"C:\Program Files\NSIS\makensis.exe",
+    ]:
+        if os.path.isfile(p):
+            return p
+    cprint("  MISSING: NSIS not installed.", RED)
+    webbrowser.open("https://nsis.sourceforge.io/Download")
+    return ""
+
+
+def build_installer(publish_dir: str) -> bool:
+    header("Package (NSIS)")
+    nsis = check_nsis()
+    if not nsis:
+        return False
+    out_dir = os.path.join(ROOT, "installer", "Output")
+    os.makedirs(out_dir, exist_ok=True)
+    version = _read_version()
+    cprint(f"  makensis /DBUILD_DIR={publish_dir} /DAPP_VERSION={version}", GRAY)
+    rc = run([
+        nsis,
+        f"/DBUILD_DIR={publish_dir}",
+        f"/DAPP_VERSION={version}",
+        os.path.join(ROOT, "installer", "setup.oss.nsi"),
+    ])
+    setup = os.path.join(out_dir, "Vonvert_Setup.exe")
+    if rc == 0 and os.path.isfile(setup):
+        size_mb = os.path.getsize(setup) / (1024 * 1024)
+        cprint(f"\n  OK: {os.path.relpath(setup, ROOT)} ({size_mb:.1f} MB)", GREEN)
+        return True
+    cprint("  FAILED: makensis", RED)
+    return False
+
+
 # ── Find signtool.exe ────────────────────────────────────────
 def find_signtool() -> str:
     sdk_base = r"C:\Program Files (x86)\Windows Kits\10\bin"
@@ -254,6 +295,7 @@ def main():
 Examples:
   build.py                  Build and publish
   build.py --sign           Build + sign (requires VONVERT_PFX_PASSWORD)
+  build.py --package        Build + create the NSIS installer
   build.py --clean          Clean then build
   build.py --clean-only     Clean and exit
   build.py --no-pause       Build without waiting at end
@@ -264,6 +306,8 @@ Examples:
                         help="Clean and exit (no build)")
     parser.add_argument("--sign", "-s", action="store_true",
                         help="Sign Vonvert.exe with code-signing certificate")
+    parser.add_argument("--package", "-p", action="store_true",
+                        help="Also build the NSIS installer after publishing")
     parser.add_argument("--no-pause", "-n", action="store_true",
                         help="Don't pause at the end")
 
@@ -286,9 +330,11 @@ Examples:
         ok = build() and ok
     if ok:
         ok = publish() and ok
+    publish_dir = os.path.join(ROOT, "Vonvert.App", "bin", "publish")
     if ok and args.sign:
-        publish_dir = os.path.join(ROOT, "Vonvert.App", "bin", "publish")
         ok = sign(publish_dir)
+    if ok and args.package:
+        ok = build_installer(publish_dir) and ok
 
     elapsed = time.time() - start
 

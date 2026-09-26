@@ -273,6 +273,12 @@ public partial class VoiceProfile
             });
         }
 
+        // ── Limiter (safety stage, unconditional like the live default chain) ──
+        // The live path gets this from EffectRegistry.CreateDefault() where it is
+        // enabled by default; without it here, exported audio would be unbounded
+        // relative to what the user monitored.
+        chain.Add(new VxLimiter { IsEnabled = true });
+
         // ── Loudness Meter ───────────────────────────────────────────────
         if (LoudnessMeterEnabled)
         {

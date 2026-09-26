@@ -16,6 +16,7 @@ Usage:
 """
 
 import argparse
+import glob
 import os
 import shutil
 import subprocess
@@ -147,15 +148,100 @@ def publish():
         cprint(f"\n  OK: Vonvert.exe ({size_mb:.1f} MB)", GREEN)
         cprint(f"  Output: {os.path.relpath(publish_dir, ROOT)}\\", GRAY)
 
-        # Unblock exe — remove Zone.Identifier ADS (equivalent to PowerShell Unblock-File)
-        # Prevents Windows SmartScreen from blocking the unsigned exe on launch.
-        zone_id = exe + ":Zone.Identifier"
-        try:
-            os.remove(zone_id)
-            cprint("  Unblocked (Zone.Identifier removed)", GRAY)
-        except FileNotFoundError:
-            pass  # already unblocked
+        # Unblock the produced binaries - remove Zone.Identifier ADS (equivalent to
+        # PowerShell Unblock-File). The managed assembly matters as much as the
+        # apphost: a policy-blocked Vonvert.dll aborts the process during load.
+        unblocked = _unblock(exe)
+        for dll in glob.glob(os.path.join(publish_dir, "Vonvert*.dll")):
+            unblocked += _unblock(dll)
+        if unblocked:
+            cprint(f"  Unblocked {unblocked} file(s) (Zone.Identifier removed)", GRAY)
     return True
+
+
+# ── Unblock / launch smoke test ──────────────────────────────
+def _unblock(path: str) -> int:
+    """Strip a file's Zone.Identifier stream. Returns 1 when one was removed."""
+    try:
+        os.remove(path + ":Zone.Identifier")
+        return 1
+    except OSError:
+        return 0
+
+
+# Exit code for "process died from an unhandled managed exception", which for a
+# launch this early means the runtime refused to load our own assembly. Windows
+# reports exit codes as an unsigned DWORD here, so compare the masked value.
+MANAGED_EXCEPTION_EXIT = 0xE0434352
+
+
+def verify_launch(publish_dir: str, wait_s: float = 6.0) -> bool:
+    """
+    Start the published exe and confirm it survives long enough to show a window.
+
+    A blocked or corrupt self-contained output otherwise fails before any log
+    file is written, so the only symptom is a double-click that appears to do
+    nothing. Reporting it here, while a console is still attached, is the point.
+    """
+    header("Launch check")
+    exe = os.path.join(publish_dir, "Vonvert.exe")
+    if not os.path.isfile(exe):
+        cprint("  SKIP: Vonvert.exe not found", YELLOW)
+        return True
+    if os.environ.get("CI"):
+        cprint("  SKIP: CI environment (no interactive desktop)", GRAY)
+        return True
+
+    try:
+        proc = subprocess.Popen([exe], cwd=publish_dir)
+    except OSError as exc:
+        cprint(f"  FAILED: could not start Vonvert.exe: {exc}", RED)
+        return False
+
+    time.sleep(wait_s)
+    rc = proc.poll()
+    if rc is not None and (rc & 0xFFFFFFFF) == MANAGED_EXCEPTION_EXIT:
+        # Observed in practice: a freshly written unsigned binary can be refused
+        # on first sight and allowed again minutes later, so retry before
+        # declaring the build unusable.
+        for attempt in (2, 3):
+            time.sleep(5)
+            print(f"  retry {attempt - 1} of 2 ...", flush=True)
+            proc = subprocess.Popen([exe], cwd=publish_dir)
+            time.sleep(wait_s)
+            rc = proc.poll()
+            if rc is None:
+                proc.terminate()
+                try:
+                    proc.wait(timeout=10)
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                cprint("  RETRY OK: launched after a refused first attempt.", YELLOW)
+                cprint("  A machine policy can block a just-written unsigned binary", YELLOW)
+                cprint("  until it has been evaluated; sign the output (--sign) to", YELLOW)
+                cprint("  make first launch deterministic.", YELLOW)
+                return True
+    if rc is None:
+        proc.terminate()
+        try:
+            proc.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+        cprint(f"  OK: process stayed up {wait_s:.0f}s, then was closed cleanly", GREEN)
+        return True
+
+    cprint(f"  FAILED: exited right away, code {rc} (0x{rc & 0xFFFFFFFF:08X})", RED)
+    if (rc & 0xFFFFFFFF) == MANAGED_EXCEPTION_EXIT:
+        cprint("  This means an unhandled managed exception while loading the", RED)
+        cprint("  application - the UI never had a chance to appear, and no app", RED)
+        cprint("  log is written. Look at the Windows Application event log", RED)
+        cprint("  (source '.NET Runtime') for the exact reason. The usual one is", RED)
+        cprint("  an application-control / antivirus verdict on this unsigned", RED)
+        cprint("  self-contained binary:", RED)
+        cprint("    * retry in a minute, or run the framework-dependent build", RED)
+        cprint("      (Vonvert.App\\bin\\Release\\...\\Vonvert.exe) to confirm", RED)
+        cprint("    * sign the output: python build.py --sign", RED)
+    return False
 
 
 # ── NSIS installer (packaging) ───────────────────────────────
@@ -308,6 +394,8 @@ Examples:
                         help="Sign Vonvert.exe with code-signing certificate")
     parser.add_argument("--package", "-p", action="store_true",
                         help="Also build the NSIS installer after publishing")
+    parser.add_argument("--no-verify", "-nv", action="store_true",
+                        help="Skip the post-publish launch check")
     parser.add_argument("--no-pause", "-n", action="store_true",
                         help="Don't pause at the end")
 
@@ -331,10 +419,19 @@ Examples:
     if ok:
         ok = publish() and ok
     publish_dir = os.path.join(ROOT, "Vonvert.App", "bin", "publish")
+    # The launch check is diagnostic, not a gate: a transient policy verdict on a
+    # just-written unsigned binary must not stop us from producing the installer.
+    # Its verdict is folded into the exit status after packaging has run.
+    published = ok
     if ok and args.sign:
         ok = sign(publish_dir)
+    launch_ok = True
+    if published and not args.no_verify:
+        launch_ok = verify_launch(publish_dir)
     if ok and args.package:
         ok = build_installer(publish_dir) and ok
+    if not launch_ok:
+        ok = False
 
     elapsed = time.time() - start
 
@@ -344,6 +441,8 @@ Examples:
     else:
         header("BUILD FAILED")
         cprint(f"  Time: {elapsed:.1f}s", RED)
+        if not launch_ok:
+            cprint("  Artifacts were still produced; only the launch check failed.", GRAY)
 
     if not args.no_pause:
         print()

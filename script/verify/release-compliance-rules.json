@@ -33,7 +33,7 @@
     {
       "id": "oss-port-provenance",
       "description": "Provenance marker leaking that a file was copied from another internal tree",
-      "pattern": "Ported from|adapted from the OSS|from the OSS\\b|\\bOSS test suite|\\bOSS suite\\b|\\bOSS build\\b|\\bOSS 40|sibling OSS|from the OS test suite|OSS test",
+      "pattern": "\\bPorted from|adapted from the OSS|from the OSS\\b|\\bOSS test suite|\\bOSS suite\\b|\\bOSS build\\b|\\bOSS 40|sibling OSS|from the OS test suite|OSS test",
       "case_sensitive": false,
       "scope_exts": "all"
     },
@@ -106,6 +106,18 @@
       "file": "docs/VIRTUAL-AUDIO-DEVICES.md",
       "rule": "commercial-wording",
       "reason": "Objective description of a third-party driver; not product commercial info"
+    },
+    {
+      "file": "test/code/Vonvert.Tests/UIAutomation/RecordingE2ETests.cs",
+      "rule": "chinese-in-source",
+      "pattern": "private static readonly string[]",
+      "reason": "Bilingual UI-label arrays: FlaUI must match the strings the app renders in the active locale, so these CJK literals are test data rather than comments"
+    },
+    {
+      "file": "test/code/Vonvert.Tests/UIAutomation/UninstallPurgeE2ETests.cs",
+      "rule": "chinese-in-source",
+      "pattern": "private static readonly string[]",
+      "reason": "Same bilingual label-matching data; scoped to the array declarations so CJK left in a comment in these files still fails the gate"
     }
   ]
 }

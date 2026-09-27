@@ -83,7 +83,7 @@ public sealed class SoundboardManager
     /// the data is produced on first call then cached; for file-based sounds the file is
     /// read and resampled to float32 mono @ EngineRate.
     /// </summary>
-    public void Play(string soundId, VoiceEngine engine)
+    public long Play(string soundId, VoiceEngine engine)
     {
         ArgumentNullException.ThrowIfNull(engine);
         try
@@ -92,22 +92,34 @@ public sealed class SoundboardManager
             if (data.Length == 0)
             {
                 AppLog.Warning("[Soundboard] Play requested but no data for: {Id}", soundId);
-                return;
+                return 0;
             }
 
-            // Local audition always (device-independent, works with engine stopped).
-            Audition?.Play(data, Volume);
+            // Local audition always (device-independent, works with engine stopped);
+            // the pad id lets the mixer replace this pad's previous voice on re-trigger.
+            long token = Audition?.Play(data, Volume, soundId) ?? 0L;
 
             // Broadcast to others only in live mode.
             if (LiveMode)
                 engine.PlaySoundboardBytes(data, Volume);
 
             AppLog.Debug("[Soundboard] Played: {Id} (live={Live}, {Bytes} bytes)", soundId, LiveMode, data.Length);
+            return token;
         }
         catch (Exception ex)
         {
             AppLog.Warning(ex, "[Soundboard] Play failed for: {Id}", soundId);
+            return 0;
         }
+    }
+
+    /// <summary>Playable duration of a sound in seconds, derived from the actual PCM
+    /// (generated or loaded, cached on first call). Null for unknown ids.</summary>
+    public double? GetSoundDurationSeconds(string soundId)
+    {
+        var data = GetSoundData(soundId);
+        if (data.Length == 0) return null;
+        return data.Length / 4.0 / AudioConstants.EngineRate;
     }
 
     /// <summary>

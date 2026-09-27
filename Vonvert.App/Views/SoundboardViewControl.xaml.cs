@@ -123,8 +123,8 @@ public partial class SoundboardViewControl : UserControl
         {
             foreach (var vm in targets)
             {
-                string text = board.GetSoundDurationSeconds(vm.Id) is double d
-                    ? PadDurationFormat.Format(d) : "";
+                string? text = board.GetSoundDurationSeconds(vm.Id) is double d
+                    ? PadDurationFormat.Format(d) : null;
                 if (myVersion != _warmVersion) return;   // pads rebuilt meanwhile → drop stale run
                 Dispatcher.BeginInvoke(new Action(() => { vm.DurationText = text; }));
             }
@@ -371,10 +371,10 @@ public partial class SoundboardViewControl : UserControl
             set { if (_playing != value) { _playing = value; OnChanged(nameof(IsPlaying)); } }
         }
 
-        private string _durationText = "";
-        /// <summary>Static duration label shown at the pad corner (50ms / 1.2s / 30s tiers);
-        /// empty while unresolved.</summary>
-        public string DurationText
+        private string? _durationText;
+        /// <summary>Tiered duration label (50ms / 1.2s / 30s) inlined after the pad name
+        /// and mirrored in the tooltip; null until resolved (null tooltip content stays hidden).</summary>
+        public string? DurationText
         {
             get => _durationText;
             set { if (_durationText != value) { _durationText = value; OnChanged(nameof(DurationText)); } }

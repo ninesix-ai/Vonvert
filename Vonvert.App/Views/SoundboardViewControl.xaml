@@ -172,17 +172,23 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border Style="{StaticResource SbPad}"
+                                ToolTip="{Binding DurationText}"
                                 MouseLeftButtonUp="Pad_Up"
                                 MouseRightButtonUp="Pad_ClearHotkey">
                             <Grid>
                                 <StackPanel>
+                                    <!-- No explicit Foreground: inherit lets Segoe UI Emoji
+                                         render color glyphs (a solid brush forces mono silhouettes). -->
                                     <TextBlock Text="{Binding Emoji}" FontSize="22" HorizontalAlignment="Center"
-                                               Foreground="{DynamicResource TextPrimary}"
                                                Margin="0,0,0,4" FontFamily="Segoe UI Emoji"/>
-                                    <TextBlock Text="{Binding Name}" FontSize="10" TextWrapping="Wrap"
+                                    <!-- Name with the tiered duration inlined (Kick · 50ms): text flow,
+                                         so no overlay can ever collide with emoji or badges. -->
+                                    <TextBlock FontSize="10" TextWrapping="Wrap"
                                                TextAlignment="Center" MaxHeight="28" LineHeight="13"
                                                Foreground="{DynamicResource TextPrimary}"
-                                               FontFamily="{StaticResource FontFallback}" Margin="0,0,0,5"/>
+                                               FontFamily="{StaticResource FontFallback}" Margin="0,0,0,5">
+                                        <Run Text="{Binding Name, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding DurationText, Mode=OneWay}" Foreground="{DynamicResource TextSub}"/>
+                                    </TextBlock>
                                     <Button Style="{StaticResource SbBadge}" Content="{Binding BadgeText}"
                                             ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AssignHotkey, Mode=OneWay}"
                                             Click="Bind_Click"/>
@@ -202,11 +208,6 @@
                                     <TextBlock Text="&#x25B6;" FontSize="8" Foreground="White"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <!-- Static playable duration (50ms / 1.2s / 30s tiers); hidden until resolved. -->
-                                <TextBlock Text="{Binding DurationText}" FontSize="9"
-                                           Foreground="{DynamicResource TextSub}"
-                                           HorizontalAlignment="Right" VerticalAlignment="Top"
-                                           Margin="0,3,3,0" FontFamily="{StaticResource FontFallback}"/>
                             </Grid>
                         </Border>
                     </DataTemplate>

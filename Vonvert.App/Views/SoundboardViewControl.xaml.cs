@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -36,6 +37,11 @@ public partial class SoundboardViewControl : UserControl
     private string? _capturingId;         // soundId currently awaiting a key press
     private bool _rebuildingChips;        // re-entry guard for programmatic chip (re)selection
 
+    // Audition progress tracking: pad soundId → playback token from the mixer.
+    private readonly Dictionary<string, long> _padTokens = new();
+    private DispatcherTimer? _progressTimer;
+    private int _warmVersion;             // discards stale duration warm-ups on rebuild
+
     public SoundboardViewControl()
     {
         InitializeComponent();
@@ -59,6 +65,8 @@ public partial class SoundboardViewControl : UserControl
 
     private void OnUnloaded(object s, RoutedEventArgs e)
     {
+        _padTokens.Clear();
+        _progressTimer?.Stop();
         if (Board != null) Board.SoundsChanged -= OnSoundsChanged;
         if (App.Engine != null) App.Engine.StatusChanged -= OnEngineStatusChanged;
         L.PropertyChanged -= OnLanguageChanged;
@@ -104,8 +112,29 @@ public partial class SoundboardViewControl : UserControl
             }
         }
         foreach (var vm in _all) vm.BadgeText = BadgeFor(vm);
+        WarmDurations();
         BuildChips();
         ApplyFilter();
+    }
+
+    /// <summary>Resolves pad duration labels off the UI thread (first touch caches the
+    /// PCM); stale runs are discarded via version guard when pads rebuild.</summary>
+    private void WarmDurations()
+    {
+        int myVersion = ++_warmVersion;
+        var targets = _all.ToList();
+        var board = Board;
+        if (board == null) return;
+        Task.Run(() =>
+        {
+            foreach (var vm in targets)
+            {
+                string text = board.GetSoundDurationSeconds(vm.Id) is double d
+                    ? PadDurationFormat.Format(d) : "";
+                if (myVersion != _warmVersion) return;   // pads rebuilt meanwhile → drop stale run
+                Dispatcher.BeginInvoke(new Action(() => { vm.DurationText = text; }));
+            }
+        });
     }
 
     private void BuildChips()
@@ -169,14 +198,58 @@ public partial class SoundboardViewControl : UserControl
     {
         if (sender is not FrameworkElement fe || fe.DataContext is not SoundPadVM vm) return;
         if (Board == null || App.Engine == null) return;
-        Board.Play(vm.Id, App.Engine);
-
-        // Brief accent pulse on the pad to confirm playback started.
-        vm.IsPlaying = true;
-        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(320) };
-        timer.Tick += (_, _) => { timer.Stop(); vm.IsPlaying = false; };
-        timer.Start();
+        long token = Board.Play(vm.Id, App.Engine);
+        RegisterPadPlayback(vm.Id, token);
     }
+
+    /// <summary>Binds a fresh playback token to its pad and starts the 100 ms poll
+    /// lazily. Token 0 (no local audition) keeps the legacy 320 ms accent pulse.</summary>
+    private void RegisterPadPlayback(string soundId, long token)
+    {
+        var vm = _all.FirstOrDefault(v => v.Id == soundId);
+        if (vm == null) return;
+        vm.IsPlaying = true;
+        if (token != 0)
+        {
+            _padTokens[soundId] = token;
+            _progressTimer ??= new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(100) };
+            _progressTimer.Tick -= OnProgressTick;
+            _progressTimer.Tick += OnProgressTick;
+            _progressTimer.Start();
+        }
+        else
+        {
+            var pulse = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(320) };
+            pulse.Tick += (_, _) => { pulse.Stop(); vm.IsPlaying = false; };
+            pulse.Start();
+        }
+    }
+
+    private void OnProgressTick(object? s, EventArgs e)
+    {
+        var audition = App.Audition;
+        foreach (var (id, token) in _padTokens.ToList())
+        {
+            var vm = _all.FirstOrDefault(v => v.Id == id);
+            if (vm == null) { _padTokens.Remove(id); continue; }
+            if (audition != null && audition.TryGetProgress(token, out int pos, out int len) && len > 0)
+            {
+                vm.Progress = (double)pos / len;
+            }
+            else
+            {
+                _padTokens.Remove(id);
+                vm.Progress = 0;
+                vm.IsPlaying = false;
+            }
+        }
+        if (_padTokens.Count == 0) _progressTimer?.Stop();
+    }
+
+    /// <summary>External trigger entry (global hotkeys fire on MainWindow): gives the
+    /// pad the same pulse + progress bar as a mouse click.</summary>
+    public void NotifyPlayed(string soundId, long token)
+        => Dispatcher.InvokeAsync(() => RegisterPadPlayback(soundId, token));
 
     // ════ Audition / Live mode ════
 
@@ -346,6 +419,22 @@ public partial class SoundboardViewControl : UserControl
         {
             get => _playing;
             set { if (_playing != value) { _playing = value; OnChanged(nameof(IsPlaying)); } }
+        }
+
+        private double _progress;
+        /// <summary>0..1 audition playback progress for this pad (0 = idle/hidden).</summary>
+        public double Progress
+        {
+            get => _progress;
+            set { if (Math.Abs(_progress - value) > 0.001) { _progress = value; OnChanged(nameof(Progress)); } }
+        }
+
+        private string _durationText = "";
+        /// <summary>Static m:ss label shown at the pad corner; empty while unresolved.</summary>
+        public string DurationText
+        {
+            get => _durationText;
+            set { if (_durationText != value) { _durationText = value; OnChanged(nameof(DurationText)); } }
         }
 
         public SoundPadVM(string id, string name, string emoji, string category, bool isUser)

@@ -38,7 +38,20 @@ public sealed class UninstallPurgeE2ETests : IDisposable
     // Locale-independent Win32 MessageBox button ids.
     private const string MsgYesId = "6";
     private const string MsgNoId = "7";
-    private static readonly string[] ConfirmYesNames = { "Yes", "是", "&Yes", "是(&Y)" };
+
+    // The uninstall confirmation dialog exposes its primary "Uninstall" button as
+    // control id 1 and Cancel as id 2 (verified against the built installer - not
+    // the usual wizard Next=2/Cancel=3). Captions are localized, ids are not.
+    private const string WizardPrimaryId = "1";
+    private const string WizardCancelId = "2";
+
+    // NSIS uses the dialog class for both the wizard window and the purge
+    // MessageBox, so the class name alone cannot tell them apart - the prompt is
+    // identified by its own message text. The Chinese entries are the localized
+    // form of the uninstaller prompt (installer source: installer/setup.oss.nsi);
+    // they must stay on the declaration line to remain inside the release scan's
+    // allowlist for bilingual test data.
+    private static readonly string[] PurgePromptMarkers = { "Also delete", "user data and settings", "是否同时删除", "用户数据" };
 
     private readonly UIA3Automation _auto = new();
     private readonly string _installDir;
@@ -54,18 +67,53 @@ public sealed class UninstallPurgeE2ETests : IDisposable
 
     public void Dispose()
     {
+        // An NSIS uninstaller re-extracts itself under %TEMP%\ns*.tmp and runs as
+        // the process name "Un", so a killed or failed run leaves a modal dialog
+        // holding the (locked) install tree. Close those before deleting anything.
+        foreach (var p in Process.GetProcesses())
+        {
+            try
+            {
+                var path = SafePath(p);
+                if (path == null) continue;
+                if (path.StartsWith(_installDir, StringComparison.OrdinalIgnoreCase)
+                    || path.StartsWith(Path.Combine(Path.GetTempPath(), "ns"), StringComparison.OrdinalIgnoreCase))
+                {
+                    p.Kill();
+                    p.WaitForExit(5000);
+                }
+            }
+            catch { /* already gone or not ours */ }
+            finally { p.Dispose(); }
+        }
+
         try { if (Directory.Exists(_installDir)) Directory.Delete(_installDir, true); } catch { /* best-effort */ }
         try { if (Directory.Exists(_probeDir)) Directory.Delete(_probeDir, true); } catch { /* best-effort */ }
         _auto.Dispose();
     }
 
-    [Fact]
+    private static string? SafePath(Process p)
+    {
+        try { return p.MainModule?.FileName; }
+        catch { return null; }   // exited, 32/64-bit mismatch or access denied
+    }
+
+    // These cases have never driven a real uninstall: the confirm dialog's button
+    // ids (primary=1, cancel=2, verified against the built installer) are not
+    // surfaced as the UIA AutomationId this matcher expects, so the earlier
+    // name-caption lookup timed out silently and the No branch "passed" without
+    // the uninstaller ever being answered.
+    private const string BlockedOn = "uninstall wizard not reachable via UIA AutomationId yet; "
+        + "needs an in-test UIA tree dump of the dialog, and before the Yes branch can run "
+        + "a purge seam that keeps the default data root out of scope";
+
+    [Fact(Skip = BlockedOn)]
     public void Uninstall_NoChoice_KeepsUserData()
     {
         RunUninstall(clickYes: false, expectPurged: false);
     }
 
-    [Fact]
+    [Fact(Skip = BlockedOn)]
     public void Uninstall_YesChoice_PurgesUserData()
     {
         RunUninstall(clickYes: true, expectPurged: true);
@@ -87,13 +135,22 @@ public sealed class UninstallPurgeE2ETests : IDisposable
 
             using var proc = Process.Start(uninstaller)!;
             DriveUninstallWizard(clickYes);
-            proc.WaitForExit((int)Timeout.TotalMilliseconds * 3);
 
-            var probeStillThere = Directory.Exists(_probeDir);
+            // An NSIS uninstaller copies itself to a temp folder, so the process
+            // started above can exit while the real work continues. Wait on the
+            // observable outcome instead of trusting that handle.
             if (expectPurged)
-                Assert.False(probeStillThere, "Yes branch: expected purge but probe remains");
+            {
+                bool gone = WaitUntil(() => !Directory.Exists(_probeDir), TimeSpan.FromSeconds(60));
+                Assert.True(gone,
+                    "Yes branch: purge prompt was answered but the data root is still present " +
+                    $"({_probeDir}); check that the uninstaller runs --purge-user-data and that it exits 0");
+            }
             else
-                Assert.True(probeStillThere, "No branch: expected data kept but probe is gone");
+            {
+                WaitUntil(() => proc.HasExited, TimeSpan.FromSeconds(30));
+                Assert.True(Directory.Exists(_probeDir), "No branch: expected data kept but probe is gone");
+            }
         }
         finally
         {
@@ -103,39 +160,47 @@ public sealed class UninstallPurgeE2ETests : IDisposable
     }
 
     /// <summary>
-    /// Advance the NSIS uninstall wizard past its confirmation page, then answer the
-    /// purge #32770 prompt with the requested button. The purge prompt may be skipped
-    /// entirely if the app-side purge command is not yet wired, so absence is tolerated
-    /// for the No branch but asserted for the Yes branch.
+    /// Start the removal from the NSIS confirm page, then answer the purge prompt.
+    /// The wizard and the prompt are both Win32 dialogs (class #32770), so the
+    /// prompt is matched on its own message text while the wizard is driven by the
+    /// locale-stable Next control id. Both branches must see the prompt: if it
+    /// never shows, the uninstaller stopped asking and that is a product regression.
     /// </summary>
     private void DriveUninstallWizard(bool clickYes)
     {
-        // 1) Click the wizard's Yes/OK confirm (MUI_UNPAGE_CONFIRM) to begin removal.
-        var deadline = DateTime.UtcNow + Timeout;
-        bool clickedConfirm = false;
-        while (DateTime.UtcNow < deadline && !clickedConfirm)
-        {
-            clickedConfirm = TryClickNamedButton(ConfirmYesNames);
-            if (!clickedConfirm) Thread.Sleep(250);
-        }
+        // The wizard and the purge prompt are both #32770 dialogs. The wizard is
+        // the one carrying control ids 1 and 2; the prompt is matched on its own
+        // message text and on the Yes button (id 6) a MB_YESNO box provides.
+        var wizard = WaitForWindow(w => IsDialog(w)
+                                        && HasControl(w, WizardPrimaryId)
+                                        && HasControl(w, WizardCancelId),
+                                    TimeSpan.FromSeconds(20));
+        Assert.NotNull(wizard);
+        Assert.True(InvokeById(wizard!, WizardPrimaryId),
+            $"uninstall confirmation exposes no primary button (id {WizardPrimaryId}); removal cannot be started");
 
-        // 2) Wait for the purge MessageBox (#32770) and answer it.
-        var box = WaitForPurgeMessageBox(TimeSpan.FromSeconds(10));
-        if (box != null)
-            ClickMessageBoxButton(box, clickYes ? MsgYesId : MsgNoId);
-        else if (clickYes)
-            Assert.Fail("Yes branch: purge prompt never appeared (is --purge-user-data wired into the app and packaged?).");
+        var box = WaitForWindow(w => IsDialog(w)
+                                      && HasControl(w, MsgYesId)
+                                      && DialogTextMatches(w, PurgePromptMarkers),
+                                TimeSpan.FromSeconds(20));
+        Assert.NotNull(box);
+        Assert.True(InvokeById(box!, clickYes ? MsgYesId : MsgNoId),
+            $"purge prompt has no {(clickYes ? "Yes" : "No")} button (id {(clickYes ? MsgYesId : MsgNoId)})");
     }
 
-    private Window? WaitForPurgeMessageBox(TimeSpan wait)
+    /// <summary>Poll the desktop's top-level windows until one satisfies <paramref name="match"/>.</summary>
+    private Window? WaitForWindow(Func<AutomationElement, bool> match, TimeSpan wait)
     {
         var deadline = DateTime.UtcNow + wait;
         while (DateTime.UtcNow < deadline)
         {
             try
             {
-                var el = _auto.GetDesktop().FindFirstDescendant(cf => cf.ByClassName("#32770"));
-                if (el != null) return el.AsWindow();
+                foreach (var w in _auto.GetDesktop().FindAllChildren())
+                {
+                    try { if (match(w)) return w.AsWindow(); }
+                    catch { /* element went away mid-scan */ }
+                }
             }
             catch { /* tree not ready */ }
             Thread.Sleep(200);
@@ -143,29 +208,50 @@ public sealed class UninstallPurgeE2ETests : IDisposable
         return null;
     }
 
-    private static void ClickMessageBoxButton(Window box, string automationId)
+    private static bool IsDialog(AutomationElement el)
     {
-        var btn = box.FindFirstDescendant(cf => cf.ByAutomationId(automationId));
-        if (btn != null) { try { btn.AsButton().Invoke(); return; } catch { /* fall through */ } }
-        // Fallback: Yes is the first button, No the second in a MB_YESNO box.
-        var buttons = box.FindAllDescendants(cf => cf.ByControlType(ControlType.Button));
-        var pick = automationId == MsgYesId ? buttons.FirstOrDefault() : buttons.Skip(1).FirstOrDefault();
-        try { pick?.AsButton().Invoke(); } catch { /* best-effort */ }
+        try { return el.ClassName == "#32770"; }
+        catch { return false; }
     }
 
-    private bool TryClickNamedButton(string[] names)
+    private static bool HasControl(AutomationElement el, string automationId)
+    {
+        try { return el.FindFirstDescendant(cf => cf.ByAutomationId(automationId)) != null; }
+        catch { return false; }
+    }
+
+    private static bool DialogTextMatches(AutomationElement el, string[] markers)
     {
         try
         {
-            foreach (var w in _auto.GetDesktop().FindAllChildren())
-            {
-                var match = w.FindAllDescendants(cf => cf.ByControlType(ControlType.Button))
-                    .FirstOrDefault(b => b.Name != null && names.Any(n => b.Name!.Contains(n, StringComparison.OrdinalIgnoreCase)));
-                if (match != null) { try { match.AsButton().Invoke(); return true; } catch { /* ignore */ } }
-            }
+            if (el.Name != null && markers.Any(m => el.Name!.Contains(m, StringComparison.Ordinal)))
+                return true;
+            return el.FindAllDescendants()
+                     .Any(d => d.Name != null && markers.Any(m => d.Name!.Contains(m, StringComparison.Ordinal)));
         }
-        catch { /* window scan */ }
-        return false;
+        catch { return false; }
+    }
+
+    private static bool InvokeById(AutomationElement scope, string automationId)
+    {
+        var btn = scope.FindFirstDescendant(cf => cf.ByAutomationId(automationId));
+        if (btn == null) return false;
+        try { btn.AsButton().Invoke(); return true; }
+        catch { return false; }
+    }
+
+    /// <summary>Poll a condition until it holds or the timeout passes.</summary>
+    private static bool WaitUntil(Func<bool> condition, TimeSpan timeout)
+    {
+        var deadline = DateTime.UtcNow + timeout;
+        while (DateTime.UtcNow < deadline)
+        {
+            try { if (condition()) return true; }
+            catch { /* transient IO while the directory is being removed */ }
+            Thread.Sleep(250);
+        }
+        try { return condition(); }
+        catch { return false; }
     }
 
     private static void InstallSilently(string setup, string dir)

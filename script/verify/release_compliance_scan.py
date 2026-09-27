@@ -51,8 +51,11 @@ SKIP_DIRS = {
     ".git", "bin", "obj", "publish", "__pycache__", "node_modules", ".vs",
     ".vscode", "dist", "build", ".venv", "TestResults",
 }
-# VS-generated project/solution files legitimately carry a UTF-8 BOM.
-BOM_OK_EXTS = {".sln", ".vcxproj", ".csproj"}
+# VS-generated project/solution files legitimately carry a UTF-8 BOM, and makensis
+# only reads a script as UTF-8 when the BOM is present (without it the file is
+# parsed as the system ANSI code page and non-ASCII LangStrings fail to compile
+# with "Bad text encoding").
+BOM_OK_EXTS = {".sln", ".vcxproj", ".csproj", ".nsi"}
 # The gate's own files necessarily contain banned sample strings; skip them to
 # avoid self-matches.
 SELF_EXCLUDE = ("script/verify/release-compliance",

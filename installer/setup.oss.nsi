@@ -1,4 +1,4 @@
-; SPDX-License-Identifier: Apache-2.0
+﻿; SPDX-License-Identifier: Apache-2.0
 ; Copyright (c) 2026 ninesix-ai studio
 ;
 ; Vonvert OSS Edition Installer (NSIS)
@@ -10,8 +10,11 @@
 ;               (BUILD_DIR is relative to this script's directory; APP_VERSION should be
 ;                kept in sync with Directory.Build.props <Version>.)
 ;
-; Encoding note: keep this file pure ASCII. Chinese UI text below uses NSIS
-; ${UTF8} byte escapes so the script compiles identically under any code page.
+; Encoding note: this file is UTF-8 without a BOM, and `Unicode true` above makes
+; makensis read it as UTF-8 (NSIS reads UTF-8 with or without a BOM). Non-ASCII
+; text below is therefore written as real characters. There is no \xHH byte escape
+; in NSIS strings - its escapes start with $ ($\n, $\", $$) - so "\xe6..." would
+; be shown to the user verbatim.
 
 !include "MUI2.nsh"
 
@@ -141,15 +144,15 @@ SectionEnd
 
 ; -- Section Descriptions ------------------------------------------------------
 LangString DESC_SecApp ${LANG_ENGLISH} "Install ${APP_DISPLAY} application files (required)."
-LangString DESC_SecApp ${LANG_SIMPCHINESE} "\xe5\xae\x89\xe8\xa3\x85 ${APP_DISPLAY} \xe7\xa8\x8b\xe5\xba\x8f\xe6\x96\x87\xe4\xbb\xb6\xef\xbc\x88\xe5\xbf\x85\xe9\x9c\x80\xef\xbc\x89\xe3\x80\x82"
+LangString DESC_SecApp ${LANG_SIMPCHINESE} "安装 ${APP_DISPLAY} 程序文件（必需）。"
 LangString DESC_SecStartMenu ${LANG_ENGLISH} "Create Start Menu shortcuts for ${APP_NAME}."
-LangString DESC_SecStartMenu ${LANG_SIMPCHINESE} "\xe5\x88\x9b\xe5\xbb\xba ${APP_NAME} \xe5\xbc\x80\xe5\xa7\x8b\xe8\x8f\x9c\xe5\x8d\x95\xe5\xbf\xab\xe6\x8d\xb7\xe6\x96\xb9\xe5\xbc\x8f\xe3\x80\x82"
+LangString DESC_SecStartMenu ${LANG_SIMPCHINESE} "创建 ${APP_NAME} 开始菜单快捷方式。"
 LangString DESC_SecDesktop ${LANG_ENGLISH} "Create a desktop shortcut for ${APP_NAME}."
-LangString DESC_SecDesktop ${LANG_SIMPCHINESE} "\xe5\x88\x9b\xe5\xbb\xba ${APP_NAME} \xe6\xa1\x8c\xe9\x9d\xa2\xe5\xbf\xab\xe6\x8d\xb7\xe6\x96\xb9\xe5\xbc\x8f\xe3\x80\x82"
+LangString DESC_SecDesktop ${LANG_SIMPCHINESE} "创建 ${APP_NAME} 桌面快捷方式。"
 
 ; -- Uninstall purge prompt ----------------------------------------------------
 LangString UNWI_PURGE_PROMPT ${LANG_ENGLISH} "Also delete all Vonvert user data and settings (presets, config, logs)? This cannot be undone."
-LangString UNWI_PURGE_PROMPT ${LANG_SIMPCHINESE} "\xe6\x98\xaf\xe5\x90\xa6\xe5\x90\x8c\xe6\x97\xb6\xe5\x88\xa0\xe9\x99\xa4\xe6\x89\x80\xe6\x9c\x89 Vonvert \xe7\x94\xa8\xe6\x88\xb7\xe6\x95\xb0\xe6\x8d\xae\xe4\xb8\x8e\xe8\xae\xbe\xe7\xbd\xae\xef\xbc\x88\xe9\xa2\x84\xe8\xae\xbe\xe3\x80\x81\xe9\x85\x8d\xe7\xbd\xae\xe3\x80\x81\xe6\x97\xa5\xe5\xbf\x97\xef\xbc\x89\xef\xbc\x9f\xe6\xad\xa4\xe6\x93\x8d\xe4\xbd\x9c\xe4\xb8\x8d\xe5\x8f\xaf\xe6\x92\xa4\xe9\x94\x80\xe3\x80\x82"
+LangString UNWI_PURGE_PROMPT ${LANG_SIMPCHINESE} "是否同时删除所有 Vonvert 用户数据与设置（预设、配置、日志）？此操作不可撤销。"
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
     !insertmacro MUI_DESCRIPTION_TEXT ${SecApp} $(DESC_SecApp)

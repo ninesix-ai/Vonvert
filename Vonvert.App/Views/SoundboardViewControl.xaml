@@ -92,13 +92,14 @@
 
         <!-- Pad card: hover + playing feedback mirror PresetTile (voice page): corner 10,
              TileSurface bg, CtrlHover/CtrlBorder on hover, Accent ring when active.
-             Fixed 80x80 square: emoji 22 + single-line name (ellipsis trim) + badge
-             = ~68 px, so the card can never grow into a rectangle. -->
+             Fixed 96x96 square sized from real glyph metrics: 26 px emoji (~35 line) +
+             name/duration up to two 13 px lines + hotkey badge (~16) + padding fits with
+             slack, so the card can never grow into a rectangle. -->
         <Style x:Key="SbPad" TargetType="Border">
-            <Setter Property="Width" Value="80"/>
-            <Setter Property="Height" Value="80"/>
+            <Setter Property="Width" Value="96"/>
+            <Setter Property="Height" Value="96"/>
             <Setter Property="Margin" Value="0,0,14,14"/>
-            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="Padding" Value="6,6"/>
             <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -184,8 +185,8 @@
                                          layered (AllowsTransparency), where WPF drops COLR color glyphs, so a
                                          theme-token hue - not the artwork - carries the category grouping.
                                          DataTriggers keep it reactive to a future theme swap. -->
-                                    <TextBlock Text="{Binding Emoji}" FontSize="22" HorizontalAlignment="Center"
-                                               Margin="0,0,0,4" FontFamily="Segoe UI Emoji">
+                                    <TextBlock Text="{Binding Emoji}" FontSize="26" HorizontalAlignment="Center"
+                                               Margin="0,0,0,3" FontFamily="Segoe UI Emoji">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>

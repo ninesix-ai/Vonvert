@@ -28,14 +28,16 @@
         <Color x:Key="C_IconSoundboard">#FFFBBF24</Color>
 
     <!-- Soundboard pad silhouette hues (one per pad category; emoji glyphs render
-         monochrome in this layered window, so the hue carries the grouping) -->
-    <Color x:Key="C_IconCatDrums">#FFF0A848</Color>
-    <Color x:Key="C_IconCatTones">#FF8B7BF0</Color>
-    <Color x:Key="C_IconCatSFX">#FF4FC3F7</Color>
-    <Color x:Key="C_IconCatMemes">#FFEF6FB4</Color>
-    <Color x:Key="C_IconCatMusic">#FF7DC97F</Color>
-    <Color x:Key="C_IconCatRetro">#FF4FB6C9</Color>
-    <Color x:Key="C_IconCatAmbient">#FF9AA7B8</Color>
+         monochrome in this layered window, so the hue carries the grouping).
+         Chroma is deliberately muted to sit calmly on TileSurface while keeping
+         >=6:1 WCAG contrast against the dark tile. -->
+    <Color x:Key="C_IconCatDrums">#FFCAA36E</Color>
+    <Color x:Key="C_IconCatTones">#FF9E95D6</Color>
+    <Color x:Key="C_IconCatSFX">#FF75B5D1</Color>
+    <Color x:Key="C_IconCatMemes">#FFD28CB2</Color>
+    <Color x:Key="C_IconCatMusic">#FF8EB88F</Color>
+    <Color x:Key="C_IconCatRetro">#FF6AA3AE</Color>
+    <Color x:Key="C_IconCatAmbient">#FFA1A8B1</Color>
 
     <!-- Control tokens (for Controls.xaml) -->
     <Color x:Key="C_CtrlBorder">#FF37315A</Color>

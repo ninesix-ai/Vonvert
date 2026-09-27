@@ -8,8 +8,8 @@ namespace Vonvert.App.UIServices;
 
 /// <summary>
 /// Singleton localization manager providing multi-language UI strings.
-/// Supported: en, zh. Other languages fall back to English when selected
-/// via a saved config (LoadLanguage's English-fallback path).
+/// The supported set is defined once in <see cref="SupportedLanguages"/>; anything
+/// outside it falls back to English (LoadLanguage's English-fallback path).
 /// Raises PropertyChanged for every key when Language changes so XAML bindings auto-refresh.
 /// </summary>
 public partial class LocalizationManager : INotifyPropertyChanged
@@ -21,6 +21,19 @@ public partial class LocalizationManager : INotifyPropertyChanged
 
     /// <summary>All supported language codes.</summary>
     public static readonly string[] SupportedLanguages = { "en", "zh" };
+
+    /// <summary>
+    /// The Settings language picker, derived from <see cref="SupportedLanguages"/>:
+    /// each code with the name speakers of that language read best (a native name is
+    /// deliberately not translatable - "Deutsch" must stay "Deutsch" in every UI
+    /// language). Adding a language means adding a translation file plus one row here;
+    /// L10N-08 and L10N-10 fail if either half is forgotten.
+    /// </summary>
+    public static readonly (string Code, string NativeName)[] SupportedLanguageOptions =
+    {
+        ("en", "English"),
+        ("zh", "简体中文"),
+    };
 
     // ── Persisted config ────────────────────────────────────────────────
 

@@ -306,12 +306,12 @@
                                             <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=LanguageLabel, Mode=OneWay}"
                                                        FontSize="12" Foreground="{DynamicResource TextSub}"
                                                        VerticalAlignment="Center" FontFamily="{StaticResource FontFallback}"/>
+                                            <!-- Items are filled from LocalizationManager.SupportedLanguageOptions
+                                                 in InitLanguageSelector so the list can never drift from the
+                                                 set of shipped translations. -->
                                             <ComboBox x:Name="LanguageSelector" Grid.Column="1" MinWidth="140"
                                                       VerticalAlignment="Center"
-                                                      SelectionChanged="LanguageSelector_Changed">
-                                                <ComboBoxItem Tag="en" Content="English"/>
-                                                <ComboBoxItem Tag="zh" Content="中文"/>
-                                            </ComboBox>
+                                                      SelectionChanged="LanguageSelector_Changed"/>
                                         </Grid>
                                     </Border>
                                     <controls:SettingsMyPersonaView x:Name="MyPersonaView"/>

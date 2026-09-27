@@ -25,27 +25,6 @@ public partial class LocalizationManager
     // looked up dynamically by persona key via GetPersonaLabel, so they don't need C# properties.
     private Dictionary<string, string> _personaStrings = new();
 
-    // ── Static preset name dictionaries (for completeness verification) ──
-
-    private static readonly Dictionary<string, string> EnPresetNames = LoadStaticPresetNames("en");
-    private static readonly Dictionary<string, string> ZhPresetNames = LoadStaticPresetNames("zh");
-
-    private static Dictionary<string, string> LoadStaticPresetNames(string lang)
-    {
-        var assembly = Assembly.GetExecutingAssembly();
-        string resourceName = $"Vonvert.App.Translations.{lang}.json";
-        using var stream = assembly.GetManifestResourceStream(resourceName);
-        if (stream == null) return new();
-        try
-        {
-            using var reader = new StreamReader(stream);
-            var json = reader.ReadToEnd();
-            var obj = JObject.Parse(json);
-            return obj["presets"]?.ToObject<Dictionary<string, string>>() ?? new();
-        }
-        catch { return new(); }
-    }
-
     // ── Generic getter (avoids ambiguity with G() overloads) ─────────
 
     private string G([CallerMemberName] string? key = null)
@@ -107,36 +86,37 @@ public partial class LocalizationManager
             _personaStrings = new();
         }
 
-        // English fallback: fill in any keys missing from the target language
-        if (lang != "en" && TryLoadJson("en", out var enObj) && enObj != null)
+        // English fallback: fill in any keys the target language is missing, in all
+        // four sections. "presets" used to be skipped here, so a language file that
+        // omitted a preset name surfaced the raw internal key instead of the label.
+        if (lang != "en" && TryLoadJson("en", out var enObj))
         {
-            var enStrings = enObj["ui"]?.ToObject<Dictionary<string, string>>();
-            if (enStrings != null)
-            {
-                foreach (var kv in enStrings)
-                    if (!_strings.ContainsKey(kv.Key))
-                        _strings[kv.Key] = kv.Value;
-            }
-            var enParams = enObj["params"]?.ToObject<Dictionary<string, string>>();
-            if (enParams != null)
-            {
-                foreach (var kv in enParams)
-                    if (!_paramStrings.ContainsKey(kv.Key))
-                        _paramStrings[kv.Key] = kv.Value;
-            }
-            var enPersona = enObj["persona"]?.ToObject<Dictionary<string, string>>();
-            if (enPersona != null)
-            {
-                foreach (var kv in enPersona)
-                    if (!_personaStrings.ContainsKey(kv.Key))
-                        _personaStrings[kv.Key] = kv.Value;
-            }
+            ApplyEnglishFallback(_strings, enObj, "ui");
+            ApplyEnglishFallback(_presetNames, enObj, "presets");
+            ApplyEnglishFallback(_paramStrings, enObj, "params");
+            ApplyEnglishFallback(_personaStrings, enObj, "persona");
         }
 
         // Fire PropertyChanged for every public property so bindings refresh
         foreach (var prop in GetType().GetProperties()
                      .Where(p => p.PropertyType == typeof(string) && p.CanRead))
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop.Name));
+    }
+
+    /// <summary>
+    /// Copy every key of <paramref name="enObj"/>'s <paramref name="section"/> into
+    /// <paramref name="target"/> that the target language does not already define.
+    /// Translations always win; English only fills gaps, so an untranslated string
+    /// degrades to readable English rather than to a raw key name.
+    /// </summary>
+    internal static void ApplyEnglishFallback(
+        Dictionary<string, string> target, JObject? enObj, string section)
+    {
+        var en = enObj?[section]?.ToObject<Dictionary<string, string>>();
+        if (en == null) return;
+        foreach (var kv in en)
+            if (!target.ContainsKey(kv.Key))
+                target[kv.Key] = kv.Value;
     }
 
     /// <summary>
@@ -208,26 +188,49 @@ public partial class LocalizationManager
             }
         }
         catch (Exception ex) { AppLog.Warning(ex, "[LocalizationManager] LoadSavedLanguage failed"); }
-        // No valid saved preference — follow the OS UI language on first run
-        // (zh-* → Chinese, otherwise English). The user can still override this
+        // No valid saved preference — follow the OS UI language on first run,
+        // resolving it against SupportedLanguages. The user can still override this
         // in Settings, which persists to config.json.
         LoadLanguage(DetectSystemLanguage());
     }
 
     /// <summary>
-    /// Best-effort OS UI-culture detection: any "zh*" culture selects Chinese,
-    /// everything else falls back to English. Only languages in
-    /// <see cref="SupportedLanguages"/> can ever be returned.
+    /// Best-effort OS UI-culture detection; only ever yields a code from
+    /// <see cref="SupportedLanguages"/>.
     /// </summary>
     internal static string DetectSystemLanguage()
     {
         try
         {
-            var ui = System.Globalization.CultureInfo.CurrentUICulture.Name;   // e.g. "zh-CN", "en-US"
-            if (!string.IsNullOrEmpty(ui) && ui.StartsWith("zh", StringComparison.OrdinalIgnoreCase))
-                return "zh";
+            return ResolveSystemLanguage(System.Globalization.CultureInfo.CurrentUICulture.Name);
         }
         catch (Exception ex) { AppLog.Warning(ex, "[LocalizationManager] DetectSystemLanguage failed"); }
+        return "en";
+    }
+
+    /// <summary>
+    /// Map an OS culture name (e.g. "zh-CN", "pt-BR") onto a supported language code:
+    /// the full name must match first so a region-qualified code is honoured, then the
+    /// primary sub-tag, and anything unsupported degrades to English. Kept free of
+    /// environment access so every branch is unit-testable (L10N-03b).
+    /// </summary>
+    internal static string ResolveSystemLanguage(string? uiCultureName)
+    {
+        if (string.IsNullOrWhiteSpace(uiCultureName)) return "en";
+
+        // 1) Exact culture match, so "pt-BR" resolves to pt-BR rather than to a bare "pt".
+        foreach (var code in SupportedLanguages)
+            if (string.Equals(uiCultureName, code, StringComparison.OrdinalIgnoreCase))
+                return code;
+
+        // 2) Primary sub-tag match: "de-AT" -> "de", "zh-TW" -> "zh". Where several
+        //    region variants of one language exist, the first listed code wins.
+        var primary = uiCultureName.Split('-')[0];
+        foreach (var code in SupportedLanguages)
+            if (string.Equals(code.Split('-')[0], primary, StringComparison.OrdinalIgnoreCase))
+                return code;
+
+        // 3) Not on the supported list.
         return "en";
     }
 }

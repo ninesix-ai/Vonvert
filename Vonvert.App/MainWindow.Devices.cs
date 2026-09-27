@@ -26,12 +26,35 @@ public partial class MainWindow
     // ── Language selector ──
     private bool _applyingLanguage;
 
-    /// <summary>Reflect the current UI language in the Settings combo without triggering a switch.</summary>
+    /// <summary>
+    /// Fill the combo from <see cref="LocalizationManager.SupportedLanguageOptions"/> and
+    /// reflect the current UI language without triggering a switch. The items come from the
+    /// same list the manager validates against, so the picker can no longer drift from the
+    /// shipped translations, and the selection is matched by language code because an
+    /// index-based choice breaks the moment a language is added.
+    /// </summary>
     private void InitLanguageSelector()
     {
         if (LanguageSelector == null) return;
         _applyingLanguage = true;
-        try { LanguageSelector.SelectedIndex = LocalizationManager.Instance.Language == "zh" ? 1 : 0; }
+        try
+        {
+            var options = LocalizationManager.SupportedLanguageOptions;
+            if (LanguageSelector.Items.Count != options.Length)
+            {
+                LanguageSelector.Items.Clear();
+                foreach (var (code, nativeName) in options)
+                    LanguageSelector.Items.Add(new ComboBoxItem { Tag = code, Content = nativeName });
+            }
+
+            string current = LocalizationManager.Instance.Language;
+            int selected = 0;
+            for (int i = 0; i < LanguageSelector.Items.Count; i++)
+                if (LanguageSelector.Items[i] is ComboBoxItem item
+                    && string.Equals((string?)item.Tag, current, StringComparison.Ordinal))
+                    selected = i;
+            LanguageSelector.SelectedIndex = selected;
+        }
         finally { _applyingLanguage = false; }
     }
 

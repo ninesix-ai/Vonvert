@@ -80,10 +80,10 @@
 
   "allowlist": [
     {
-      "file": "Vonvert.App/MainWindow.xaml",
+      "file": "Vonvert.App/UIServices/LocalizationManager.cs",
       "rule": "chinese-in-source",
-      "pattern": "Content=\"中文\"",
-      "reason": "Language-combobox display name for the Chinese locale; legitimate UI text"
+      "pattern": "\"简体中文\"",
+      "reason": "Native display name of the Chinese locale in the language picker; a native name is deliberately not translatable UI text (moved out of MainWindow.xaml, which no longer hardcodes the list)"
     },
     {
       "file": "test/code/Vonvert.Tests/DSP/EffectRegistryTests.cs",

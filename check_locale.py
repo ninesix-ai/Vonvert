@@ -75,7 +75,21 @@ for k, v in unused.items():
     print(f"  {k}  <- {os.path.basename(v)}")
 
 # 4. JSON keys check
-for lang in ("en", "zh"):
+# The language list is parsed from the C# source of truth instead of being restated
+# here; a hardcoded copy is exactly how a newly added translation file would silently
+# go unchecked (guarded by test L10N-09).
+def supported_languages():
+    src = read(os.path.join(ROOT, "Vonvert.App", "UIServices", "LocalizationManager.cs"))
+    m = re.search(r"SupportedLanguages\s*=\s*\{([^}]*)\}", src)
+    if not m:
+        raise SystemExit("could not parse SupportedLanguages from LocalizationManager.cs")
+    return tuple(re.findall(r'"([^"]+)"', m.group(1)))
+
+
+SUPPORTED_LANGUAGES = supported_languages()
+print(f"\nSupported languages: {', '.join(SUPPORTED_LANGUAGES)}")
+
+for lang in SUPPORTED_LANGUAGES:
     jp = os.path.join(ROOT, "Vonvert.App", "Translations", lang + ".json")
     if not os.path.exists(jp):
         print(f"\n=== {lang}.json: not present in this build — skipped ===")

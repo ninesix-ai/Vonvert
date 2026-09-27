@@ -102,7 +102,6 @@ public partial class SoundboardViewControl : UserControl
                     def.SourceType == SoundSourceType.File)
                 {
                     HotkeyText = FormatHotkey(Board.GetHotkey(def.Id)),
-                    Icon = SoundPadVM.ResolveIcon(def.Id, def.Category, def.SourceType == SoundSourceType.File),
                 });
             }
         }
@@ -357,15 +356,6 @@ public partial class SoundboardViewControl : UserControl
         public string Category { get; }
         public bool IsUser { get; }
         public string HotkeyText { get; set; } = "";
-
-        /// <summary>Category-colored vector glyph resolved from SoundboardIconMap.</summary>
-        public System.Windows.Media.ImageSource? Icon { get; set; }
-
-        public static System.Windows.Media.ImageSource? ResolveIcon(string id, string category, bool isUser)
-            => System.Windows.Application.Current != null
-               ? System.Windows.Application.Current.TryFindResource(
-                     SoundboardIconMap.Resolve(id, category, isUser)) as System.Windows.Media.ImageSource
-               : null;
 
         private string _badge = "";
         public string BadgeText

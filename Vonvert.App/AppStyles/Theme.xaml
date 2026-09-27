@@ -27,6 +27,16 @@
         <Color x:Key="C_IconAbout">#FF34D399</Color>
         <Color x:Key="C_IconSoundboard">#FFFBBF24</Color>
 
+    <!-- Soundboard pad silhouette hues (one per pad category; emoji glyphs render
+         monochrome in this layered window, so the hue carries the grouping) -->
+    <Color x:Key="C_IconCatDrums">#FFF0A848</Color>
+    <Color x:Key="C_IconCatTones">#FF8B7BF0</Color>
+    <Color x:Key="C_IconCatSFX">#FF4FC3F7</Color>
+    <Color x:Key="C_IconCatMemes">#FFEF6FB4</Color>
+    <Color x:Key="C_IconCatMusic">#FF7DC97F</Color>
+    <Color x:Key="C_IconCatRetro">#FF4FB6C9</Color>
+    <Color x:Key="C_IconCatAmbient">#FF9AA7B8</Color>
+
     <!-- Control tokens (for Controls.xaml) -->
     <Color x:Key="C_CtrlBorder">#FF37315A</Color>
     <Color x:Key="C_CtrlSurface">#FF1E1A30</Color>
@@ -57,6 +67,15 @@
     <SolidColorBrush x:Key="IconSettings" Color="{StaticResource C_IconSettings}"/>
         <SolidColorBrush x:Key="IconAbout"    Color="{StaticResource C_IconAbout}"/>
         <SolidColorBrush x:Key="IconSoundboard" Color="{StaticResource C_IconSoundboard}"/>
+
+    <!-- Soundboard pad silhouette hue brushes -->
+    <SolidColorBrush x:Key="IconCatDrums"   Color="{StaticResource C_IconCatDrums}"/>
+    <SolidColorBrush x:Key="IconCatTones"   Color="{StaticResource C_IconCatTones}"/>
+    <SolidColorBrush x:Key="IconCatSFX"     Color="{StaticResource C_IconCatSFX}"/>
+    <SolidColorBrush x:Key="IconCatMemes"   Color="{StaticResource C_IconCatMemes}"/>
+    <SolidColorBrush x:Key="IconCatMusic"   Color="{StaticResource C_IconCatMusic}"/>
+    <SolidColorBrush x:Key="IconCatRetro"   Color="{StaticResource C_IconCatRetro}"/>
+    <SolidColorBrush x:Key="IconCatAmbient" Color="{StaticResource C_IconCatAmbient}"/>
 
     <!-- Control brushes -->
     <SolidColorBrush x:Key="CtrlBorder"    Color="{StaticResource C_CtrlBorder}"/>

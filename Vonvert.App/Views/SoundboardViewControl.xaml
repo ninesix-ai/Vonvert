@@ -180,10 +180,45 @@
                                 MouseRightButtonUp="Pad_ClearHotkey">
                             <Grid>
                                 <StackPanel>
-                                    <!-- Category-colored vector glyph (see SoundboardIconMap):
-                                         layered windows cannot render color emoji. -->
-                                    <Image Source="{Binding Icon}" Width="26" Height="26"
-                                           HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                                    <!-- Emoji glyph painted as a category-tinted silhouette. This window is
+                                         layered (AllowsTransparency), where WPF drops COLR color glyphs, so a
+                                         theme-token hue - not the artwork - carries the category grouping.
+                                         DataTriggers keep it reactive to a future theme swap. -->
+                                    <TextBlock Text="{Binding Emoji}" FontSize="22" HorizontalAlignment="Center"
+                                               Margin="0,0,0,4" FontFamily="Segoe UI Emoji">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Category}" Value="Drums">
+                                                        <Setter Property="Foreground" Value="{DynamicResource IconCatDrums}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Category}" Value="Tones">
+                                                        <Setter Property="Foreground" Value="{DynamicResource IconCatTones}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Category}" Value="SFX">
+                                                        <Setter Property="Foreground" Value="{DynamicResource IconCatSFX}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Category}" Value="Memes">
+                                                        <Setter Property="Foreground" Value="{DynamicResource IconCatMemes}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Category}" Value="Music">
+                                                        <Setter Property="Foreground" Value="{DynamicResource IconCatMusic}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Category}" Value="Retro">
+                                                        <Setter Property="Foreground" Value="{DynamicResource IconCatRetro}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Category}" Value="Ambient">
+                                                        <Setter Property="Foreground" Value="{DynamicResource IconCatAmbient}"/>
+                                                    </DataTrigger>
+                                                    <!-- Imported files are not a catalogue category: brand accent. -->
+                                                    <DataTrigger Binding="{Binding IsUser}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                     <!-- Name with the tiered duration inlined (Kick · 50ms): text flow,
                                          so no overlay can ever collide with emoji or badges. -->
                                     <TextBlock FontSize="10" TextWrapping="Wrap"

@@ -30,17 +30,21 @@ public sealed class SoundboardAuditionPlayer : IAuditionPlayer, IDisposable
     /// <summary>Clips still being rendered (test/monitor seam).</summary>
     public int ActiveVoices => _mixer.ActiveVoices;
 
-    public void Play(byte[] pcm, float volume)
+    public long Play(byte[] pcm, float volume, string? soundId = null)
     {
-        if (pcm == null || pcm.Length == 0) return;
-        _mixer.Enqueue(pcm, volume);
+        if (pcm == null || pcm.Length == 0) return 0;
+        long token = _mixer.Enqueue(pcm, volume, soundId);
         lock (_lock)
         {
             _silentTicks = 0;
             EnsureStarted();
             _idleTimer ??= new Timer(OnIdleTick, null, PollMs, PollMs);
         }
+        return token;
     }
+
+    public bool TryGetProgress(long token, out int position, out int length)
+        => _mixer.TryGetProgress(token, out position, out length);
 
     private void EnsureStarted()
     {

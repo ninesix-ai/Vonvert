@@ -65,4 +65,23 @@ public sealed class SoundboardAuditionPlayerTests
         Assert.Equal(1, sink.StopCount);
         Assert.Equal(1, sink.DisposeCount);
     }
+
+    [Fact(DisplayName = "AUD-005: Play returns a queryable token bound to the pad id")]
+    public void Play_ReturnsQueryableToken()
+    {
+        var p = new SoundboardAuditionPlayer(_ => new FakeSink());
+        long tok = p.Play(new byte[256 * 4], 1f, "kick");
+        Assert.NotEqual(0, tok);
+        Assert.True(p.TryGetProgress(tok, out int pos, out int len));
+        Assert.Equal(0, pos);
+        Assert.Equal(256, len);
+    }
+
+    [Fact(DisplayName = "AUD-006: empty payload and unknown tokens report no progress")]
+    public void UnknownToken_NoProgress()
+    {
+        using var p = new SoundboardAuditionPlayer(_ => new FakeSink());
+        Assert.Equal(0, p.Play(Array.Empty<byte>(), 1f, "kick"));
+        Assert.False(p.TryGetProgress(4242, out _, out _));
+    }
 }

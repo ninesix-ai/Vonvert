@@ -69,12 +69,7 @@ public partial class MainWindow
         Dispatcher.InvokeAsync(() =>
         {
             if (!_servicesInitialized) return;
-            try
-            {
-                if (App.Soundboard == null) return;
-                long token = App.Soundboard.Play(soundId, App.Engine);
-                SoundboardView.NotifyPlayed(soundId, token);
-            }
+            try { App.Soundboard?.Play(soundId, App.Engine); }
             catch (Exception ex) { AppLog.Warning(ex, "Soundboard hotkey play failed: {Id}", soundId); }
         });
     }

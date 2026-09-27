@@ -5,18 +5,23 @@ namespace Vonvert.Tests.UIServices;
 using Vonvert.App.UIServices;
 using Xunit;
 
-// Display rule (spec 5.4): m:ss with seconds rounded half-away-from-zero, clamped
-// to >= 1 — a 0.03 s kick shows 0:01, never 0:00.
+// Tiered duration display (user-verified against real playback): sub-second sounds
+// show whole milliseconds, 1-10 s show one decimal, >=10 s show whole seconds.
+// The old "0:01 floor" lied about 50-450 ms pads, so it is gone.
 public sealed class PadDurationFormatTests
 {
-    [Theory(DisplayName = "PDF-001: m:ss formatting rules")]
-    [InlineData(0.03, "0:01")]   // sub-second floors to 0:01
-    [InlineData(0.4,  "0:01")]   // rounds down but clamps at 1
-    [InlineData(2.5,  "0:03")]   // half rounds away from zero
-    [InlineData(3.0,  "0:03")]
-    [InlineData(3.5,  "0:04")]
-    [InlineData(29.6, "0:30")]
-    [InlineData(65.0, "1:05")]
-    public void Format_Rules(double seconds, string expected)
+    [Theory(DisplayName = "PDF-001: tiered duration formatting rules")]
+    [InlineData(0.03,  "30ms")]    // tightest drum click
+    [InlineData(0.05,  "50ms")]    // hat
+    [InlineData(0.4,   "400ms")]   // snare
+    [InlineData(0.999, "999ms")]   // top of ms tier
+    [InlineData(1.0,   "1s")]      // whole seconds drop the decimal
+    [InlineData(1.2,   "1.2s")]
+    [InlineData(3.0,   "3s")]      // rain / campfire
+    [InlineData(3.5,   "3.5s")]    // ocean
+    [InlineData(9.95,  "10s")]     // decimal carry must bump into the >=10s tier
+    [InlineData(29.6,  "30s")]     // imported-file cap
+    [InlineData(65.0,  "65s")]
+    public void Format_Tiers(double seconds, string expected)
         => Assert.Equal(expected, PadDurationFormat.Format(seconds));
 }

@@ -202,19 +202,11 @@
                                     <TextBlock Text="&#x25B6;" FontSize="8" Foreground="White"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <!-- Static playable duration (m:ss); hidden until resolved. -->
+                                <!-- Static playable duration (50ms / 1.2s / 30s tiers); hidden until resolved. -->
                                 <TextBlock Text="{Binding DurationText}" FontSize="9"
                                            Foreground="{DynamicResource TextSub}"
                                            HorizontalAlignment="Right" VerticalAlignment="Top"
                                            Margin="0,3,3,0" FontFamily="{StaticResource FontFallback}"/>
-                                <!-- Audition progress rail along the pad bottom, visible while playing. -->
-                                <ProgressBar Value="{Binding Progress}" Minimum="0" Maximum="1"
-                                             Height="3" BorderThickness="0"
-                                             Background="{DynamicResource SurfaceLift}"
-                                             Foreground="{DynamicResource Accent}"
-                                             HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
-                                             Margin="5,0,5,3"
-                                             Visibility="{Binding IsPlaying, Converter={StaticResource B2V}}"/>
                             </Grid>
                         </Border>
                     </DataTemplate>

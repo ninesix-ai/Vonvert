@@ -105,4 +105,18 @@ public sealed class SoundboardManagerTests : IDisposable
         Assert.Equal(before, sb.UserSlotCount);
         Assert.DoesNotContain(sb.Sounds, s => s.Id == def.Id);
     }
+
+    [Fact(DisplayName = "SBMgr-006: GetSoundDurationSeconds matches the real generated PCM length")]
+    public void SBMgr006_DurationMatchesGeneratedAudio()
+    {
+        var sb = new SoundboardManager();
+        foreach (var id in new[] { "kick", "snare", "rain", "ocean", "campfire", "airhorn" })
+        {
+            double? d = sb.GetSoundDurationSeconds(id);
+            Assert.NotNull(d);
+            long samples = sb.GetSoundData(id).Length / 4;
+            Assert.Equal(samples / 48000.0, d!.Value, precision: 6);
+        }
+        Assert.Null(sb.GetSoundDurationSeconds("no_such_sound"));
+    }
 }

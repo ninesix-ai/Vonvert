@@ -247,10 +247,28 @@
                                 </Style>
                             </Button.Style>
                         </Button>
+                        <!-- The sentence itself carries the hue, not just the frame: reading
+                             the colour is faster than reading the words, and this is the one
+                             label in the header whose colour is a warning rather than a
+                             decoration. Foreground is a style setter so the triggers below can
+                             win over the neutral default. -->
                         <TextBlock x:Name="SbStatusText" FontSize="11" TextWrapping="Wrap"
                                    VerticalAlignment="Center"
-                                   Foreground="{DynamicResource TextPrimary}"
-                                   FontFamily="{StaticResource FontFallback}"/>
+                                   FontFamily="{StaticResource FontFallback}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Tag, ElementName=SbStatusBar}" Value="SbModeLive">
+                                            <Setter Property="Foreground" Value="{DynamicResource Warning}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Tag, ElementName=SbStatusBar}" Value="SbModeAudition">
+                                            <Setter Property="Foreground" Value="{DynamicResource PowerOn}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                     </DockPanel>
                 </Border>
                 <TextBlock x:Name="CaptureHint" Margin="0,8,0,0" FontSize="11" Visibility="Collapsed"

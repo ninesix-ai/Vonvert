@@ -179,6 +179,28 @@ public sealed class SoundboardStatusPolicyTests
         Assert.DoesNotContain("EngineHint.Visibility", cs);
     }
 
+    [Fact(DisplayName = "SBST-010: the status sentence itself takes the semantic hue, and no local value blocks it")]
+    public void StatusText_FollowsTheSemanticHue()
+    {
+        var xaml = File.ReadAllText(Path.Combine(RepoRoot, "Vonvert.App", "Views", "SoundboardViewControl.xaml"));
+        var el = Regex.Match(xaml, "<TextBlock\\s+x:Name=\"SbStatusText\"(?<attrs>[^>]*)>", RegexOptions.Singleline);
+        Assert.True(el.Success, "SbStatusText not found");
+        // A local Foreground attribute outranks every style trigger and would strand the
+        // sentence in the neutral colour - the exact trap the bar's own brushes avoided.
+        Assert.DoesNotContain("Foreground=", el.Groups["attrs"].Value);
+
+        var style = Regex.Match(xaml, "<TextBlock\\.Style>(?<body>.*?)</TextBlock\\.Style>",
+                                RegexOptions.Singleline).Groups["body"].Value;
+        Assert.Contains("TextPrimary", style);        // neutral default still present
+        Assert.Contains("Warning", style);            // live states recolour it
+        Assert.Contains("PowerOn", style);            // audition recolours it
+        foreach (var token in new[] { "Warning", "PowerOn" })
+            Assert.Contains($"Property=\"Foreground\" Value=\"{{DynamicResource {token}}}\"", Collapse(style));
+    }
+
+    private static string Collapse(string text)
+        => Regex.Replace(text, "\\s+", " ");
+
     [Fact(DisplayName = "SBST-009: mode chips stop sharing the decorative category style and use semantic hues")]
     public void ModeChips_UseSemanticStyleNotCategoryChip()
     {

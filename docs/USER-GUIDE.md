@@ -23,11 +23,11 @@ for internal use only):
 This is the full user guide for **Vonvert**, a real-time voice changer for
 Windows. It covers everything from a first-time install to advanced voice
 tuning. If you only want the shortest path to "it works", read
-**Part I → Chapter 2 (Quick start)** and skip the rest.
+**Part I → Chapter 3 (Quick start)** and skip the rest.
 
 - Vonvert changes your voice **while you speak**, and can send that changed
   voice into any other app (chat, meeting, game, stream).
-- Audio is processed **on your own computer**. See [Chapter 11 · Privacy](#privacy).
+- Audio is processed **on your own computer**. See [Chapter 15 · Privacy](#privacy).
 
 ---
 
@@ -58,7 +58,7 @@ Your microphone
       |
       +--> (optional) Hear Myself  --> your headphones  (local monitor)
 ```
-The virtual cable is optional but strongly recommended — see [Chapter 4](#chapter-4--audio-routing-getting-the-voice-into-other-apps).
+The virtual cable is optional but strongly recommended — see [Chapter 5](#chapter-5--audio-routing-getting-the-voice-into-other-apps).
 
 #### 1.1.3 Key terms
 | Term | Meaning |
@@ -89,7 +89,7 @@ Product, device, file, key and URL names are never translated.
 
 #### 1.3.1 System requirements
 - Windows 10 or Windows 11.
-- A microphone and headphones/speakers (headphones reduce echo — see [Chapter 10](#chapter-10--troubleshooting)).
+- A microphone and headphones/speakers (headphones reduce echo — see [Chapter 14](#chapter-14--troubleshooting)).
 - Optional but recommended: a virtual audio device such as VB-Cable.
 
 #### 1.3.2 Hardware
@@ -111,9 +111,9 @@ This guide does **not** repeat the install steps — see:
 
 ---
 
-## Chapter 2 · Quick start (5 minutes)
+## Chapter 3 · Quick start (5 minutes)
 
-### 2.1 First launch and the window
+### 3.1 First launch and the window
 The window has three areas:
 - **Left icon rail** — switch between **Voice Change**, **Settings**, **About**.
 - **Center content** — the voice picker and the live visualizers.
@@ -124,7 +124,7 @@ The header (top-right) has the usual **Minimize / Maximize / Close** buttons.
 Clicking **Close** minimizes Vonvert to the **system tray** instead of quitting
 (right-click the tray icon → **Quit** to exit fully).
 
-### 2.2 Three steps to hear it
+### 3.2 Three steps to hear it
 1. **Pick devices** — Settings → set **Input Microphone** to your real mic, and
    **Output** to `CABLE Input (VB-Audio Virtual Cable)`.
 2. **Turn the voice on** — click the **Voice Change** button in the bottom bar.
@@ -137,18 +137,18 @@ Clicking **Close** minimizes Vonvert to the **system tray** instead of quitting
 > Tip shown in the app: *"Pick a voice, then talk into your mic — the effect is
 > on out of the box."*
 
-### 2.3 Self-check
+### 3.3 Self-check
 - The **IN** bar should move when you speak → your mic is captured.
 - The **OUT** bar should move → audio is being produced.
-- If others still hear your raw voice, see [Chapter 4](#chapter-4--audio-routing-getting-the-voice-into-other-apps).
+- If others still hear your raw voice, see [Chapter 5](#chapter-5--audio-routing-getting-the-voice-into-other-apps).
 
 ---
 
 # Part II — Everyday use
 
-## Chapter 3 · Voice presets
+## Chapter 4 · Voice presets
 
-### 3.1 Built-in presets
+### 4.1 Built-in presets
 Vonvert ships with eight voices. Click a tile to apply it instantly; a toast
 confirms *"Preset applied: …"*.
 
@@ -165,12 +165,12 @@ confirms *"Preset applied: …"*.
 
 > Built-in presets are **read-only** — they cannot be deleted or overwritten.
 
-### 3.2 Select and switch
+### 4.2 Select and switch
 - **Click** a preset tile to apply it.
 - Press **F11** (default) to cycle to the **next preset** without touching the mouse.
-- To understand what each preset changes inside, see [Chapter 9](#chapter-9--understanding-the-voices-dsp-effects).
+- To understand what each preset changes inside, see [Chapter 13](#chapter-13--understanding-the-voices-dsp-effects).
 
-### 3.3 Import, export and delete presets
+### 4.3 Import, export and delete presets
 The voice picker has two buttons under the tiles: **Import** and **Export**.
 - **Export** writes the currently selected preset to a `Vonvert preset (*.vopreset)`
   file, so you can share it or keep a backup.
@@ -182,14 +182,14 @@ The voice picker has two buttons under the tiles: **Import** and **Export**.
 
 ---
 
-## Chapter 4 · Audio routing (getting the voice into other apps)
+## Chapter 5 · Audio routing (getting the voice into other apps)
 
-### 4.1 The principle
+### 5.1 The principle
 Vonvert writes the changed voice to an **output** device. For another app to
 hear it, that output must be a **virtual cable's Input**, and the app's
 microphone must be the same cable's **Output**.
 
-### 4.2 Choosing a device
+### 5.2 Choosing a device
 - **VB-Cable (recommended)** — one cable, simplest. See
   **[VB-CABLE setup guide](VB-CABLE.md)**.
 - **VoiceMeeter** — a full virtual mixer, good when you also mix music or run
@@ -200,7 +200,7 @@ microphone must be the same cable's **Output**.
 > Vonvert auto-detects any active output whose name contains **CABLE** or
 > **VoiceMeeter**; otherwise pick it manually in **Settings → Output**.
 
-### 4.3 Per-app settings
+### 5.3 Per-app settings
 In each app, set its **microphone / input device** to `CABLE Output`:
 
 | App | Where to set it |
@@ -215,9 +215,9 @@ In each app, set its **microphone / input device** to `CABLE Output`:
 
 ---
 
-## Chapter 5 · Monitoring, compare and live meters
+## Chapter 6 · Monitoring, compare and live meters
 
-### 5.1 Hear Myself (monitor your own voice)
+### 6.1 Hear Myself (monitor your own voice)
 **Settings → Hear Myself** toggles a local monitor so you can hear your own
 **changed** voice in your headphones while you speak.
 - **On** = you hear the processed voice locally.
@@ -228,7 +228,7 @@ In each app, set its **microphone / input device** to `CABLE Output`:
 > that audio is also sent back to your headphones. It works together with the
 > A/B control below.
 
-### 5.2 A/B compare (DRY / A/B / WET)
+### 6.2 A/B compare (DRY / A/B / WET)
 The segmented control at the top-right of the voice page changes **what the
 output contains**:
 
@@ -245,7 +245,7 @@ output contains**:
 > **WET** is a subtraction (processed result minus the dry signal), so it sounds
 > thin — that is expected; it is for comparison, not for daily use.
 
-### 5.3 Live visualizers
+### 6.3 Live visualizers
 While the engine runs, the voice page shows:
 - **SPECTRUM** — a real-time frequency spectrum, with the detected **note** and
   **cents** deviation shown on the right.
@@ -256,9 +256,9 @@ These are read-only feedback; nothing to configure.
 
 ---
 
-## Chapter 6 · Hotkeys and push-to-talk
+## Chapter 7 · Hotkeys and push-to-talk
 
-### 6.1 Default hotkeys
+### 7.1 Default hotkeys
 Global hotkeys work even when Vonvert is not focused.
 
 | Action | Default key | In-app label |
@@ -268,12 +268,12 @@ Global hotkeys work even when Vonvert is not focused.
 | Next preset | **F11** | Next Preset |
 | Push to Talk | **F12** | Push to Talk |
 
-### 6.2 Rebinding, conflicts and reset
+### 7.2 Rebinding, conflicts and reset
 In **Settings → HOTKEYS**: click a shortcut button, then press a new key
 (a modifier combination or an F-key). If the key is already used, you see
 *"Conflict: already bound to …"*. Use **↻ Reset to defaults** to restore F9–F12.
 
-### 6.3 Push-to-Talk mode
+### 7.3 Push-to-Talk mode
 **Settings → Push-to-Talk mode** chooses what the PTT key does:
 - **Hold to talk** — normally muted; sound is sent **only while you hold** the key.
 - **Hold to mute** — normally speaking; you go silent **only while you hold**.
@@ -282,35 +282,35 @@ The caption reads *"When {key} is held:"* and follows your current PTT binding.
 
 ---
 
-## Chapter 7 · Settings and personalization
+## Chapter 10 · Settings and personalization
 
 Open **Settings** from the left rail. All choices persist across restarts.
 
-### 7.1 Audio devices
+### 10.1 Audio devices
 - **Input Microphone** — your real mic.
 - **Output (VB-Cable recommended)** — where the changed voice goes.
 - **↻ Refresh Devices** — re-scan after plugging things in.
 - The status line shows **Virtual audio device detected** or a clickable
   **"Set up a virtual audio device →"** link.
 
-### 7.2 Interface language
+### 10.2 Interface language
 **Language** switches the whole UI between **English** and **中文** instantly.
 On first run Vonvert follows your Windows display language (zh-\* → Chinese,
 otherwise English). Your choice is saved.
 
-### 7.3 Data location
+### 10.3 Data location
 **Data location** is where your **presets, settings and logs** are stored.
 - **Change…** lets you pick a different folder.
 - You are asked whether to **copy** your existing data to the new folder.
 - A change **takes effect after you restart Vonvert**.
 - By default this lives under `%APPDATA%\Vonvert`.
 
-### 7.4 Tray and background
+### 10.4 Tray and background
 Closing the window sends Vonvert to the **system tray**; the engine keeps
 running. Double-click the tray icon (or right-click → **Open**) to restore, and
 right-click → **Quit** to exit.
 
-### 7.5 About, version and updates
+### 10.5 About, version and updates
 The **About** page shows version, runtime and dependency details, with a
 **Copy all** button for support. When a new **major** version is announced, a
 badge appears in the bottom bar; clicking it opens the release page
@@ -320,7 +320,7 @@ badge appears in the bottom bar; clicking it opens the release page
 
 # Part III — Advanced voices
 
-## Chapter 8 · Auto pitch (register normalization)
+## Chapter 12 · Auto pitch (register normalization)
 
 **Auto pitch** (top of the voice page) *"Normalizes pitch to a target register
 using live F0 detection."* In plain terms, it keeps your output in a consistent
@@ -330,12 +330,12 @@ off if you want to keep every natural inflection.
 
 ---
 
-## Chapter 9 · Understanding the voices (DSP effects)
+## Chapter 13 · Understanding the voices (DSP effects)
 
 Vonvert applies effects through **presets** — there is no per-effect slider
 panel. Knowing what each effect does helps you choose or share presets.
 
-### 9.1 The effects
+### 13.1 The effects
 | Effect | What it does |
 |---|---|
 | **Pitch** | Shifts the voice up/down in semitones. |
@@ -350,7 +350,7 @@ panel. Knowing what each effect does helps you choose or share presets.
 | **Robot** | Ring-modulated metallic voice. |
 | **Drive / Distortion** | Adds grit and saturation. |
 
-### 9.2 What each built-in preset uses
+### 13.2 What each built-in preset uses
 | Preset | Effect recipe |
 |---|---|
 | **Normal** | Gate + Compressor only (clean) |
@@ -359,23 +359,23 @@ panel. Knowing what each effect does helps you choose or share presets.
 | **Robot** | Robot · Pitch −2 · light Reverb |
 | **Demon** | Pitch −9 · Distortion · Reverb · Gate |
 
-### 9.3 Tuning workflow
+### 13.3 Tuning workflow
 Because presets are whole bundles, "tune" by **choosing** a preset, then use
-**A/B compare** ([§5.2](#52-ab-compare-dry--ab--wet)) to hear exactly what a
+**A/B compare** ([§6.2](#62-ab-compare-dry--ab--wet)) to hear exactly what a
 preset adds: flip between **DRY** and **A/B** to judge the change, or **WET** to
-isolate the coloration. Export a preset you like ([§3.3](#33-import-export-and-delete-presets))
+isolate the coloration. Export a preset you like ([§4.3](#43-import-export-and-delete-presets))
 to back it up or share it.
 
 ---
 
 # Part IV — Support and reference
 
-## Chapter 10 · Troubleshooting
+## Chapter 14 · Troubleshooting
 
 | Symptom | What to check |
 |---|---|
 | No sound at all | Vonvert **Output** is set to `CABLE Input`; the **OUT** VU bar moves when you speak. |
-| Others hear your raw voice | The app's **microphone** is `CABLE Output`, not your real mic ([§4.3](#43-per-app-settings)). |
+| Others hear your raw voice | The app's **microphone** is `CABLE Output`, not your real mic ([§5.3](#53-per-app-settings)). |
 | A/B stuck on "DRY" | The segmented control is on **DRY**; switch it back to **A/B**. |
 | Voice change does nothing | The bottom **Voice Change** button shows **Running (Effects ON)**; if it says **Standby (Direct Monitor)**, click it. |
 | Echo / feedback | Turn **off** *Hear Myself*, or use headphones. |
@@ -386,28 +386,28 @@ to back it up or share it.
 
 ---
 
-## Chapter 11 · Reference
+## Chapter 15 · Reference
 
-### 11.1 License and third-party components
+### 15.1 License and third-party components
 - Vonvert (OSS) is licensed under the **Apache License 2.0** — see `LICENSE` and
   `NOTICE` in the repository.
 - Virtual audio devices (VB-Cable, VoiceMeeter, VAC) are **separate third-party
   products** with their own licenses, not covered by Vonvert's license.
 
 <a id="privacy"></a>
-### 11.2 Privacy and data
+### 15.2 Privacy and data
 - **Audio stays on your machine.** Vonvert processes your voice locally; it does
   **not** upload your voice.
 - **What is stored locally:** your settings, chosen devices, language and any
   imported presets live in the **data location** (default `%APPDATA%\Vonvert`,
-  changeable in [§7.3](#73-data-location)).
+  changeable in [§10.3](#103-data-location)).
 - **Network:** the only automatic network activity is a small, best-effort
   **update check** to the GitHub releases page to notify you of a new **major**
   version. It is periodic, failures are ignored silently, and no voice data is
   sent. Clicking an update badge, the tray links, or the in-app help links opens
   normal web pages in your browser.
 
-### 11.3 Related documents
+### 15.3 Related documents
 - **[README](../README.md)** — project overview, build and test.
 - **[VB-CABLE setup guide](VB-CABLE.md)** — install the recommended virtual cable.
 - **[Virtual audio devices comparison](VIRTUAL-AUDIO-DEVICES.md)** — choose a device.

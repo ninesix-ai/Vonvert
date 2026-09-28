@@ -2,18 +2,21 @@
 
 > Language: [English](README.md) · [简体中文](README_zh.md)
 
-> **Download [v0.0.1](https://github.com/ninesix-ai/Vonvert/releases/tag/v0.0.1)** — Windows real-time voice changer (unsigned preview; see the [release notes](docs/RELEASE-NOTES-v0.0.1.md) for SmartScreen steps).
+> **Download [v0.1.0](https://github.com/ninesix-ai/Vonvert/releases/tag/v0.1.0)** — Windows real-time voice changer (unsigned preview; see the [release notes](docs/RELEASE-NOTES-v0.1.0.md) for SmartScreen steps).
 
-**Real-time voice changer for Windows** — transform your voice while you speak, with low-latency WASAPI audio and five out-of-the-box voice presets.
+**Real-time voice changer for Windows** — transform your voice while you speak, with low-latency WASAPI audio and eight out-of-the-box voice presets.
 
 Vonvert captures your microphone, runs the signal through a real-time DSP chain (pitch shift, EQ, compressor, chorus, …) and sends the processed voice to any output — typically a virtual audio cable so chat apps / games use your new voice as their mic.
 
 ## Features
 
-- **Real-time voice changing** — five built-in voice presets (Normal, Deep Male, Female, Robot, Demon); Female is applied automatically on launch
+- **Real-time voice changing** — eight built-in voice presets (Normal, Deep Male, Female, Robot, Demon, Android, Radio Ghost, Tape Wobble); Female is applied automatically on launch
 - **Low latency** — WASAPI capture/playback, ~10 ms processing window
+- **Soundboard** — 50 built-in one-shot sounds across 7 categories, plus your own imported audio; bind global hotkeys per pad, and choose Audition (only you hear it) or Live (mixed into your outgoing voice)
+- **Recording & export** — capture your raw or processed voice and export to WAV / MP3 / FLAC / OGG / AAC
 - **Hear Myself** — optional ear-monitor loopback so you can hear your own processed voice in your headphones (Settings → Hear Myself)
 - **Live visualizers** — real-time spectrum and pitch display while you speak
+- **First-run setup** — onboarding wizard, spotlight tour and a role picker that tunes the defaults to how you use Vonvert
 - **Device selection** — pick your input microphone and output device; VB-Cable friendly
 - **Minimal, focused UI** — bilingual English / 简体中文 interface (auto-detected, switchable in Settings), tray icon, no configuration hustle
 
@@ -34,7 +37,7 @@ Vonvert captures your microphone, runs the signal through a real-time DSP chain 
    - **Output** → `CABLE Input (VB-Audio Virtual Cable)`
    - Toggle **Hear Myself** to monitor your own voice in your headphones.
 4. In your chat app / game, set the microphone to `CABLE Output (VB-Audio Virtual Cable)`.
-5. Speak — the built-in Female voice applies immediately (voice change is switched ON by default); switch between the five presets from the voice picker.
+5. Speak — the built-in Female voice applies immediately (voice change is switched ON by default); switch between the eight presets from the voice picker.
 
 ## Building from source
 

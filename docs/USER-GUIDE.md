@@ -149,7 +149,7 @@ Clicking **Close** minimizes Vonvert to the **system tray** instead of quitting
 ## Chapter 3 · Voice presets
 
 ### 3.1 Built-in presets
-Vonvert ships with five voices. Click a tile to apply it instantly; a toast
+Vonvert ships with eight voices. Click a tile to apply it instantly; a toast
 confirms *"Preset applied: …"*.
 
 | Preset (EN) | 中文 | Icon | Character |
@@ -159,6 +159,9 @@ confirms *"Preset applied: …"*.
 | Female | 女声 | 🌸 | Higher pitch, brighter, de-essed (applied on launch) |
 | Robot | 机器人 | 🤖 | Ring-modulated robotic tone |
 | Demon | 恶魔 | 😈 | Very low pitch with distortion and reverb |
+| Android | 仿生人 | 🦾 | Metallic ring-modulated voice |
+| Radio Ghost | 电台残响 | 📻 | Band-limited radio voice with tail |
+| Tape Wobble | 磁带摇曳 | 📼 | Pitch-drifting lo-fi tape character |
 
 > Built-in presets are **read-only** — they cannot be deleted or overwritten.
 

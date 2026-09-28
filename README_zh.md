@@ -2,16 +2,21 @@
 
 > Language：[English](README.md) · [简体中文](README_zh.md)
 
-**Windows 实时变声器** — 说话的同时改变你的声音,低延迟 WASAPI 音频,开箱即用的 5 个声线预设。
+> **下载 [v0.1.0](https://github.com/ninesix-ai/Vonvert/releases/tag/v0.1.0)** — Windows 实时变声器（未签名预览版；SmartScreen 处理步骤见[发布说明](docs/RELEASE-NOTES-v0.1.0.md)）。
+
+**Windows 实时变声器** — 说话的同时改变你的声音,低延迟 WASAPI 音频,开箱即用的 8 个声线预设。
 
 Vonvert 捕获你的麦克风信号,通过实时 DSP 链（音高变换、均衡器、压缩器、合唱等）处理后输出到任意播放设备——通常是虚拟音频线,让聊天应用/游戏将变声后的音频作为其麦克风。
 
 ## 功能特性
 
-- **实时变声** — 内置 5 个声线预设（Normal、Deep Male、Female、Robot、Demon）,启动即自动应用女声（Female）
+- **实时变声** — 内置 8 个声线预设（Normal、Deep Male、Female、Robot、Demon、Android、Radio Ghost、Tape Wobble）,启动即自动应用女声（Female）
 - **低延迟** — WASAPI 采集/播放,约 10 ms 处理窗口
+- **音效板** — 50 个内置音效、7 个分类,还可导入你自己的音频；每个打击垫可绑定全局热键,并可选「试听」（只有你听到）或「直播」（混入你发出的语音）
+- **录音与导出** — 录制原始声或变声后的声音,导出为 WAV / MP3 / FLAC / OGG / AAC
 - **监听自己（Hear Myself）** — 可选耳返回环,让你能在耳机中听到自己的变声效果（设置 → 监听自己）
 - **实时可视化** — 说话时显示实时频谱和音高
+- **首次上手引导** — 设置向导、界面聚光灯巡览与角色选择器,按你的使用方式调整默认配置
 - **设备选择** — 自由选取输入麦克风和输出设备；VB-Cable 友好
 - **极简专注的界面** — 中英双语界面（自动跟随系统语言，可在设置里切换），系统托盘图标，零配置负担
 
@@ -32,7 +37,7 @@ Vonvert 捕获你的麦克风信号,通过实时 DSP 链（音高变换、均衡
    - **输出** → `CABLE Input (VB-Audio Virtual Cable)`
    - 开启**监听自己**可在耳机中听到你的变声。
 4. 在你的聊天应用/游戏中,将麦克风设为 `CABLE Output (VB-Audio Virtual Cable)`。
-5. 说话——内置女声（Female）立即生效（变声默认开启）；可在声线选择器中切换这 5 个预设。
+5. 说话——内置女声（Female）立即生效（变声默认开启）；可在声线选择器中切换这 8 个预设。
 
 ## 从源码构建
 

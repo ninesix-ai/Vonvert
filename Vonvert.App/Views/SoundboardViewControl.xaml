@@ -40,6 +40,55 @@
             </Setter>
         </Style>
 
+        <!-- Mode chip (audition / live). Deliberately NOT the category chip: the mode
+             answer ("can anyone else hear me?") must be readable without reading the
+             label, so the checked state carries a semantic hue instead of the decorative
+             Accent purple that All/Drums/Tones use. Role is declared via Tag so one style
+             covers both chips and the hue cannot be mixed up. -->
+        <Style x:Key="SbModeChip" TargetType="RadioButton">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="b" CornerRadius="11" Padding="{TemplateBinding Padding}"
+                                Background="{DynamicResource SurfaceLift}"
+                                BorderBrush="{DynamicResource Border}" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="SbModeLive">
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsChecked" Value="True"/>
+                                    <Condition Property="Tag" Value="SbModeLive"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="b" Property="Background" Value="{DynamicResource WarnWashBrush}"/>
+                                <Setter TargetName="b" Property="BorderBrush" Value="{DynamicResource Warning}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Warning}"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsChecked" Value="True"/>
+                                    <Condition Property="Tag" Value="SbModeAudition"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="b" Property="Background" Value="{DynamicResource OkWashBrush}"/>
+                                <Setter TargetName="b" Property="BorderBrush" Value="{DynamicResource PowerOn}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource PowerOn}"/>
+                            </MultiTrigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="BorderBrush" Value="{DynamicResource Accent}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Hotkey badge button (pill). -->
         <Style x:Key="SbBadge" TargetType="Button">
             <Setter Property="FontSize" Value="9"/>
@@ -133,11 +182,11 @@
             <StackPanel>
                 <DockPanel LastChildFill="True">
                     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                        <RadioButton x:Name="ModeAuditionChip" Style="{StaticResource SbChip}"
+                        <RadioButton x:Name="ModeAuditionChip" Style="{StaticResource SbModeChip}" Tag="SbModeAudition"
                                      GroupName="SbMode" VerticalAlignment="Center" Margin="0,0,6,0"
                                      Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SoundboardModeAudition, Mode=OneWay}"
                                      Checked="OnModeAudition_Checked"/>
-                        <RadioButton x:Name="ModeLiveChip" Style="{StaticResource SbChip}"
+                        <RadioButton x:Name="ModeLiveChip" Style="{StaticResource SbModeChip}" Tag="SbModeLive"
                                      GroupName="SbMode" VerticalAlignment="Center" Margin="0,0,12,0"
                                      Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SoundboardModeLive, Mode=OneWay}"
                                      Checked="OnModeLive_Checked"/>
@@ -156,9 +205,54 @@
                         <StackPanel x:Name="ChipPanel" Orientation="Horizontal"/>
                     </ScrollViewer>
                 </DockPanel>
-                <TextBlock x:Name="EngineHint" Margin="0,8,0,0" FontSize="11" Visibility="Collapsed"
-                           Foreground="{DynamicResource Warning}" FontFamily="{StaticResource FontFallback}"
-                           Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SoundboardEngineHint, Mode=OneWay}"/>
+                <!-- Permanent mode status bar. It replaces both the 4-second live-mode toast
+                     and the old conditional EngineHint line: exactly one sentence is always
+                     on screen, so "can anyone else hear me?" is answerable at a glance instead
+                     of being remembered. The code-behind only writes SbStatusBar.Tag (the
+                     SoundboardStatusPolicy chip selector) and SbStatusText.Text - every colour
+                     below keys off that Tag, so the hue cannot drift from the wording. -->
+                <Border x:Name="SbStatusBar" Margin="0,8,0,0" CornerRadius="10"
+                        BorderThickness="1" Padding="10,7">
+                    <!-- Neutral colours are style SETTERS, not local attributes: a local value
+                         would outrank the DataTriggers below and pin the bar grey forever. -->
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="{DynamicResource SurfaceLift}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource CtrlBorder}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Tag, ElementName=SbStatusBar}" Value="SbModeLive">
+                                    <Setter Property="Background" Value="{DynamicResource WarnWashBrush}"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource Warning}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Tag, ElementName=SbStatusBar}" Value="SbModeAudition">
+                                    <Setter Property="Background" Value="{DynamicResource OkWashBrush}"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource PowerOn}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <DockPanel LastChildFill="True">
+                        <Button x:Name="SbSwitchToAuditionBtn" DockPanel.Dock="Right"
+                                Padding="8,3" FontSize="10"
+                                Margin="10,0,0,0" VerticalAlignment="Center"
+                                Click="SwitchToAudition_Click"
+                                Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SoundboardSwitchToAudition, Mode=OneWay}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource OutlineButton}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Tag, ElementName=SbStatusBar}" Value="SbModeAudition">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <TextBlock x:Name="SbStatusText" FontSize="11" TextWrapping="Wrap"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource TextPrimary}"
+                                   FontFamily="{StaticResource FontFallback}"/>
+                    </DockPanel>
+                </Border>
                 <TextBlock x:Name="CaptureHint" Margin="0,8,0,0" FontSize="11" Visibility="Collapsed"
                            Foreground="{DynamicResource Accent}" FontFamily="{StaticResource FontFallback}"
                            Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SoundboardHotkeyPrompt, Mode=OneWay}"/>

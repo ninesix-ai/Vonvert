@@ -56,7 +56,7 @@ public partial class SoundboardViewControl : UserControl
 
         RebuildPads();
         UpdateModeChips();
-        UpdateEngineHint();
+        UpdateStatusBar();
     }
 
     private void OnUnloaded(object s, RoutedEventArgs e)
@@ -67,7 +67,7 @@ public partial class SoundboardViewControl : UserControl
     }
 
     private void OnSoundsChanged() => Dispatcher.BeginInvoke(new Action(RebuildPads));
-    private void OnEngineStatusChanged(EngineStatus status) => Dispatcher.Invoke(UpdateEngineHint);
+    private void OnEngineStatusChanged(EngineStatus status) => Dispatcher.Invoke(UpdateStatusBar);
 
     private void OnLanguageChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -76,16 +76,23 @@ public partial class SoundboardViewControl : UserControl
         {
             BuildChips();
             foreach (var vm in _all) vm.BadgeText = BadgeFor(vm);
+            UpdateStatusBar();   // the bar's text is assigned, not XAML-bound, so refresh it here
         }));
     }
 
-    private void UpdateEngineHint()
+    private void UpdateStatusBar()
     {
-        bool running = App.Engine != null && App.Engine.State == EngineStatus.Active;
-        bool live = Board?.LiveMode ?? false;
-        // Audition mode plays locally regardless of engine state, so the "start the
-        // engine" hint (bound to SoundboardEngineHint) is only relevant in live mode.
-        EngineHint.Visibility = (live && !running) ? Visibility.Visible : Visibility.Collapsed;
+        // The view holds no state rules: SoundboardStatusPolicy decides which of the three
+        // mutually exclusive sentences applies and which hue carries it. Nothing here hides
+        // the bar - it is permanent precisely so the answer is always on screen.
+        SoundboardStatusPolicy.For(Board?.LiveMode ?? false,
+                                   App.Engine?.State ?? EngineStatus.Idle,
+                                   out var text);
+        SbStatusBar.Tag = text.ChipSelector;
+        // Localization keys live in the JSON string tables, not in WPF resource
+        // dictionaries: FindResource would return the unresolved-resource sentinel
+        // (MS.Internal.NamedObject) and blow up on the cast.
+        SbStatusText.Text = L.GetUiString(text.TextKey);
     }
 
     // ════════ Catalogue ════════
@@ -212,10 +219,14 @@ public partial class SoundboardViewControl : UserControl
         Board.LiveMode = live;
         AppConfig.Instance.Audio.SoundboardLiveMode = live;
         AppConfig.Instance.Save();
-        if (live) AppServices?.ShowNotification(L.SoundboardLiveModeNotice, "warning");
+        // No transient toast: the permanent status bar under the chips already says who can
+        // hear the pads, and it stays true after the popup would have faded.
         UpdateModeChips();
-        UpdateEngineHint();
+        UpdateStatusBar();
     }
+
+    // The status bar's escape hatch for users who switched to Live by accident.
+    private void SwitchToAudition_Click(object sender, RoutedEventArgs e) => SetLiveMode(false);
 
     private void UpdateModeChips()
     {

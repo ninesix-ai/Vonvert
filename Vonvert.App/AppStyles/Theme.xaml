@@ -20,6 +20,11 @@
     <Color x:Key="C_PowerOn">#FF34D399</Color>
     <Color x:Key="C_PowerOff">#FFFB7185</Color>
 
+    <!-- Semantic washes: the hue tokens above at low alpha, for status bars and chips that
+         need a tinted background without losing text contrast. -->
+    <Color x:Key="C_WarnWash">#1FFBBF24</Color>
+    <Color x:Key="C_OkWash">#1F34D399</Color>
+
     <!-- Nav per-tab icon hues (Plan B sidebar: each tab a distinct accent, same luminance band) -->
     <Color x:Key="C_IconVoices">#FF22D3EE</Color>
     <Color x:Key="C_IconRecord">#FFFB7185</Color>
@@ -62,6 +67,8 @@
     <SolidColorBrush x:Key="TileSelected" Color="{StaticResource C_TileSelected}"/>
     <SolidColorBrush x:Key="PowerOn"     Color="{StaticResource C_PowerOn}"/>
     <SolidColorBrush x:Key="PowerOff"    Color="{StaticResource C_PowerOff}"/>
+    <SolidColorBrush x:Key="WarnWashBrush" Color="{StaticResource C_WarnWash}"/>
+    <SolidColorBrush x:Key="OkWashBrush"   Color="{StaticResource C_OkWash}"/>
 
     <!-- Nav per-tab icon hue brushes -->
     <SolidColorBrush x:Key="IconVoices"   Color="{StaticResource C_IconVoices}"/>

@@ -6,6 +6,9 @@ name: Build & Test
 on:
   push:
     branches: [main]
+    # A v-prefixed tag is what UpdateChecker parses out of the Releases list, and pushing
+    # one is the release gesture; the job below then attaches the installer to it.
+    tags: ["v*"]
   pull_request:
     branches: [main]
 
@@ -18,6 +21,10 @@ jobs:
   build:
     name: Build & Test (Windows)
     runs-on: windows-latest
+    permissions:
+      # Only needed to upload a release asset; the default token is read-only, so this has
+      # to be stated explicitly or `gh release` fails with a 403 on tag runs.
+      contents: write
 
     steps:
       - name: Checkout
@@ -105,6 +112,56 @@ jobs:
           name: vonvert-oss-setup
           path: installer/Output/Vonvert_Setup.exe
           retention-days: 14
+
+      - name: Publish installer to the GitHub Release
+        # Tag pushes only, and only after the release compliance scan above has passed -
+        # that ordering is the gate that keeps a non-compliant tree from being published.
+        # Uses the runner's own gh CLI rather than a third-party action, so nothing in the
+        # publishing path can change underneath us.
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $setup = "installer/Output/Vonvert_Setup.exe"
+          if (-not (Test-Path $setup)) { throw "installer not found at $setup; refusing to publish an empty release" }
+
+          # docs/RELEASE-NOTES-vX.Y.Z.md is the release body when it exists; --generate-notes
+          # is the fallback so a tag pushed without its notes file still publishes, loudly
+          # annotated as such.
+          function Invoke-Gh([string[]]$ghArgs) {
+            # Explicit exit-code handling: `||` is PowerShell 7 only and would be a syntax
+            # error under Windows PowerShell, and redirecting stderr to $null would swallow
+            # the real reason a create failed.
+            & gh @ghArgs
+            if ($LASTEXITCODE -ne 0) { throw "gh $($ghArgs[0]) $($ghArgs[1]) failed with exit $LASTEXITCODE" }
+          }
+
+          $notes = "docs/RELEASE-NOTES-$tag.md"
+          if (Test-Path $notes) { $body = @("--notes-file", $notes) }
+          else {
+            Write-Host "::warning::$notes not found; publishing without a curated release body"
+            $body = @("--generate-notes")
+          }
+
+          $create = @("release", "create", $tag, "--title", "Vonvert $tag") + $body
+          & gh @create
+          if ($LASTEXITCODE -ne 0) {
+            # Non-zero here almost always means the release already exists (a human made it,
+            # or this is a re-run), in which case updating its body is the right move.
+            Write-Host "release create declined (exit $LASTEXITCODE); updating the existing release instead"
+            Invoke-Gh (@("release", "edit", $tag, "--title", "Vonvert $tag") + $body)
+          }
+
+          # --clobber makes a re-run of the same tag idempotent instead of failing on an
+          # asset that is already attached.
+          Invoke-Gh @("release", "upload", $tag, $setup, "--clobber")
+
+          # Prove the upload landed: an exit code alone does not show the asset is attached.
+          $assets = gh release view $tag --json assets --jq ".assets[].name"
+          Write-Host "release $tag assets: $assets"
+          if (-not ($assets -match "Vonvert_Setup.exe")) { throw "upload reported success but the installer is not attached" }
 
       - name: Upload test results
         if: always()

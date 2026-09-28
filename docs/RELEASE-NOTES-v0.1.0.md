@@ -53,5 +53,22 @@
 ## 安装
 运行 `Vonvert_Setup.exe`（用户级安装，无需管理员权限）。
 
+## 文件校验（SHA-256）
+本版本尚未代码签名，下载后可核对文件哈希以确认完整性：
+
+| 文件 | 大小 | SHA-256 |
+|---|---|---|
+| `Vonvert_Setup.exe` | 53,401,127 字节（50.9 MB） | `180c456dabb0b4e5fd26ceecd6610a3e44bea351a7d77e1df57a46f00572329a` |
+
+在 PowerShell 中自行计算：
+
+```powershell
+Get-FileHash .\Vonvert_Setup.exe -Algorithm SHA256
+```
+
+输出应与上表逐字符一致。若不一致，请勿安装，改为从 [Releases 页面](https://github.com/ninesix-ai/Vonvert/releases/tag/v0.1.0) 重新下载。
+
+> 该哈希由构建机对最终产物计算，与 GitHub 为该附件记录的摘要一致；它只能证明文件未被篡改或截断，**不能替代代码签名**（见上方未签名说明）。
+
 ## 许可证
 Apache-2.0。第三方组件列于 [NOTICE](../NOTICE)。

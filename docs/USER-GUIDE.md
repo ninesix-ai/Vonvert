@@ -29,6 +29,31 @@ tuning. If you only want the shortest path to "it works", read
   voice into any other app (chat, meeting, game, stream).
 - Audio is processed **on your own computer**. See [Chapter 15 · Privacy](#privacy).
 
+## Contents
+
+**Part I — Getting started**
+- [1. Know and install Vonvert](#chapter-1--know-and-install-vonvert)
+- [2. First launch: setup wizard and roles](#chapter-2--first-launch-setup-wizard-and-roles)
+- [3. Quick start (5 minutes)](#chapter-3--quick-start-5-minutes)
+
+**Part II — Everyday use**
+- [4. Voice presets](#chapter-4--voice-presets)
+- [5. Audio routing](#chapter-5--audio-routing-getting-the-voice-into-other-apps)
+- [6. Monitoring, compare and live meters](#chapter-6--monitoring-compare-and-live-meters)
+- [7. Hotkeys and push-to-talk](#chapter-7--hotkeys-and-push-to-talk)
+- [8. Soundboard](#chapter-8--soundboard)
+- [9. Recording and export](#chapter-9--recording-and-export)
+- [10. Settings and personalization](#chapter-10--settings-and-personalization)
+
+**Part III — Advanced voices**
+- [11. Expert parameter panel](#chapter-11--expert-parameter-panel)
+- [12. Auto pitch (register normalization)](#chapter-12--auto-pitch-register-normalization)
+- [13. Understanding the voices (DSP effects)](#chapter-13--understanding-the-voices-dsp-effects)
+
+**Part IV — Support and reference**
+- [14. Troubleshooting](#chapter-14--troubleshooting)
+- [15. Reference](#chapter-15--reference)
+
 ---
 
 # Part I — Getting started

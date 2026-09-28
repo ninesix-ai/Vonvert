@@ -328,7 +328,9 @@ otherwise English). Your choice is saved.
 - **Change…** lets you pick a different folder.
 - You are asked whether to **copy** your existing data to the new folder.
 - A change **takes effect after you restart Vonvert**.
-- By default this lives under `%APPDATA%\Vonvert`.
+- By default this lives under `%APPDATA%\ninesix-ai\Vonvert` (publisher
+  namespaced, so it never collides with other Vonvert editions). You can point
+  it elsewhere with **Change…** above.
 
 ### 10.4 Tray and background
 Closing the window sends Vonvert to the **system tray**; the engine keeps
@@ -340,6 +342,22 @@ The **About** page shows version, runtime and dependency details, with a
 **Copy all** button for support. When a new **major** version is announced, a
 badge appears in the bottom bar; clicking it opens the release page
 (see [Privacy and data](#privacy) for what this does over the network).
+
+### 10.6 My role
+
+**Settings → My role** shows the role you chose in the
+[setup wizard](#chapter-2--first-launch-setup-wizard-and-roles) and lets you
+change it later. Your role drives two things:
+
+- **Detail level** — one of **Minimal**, **Standard**, **Advanced**,
+  **Professional**; it decides how many controls the interface exposes.
+- **Suggested voices** — the built-in presets this role recommends.
+
+Pick **No role (show everything)** to stop Vonvert tailoring anything and see
+every control regardless of complexity.
+
+> Changing your role does not delete presets or recordings; it only changes
+> which controls are shown and which voices are suggested.
 
 ---
 
@@ -357,8 +375,10 @@ off if you want to keep every natural inflection.
 
 ## Chapter 13 · Understanding the voices (DSP effects)
 
-Vonvert applies effects through **presets** — there is no per-effect slider
-panel. Knowing what each effect does helps you choose or share presets.
+Vonvert applies effects through **presets** — bundled recipes you pick rather
+than build. Each preset can still be fine-tuned per effect in the
+[expert parameter panel](#chapter-11--expert-parameter-panel); knowing what each
+effect does helps you choose, tune or share presets.
 
 ### 13.1 The effects
 | Effect | What it does |
@@ -374,6 +394,13 @@ panel. Knowing what each effect does helps you choose or share presets.
 | **De-esser** | Tames harsh "s" sounds. |
 | **Robot** | Ring-modulated metallic voice. |
 | **Drive / Distortion** | Adds grit and saturation. |
+| **Ring Mod** | Multiplies the voice by a sine wave; metallic, synthetic tone. |
+| **Lo-Fi Reverb** | Crushed, down-sampled room with a short tail (radio / tape damage). |
+| **Modulation Delay** | Delay whose time is swept, giving pitch drift / chorus-like wobble. |
+| **Tilt EQ** | Slopes the whole spectrum down at bass, up at treble (or reverse). |
+| **Graphic EQ** | Multi-band manual EQ. |
+| **Bitcrusher** | Digital quantisation noise; deliberate lo-fi grit. |
+| **Loudness Meter** | Measures output level; no audible change. |
 
 ### 13.2 What each built-in preset uses
 | Preset | Effect recipe |
@@ -383,10 +410,15 @@ panel. Knowing what each effect does helps you choose or share presets.
 | **Female** | Pitch +4 · EQ (cut low, boost presence/air) · Compressor · Chorus · De-esser |
 | **Robot** | Robot · Pitch −2 · light Reverb |
 | **Demon** | Pitch −9 · Distortion · Reverb · Gate |
+| **Android** | Ring Mod (carrier 120 Hz, mix 0.6) · Gate · Compressor |
+| **Radio Ghost** | Lo-Fi Reverb (room 0.7 · decay 0.7 · downsample 8 · bit depth 5 · mix 0.5) · Gate · Compressor |
+| **Tape Wobble** | Modulation Delay (base 18 ms · depth 0.7 · feedback 0.35 · mix 0.45) · Gate · Compressor |
 
 ### 13.3 Tuning workflow
-Because presets are whole bundles, "tune" by **choosing** a preset, then use
-**A/B compare** ([§6.2](#62-ab-compare-dry--ab--wet)) to hear exactly what a
+A preset is a whole bundle, so start by **choosing** one. To go further, open
+the [expert parameter panel](#chapter-11--expert-parameter-panel) and adjust the
+individual parameters, then **Save as…** to keep the result as your own preset.
+Use **A/B compare** ([§6.2](#62-ab-compare-dry--ab--wet)) to hear exactly what a
 preset adds: flip between **DRY** and **A/B** to judge the change, or **WET** to
 isolate the coloration. Export a preset you like ([§4.3](#43-import-export-and-delete-presets))
 to back it up or share it.
@@ -424,8 +456,8 @@ to back it up or share it.
 - **Audio stays on your machine.** Vonvert processes your voice locally; it does
   **not** upload your voice.
 - **What is stored locally:** your settings, chosen devices, language and any
-  imported presets live in the **data location** (default `%APPDATA%\Vonvert`,
-  changeable in [§10.3](#103-data-location)).
+  imported presets live in the **data location** (default
+  `%APPDATA%\ninesix-ai\Vonvert`, changeable in [§10.3](#103-data-location)).
 - **Network:** the only automatic network activity is a small, best-effort
   **update check** to the GitHub releases page to notify you of a new **major**
   version. It is periodic, failures are ignored silently, and no voice data is

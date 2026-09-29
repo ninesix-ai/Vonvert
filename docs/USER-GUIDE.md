@@ -27,7 +27,7 @@ tuning. If you only want the shortest path to "it works", read
 
 - Vonvert changes your voice **while you speak**, and can send that changed
   voice into any other app (chat, meeting, game, stream).
-- Audio is processed **on your own computer**. See [Chapter 15 · Privacy](#privacy).
+- Audio is processed **on your own computer**. See [Chapter 15 · Privacy](#152-privacy-and-data).
 
 ## Contents
 
@@ -545,7 +545,7 @@ right-click → **Quit** to exit.
 The **About** page shows version, runtime and dependency details, with a
 **Copy all** button for support. When a new **major** version is announced, a
 badge appears in the bottom bar; clicking it opens the release page
-(see [Privacy and data](#privacy) for what this does over the network).
+(see [Privacy and data](#152-privacy-and-data) for what this does over the network).
 
 ### 10.6 My role
 
@@ -692,7 +692,6 @@ to back it up or share it.
 - Virtual audio devices (VB-Cable, VoiceMeeter, VAC) are **separate third-party
   products** with their own licenses, not covered by Vonvert's license.
 
-<a id="privacy"></a>
 ### 15.2 Privacy and data
 - **Audio stays on your machine.** Vonvert processes your voice locally; it does
   **not** upload your voice.

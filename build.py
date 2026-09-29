@@ -177,11 +177,12 @@ MANAGED_EXCEPTION_EXIT = 0xE0434352
 
 def verify_launch(publish_dir: str, wait_s: float = 6.0) -> bool:
     """
-    Start the published exe and confirm it survives long enough to show a window.
+    Start the published exe and leave the window open for manual testing.
 
-    A blocked or corrupt self-contained output otherwise fails before any log
-    file is written, so the only symptom is a double-click that appears to do
-    nothing. Reporting it here, while a console is still attached, is the point.
+    A blocked or corrupt self-contained output fails before any log file is
+    written, so the only symptom is a double-click that appears to do nothing.
+    We wait briefly to catch that instant crash, then deliberately hand the
+    still-open window back to the user to close by hand when done.
     """
     header("Launch check")
     exe = os.path.join(publish_dir, "Vonvert.exe")
@@ -211,23 +212,23 @@ def verify_launch(publish_dir: str, wait_s: float = 6.0) -> bool:
             time.sleep(wait_s)
             rc = proc.poll()
             if rc is None:
-                proc.terminate()
-                try:
-                    proc.wait(timeout=10)
-                except subprocess.TimeoutExpired:
-                    proc.kill()
                 cprint("  RETRY OK: launched after a refused first attempt.", YELLOW)
                 cprint("  A machine policy can block a just-written unsigned binary", YELLOW)
                 cprint("  until it has been evaluated; sign the output (--sign) to", YELLOW)
                 cprint("  make first launch deterministic.", YELLOW)
+                cprint(f"  Window left open (PID {proc.pid}); close it when done.", GREEN)
                 return True
     if rc is None:
-        proc.terminate()
-        try:
-            proc.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            proc.kill()
-        cprint(f"  OK: process stayed up {wait_s:.0f}s, then was closed cleanly", GREEN)
+        cprint(f"  OK: window is up (PID {proc.pid}).", GREEN)
+        cprint("  Left running on purpose for you to test - close it manually when done.", GRAY)
+        return True
+    if rc == 0:
+        # A clean exit right away, with the window deliberately left open by a
+        # previous run, means the single-instance mutex made this second launch
+        # quit silently. That is expected, not a build failure.
+        cprint("  NOTE: exited immediately with code 0 - an instance is already", YELLOW)
+        cprint("  running (single-instance lock). Close the old window first if you", YELLOW)
+        cprint("  meant to start a fresh one.", YELLOW)
         return True
 
     cprint(f"  FAILED: exited right away, code {rc} (0x{rc & 0xFFFFFFFF:08X})", RED)
@@ -317,6 +318,19 @@ def _find_pfx() -> str:
     return ""
 
 
+def _sign_targets(publish_dir: str) -> list:
+    """
+    Every payload file a policy verdict can land on, apphost first.
+
+    The apphost alone is not enough: an application-control policy evaluates
+    the managed assembly on load, so an unsigned Vonvert.dll aborts the
+    process with 0x800711C7 even when the signed exe started fine.
+    """
+    targets = [os.path.join(publish_dir, "Vonvert.exe")]
+    targets += sorted(glob.glob(os.path.join(publish_dir, "Vonvert*.dll")))
+    return [t for t in targets if os.path.isfile(t)]
+
+
 def sign(publish_dir: str) -> bool:
     header("Sign")
 
@@ -327,20 +341,29 @@ def sign(publish_dir: str) -> bool:
         webbrowser.open("https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/")
         return False
 
-    exe_path = os.path.join(publish_dir, "Vonvert.exe")
-    if not os.path.isfile(exe_path):
-        cprint(f"  ERROR: Vonvert.exe not found at: {exe_path}", RED)
+    targets = _sign_targets(publish_dir)
+    if not targets or os.path.basename(targets[0]) != "Vonvert.exe":
+        cprint(f"  ERROR: Vonvert.exe not found at: {publish_dir}", RED)
         return False
+    cprint(f"  Signing {len(targets)} file(s): "
+           + ", ".join(os.path.basename(t) for t in targets), GRAY)
 
     common = [signtool, "sign", "/fd", "SHA256",
               "/tr", "http://timestamp.digicert.com", "/td", "SHA256"]
+
+    def sign_all(cert_args) -> bool:
+        for t in targets:
+            if run(common + cert_args + [t]) != 0:
+                cprint(f"  FAILED: {os.path.basename(t)}", RED)
+                return False
+        return True
 
     # 1) Explicit cert thumbprint already installed in the Windows cert store.
     thumb = os.environ.get("VONVERT_CERT_THUMBPRINT", "").strip()
     if thumb:
         cprint(f"  Signing with store cert thumbprint: {thumb}", GRAY)
-        if run(common + ["/sha1", thumb, exe_path]) == 0:
-            cprint("  OK: Vonvert.exe signed", GREEN)
+        if sign_all(["/sha1", thumb]):
+            cprint("  OK: payloads signed", GREEN)
             return True
         cprint("  Thumbprint signing failed; trying .pfx / store fallback.", YELLOW)
 
@@ -349,8 +372,8 @@ def sign(publish_dir: str) -> bool:
     pfx_password = os.environ.get("VONVERT_PFX_PASSWORD", "")
     if pfx_path and pfx_password:
         cprint(f"  Signing with PFX: {os.path.relpath(pfx_path, ROOT)}", GRAY)
-        if run(common + ["/f", pfx_path, "/p", pfx_password, exe_path]) == 0:
-            cprint("  OK: Vonvert.exe signed", GREEN)
+        if sign_all(["/f", pfx_path, "/p", pfx_password]):
+            cprint("  OK: payloads signed", GREEN)
             return True
         cprint("  ERROR: Code signing failed.", RED)
         return False
@@ -359,9 +382,9 @@ def sign(publish_dir: str) -> bool:
     #    store on this machine. No password required — SmartScreen clears
     #    because the cert is in Root.
     for store_flag, label in (("/sm", "LocalMachine"), ("", "CurrentUser")):
-        args = common + ([store_flag] if store_flag else []) + ["/n", "Vonvert", exe_path]
-        if run(args) == 0:
-            cprint(f"  OK: Vonvert.exe signed with store cert ({label})", GREEN)
+        cert_args = ([store_flag] if store_flag else []) + ["/n", "Vonvert"]
+        if sign_all(cert_args):
+            cprint(f"  OK: payloads signed with store cert ({label})", GREEN)
             return True
 
     cprint("  No signing certificate found.", YELLOW)

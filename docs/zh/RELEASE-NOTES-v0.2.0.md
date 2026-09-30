@@ -45,7 +45,7 @@ GitHub Release 提供的安装包仍**未做代码签名**（本地构建可用 
 
 | 文件 | 大小 | SHA-256 |
 |---|---|---|
-| `Vonvert_Setup.exe` | （待 CI 构建后填写） | （待 CI 构建后填写） |
+| `Vonvert_Setup.exe` | 53,453,929 字节（51.0 MB） | `e04c096120348914518b6c9754162f99acc88f437813fa7c45ab25f3a3feb939` |
 
 在 PowerShell 中自行计算：
 

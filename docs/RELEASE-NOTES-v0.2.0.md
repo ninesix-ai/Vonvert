@@ -45,7 +45,7 @@ This build is unsigned; verify the download's integrity by comparing its hash:
 
 | File | Size | SHA-256 |
 |---|---|---|
-| `Vonvert_Setup.exe` | (to be filled after the release build) | (to be filled after the release build) |
+| `Vonvert_Setup.exe` | 53,453,929 bytes (51.0 MB) | `e04c096120348914518b6c9754162f99acc88f437813fa7c45ab25f3a3feb939` |
 
 Compute it yourself in PowerShell:
 

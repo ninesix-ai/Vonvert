@@ -1,59 +1,65 @@
-# 发布说明 — Vonvert v0.2.0
+# Release Notes — Vonvert v0.2.0
 
-这是继 v0.1.0 之后的第二个功能版本，共 11 笔提交。本版没有新增 DSP 效果器，而是把 v0.1.0 的功能面**带到更多语言、讲得更清楚、签得更完整**：10 种界面语言全量落地、用户手册大幅扩充、签名修复覆盖全部产物。
+> Language: [English](RELEASE-NOTES-v0.2.0.md) · [简体中文](zh/RELEASE-NOTES-v0.2.0.md)
 
-## 新增内容
+The second feature release after v0.1.0, spanning 11 commits. This version adds no new DSP effects; instead it takes the v0.1.0 feature set **to more languages, explains it better, and signs it more completely**: ten new UI languages shipped, a major user-guide expansion, and a code-signing fix that covers every payload.
 
-### 多语言本地化（本版最大增量）
-- 界面语言从 2 种（英、中）扩展至 **12 种**：新增德语、法语、西班牙语、巴西葡萄牙语、俄语、意大利语、波兰语、土耳其语、日语、韩语。语言下拉由单一真源 `SupportedLanguages` 驱动，与已发布译文严格对齐。
-- **角色（Persona）、音效板、对话框文案全量本地化**：预设分组标题、音效板名称与分类、设置向导与巡览提示均随语言切换刷新。
-- 修复切换语言后「我的角色」卡片与部分命令式赋值的界面文案**滞留旧语言**的问题——这些文本此前未接入语言刷新链路，并非译文缺失。
-- 音频术语按既定策略保留国际通用外来词原文（如 Reverb、EQ），仅在 CJK 语言中转写。
+## What's new
 
-### 用户手册扩充
-- 手册重排为 **4 个部分、15 个章节**并加入目录：新增 Auto pitch（音域归一化）、DSP 效果器原理、故障排查、参考资料等此前缺失的章节。
-- 逐章对照源码核实并修正了与代码不符的表述。
-- 中文版手册按新版英文结构重新镜像，两语言版本章节一一对应。
-- 隐私与合规页面的文档内链指向了修正后的真实标题锚点。
+### Localization (the biggest increment)
+- The UI language list grows from 2 (English, Chinese) to **12**: German, French, Spanish, Brazilian Portuguese, Russian, Italian, Polish, Turkish, Japanese and Korean are new. The language picker is driven by the single source of truth `SupportedLanguages` and stays strictly aligned with the shipped translation files.
+- **Personas, soundboard and dialog text are fully localized**: preset group headings, pad names and categories, the setup wizard and the spotlight tour all refresh on language switch.
+- Fixed the "My role" card and several imperatively-assigned labels **keeping the old language after a switch** — those texts were not hooked into the language-refresh chain; it was never a missing translation.
+- International audio terms (Reverb, EQ, …) stay in their original form by policy; only CJK locales transcribe them.
 
-### 构建与发布
-- **全载荷代码签名**：`python build.py --sign` 现在会签名 `Vonvert.exe` **和全部 `Vonvert*.dll`**（含托管主程序集）。此前只签 apphost，机器策略仍可能在加载未签名的 `Vonvert.dll` 时拦截进程——这是本版修复的首要实际问题。
-- 推送 `v*` tag 后，CI 自动把 NSIS 安装包挂载为对应 GitHub Release 的附件；Release 正文优先采用本目录下的 `RELEASE-NOTES-<tag>.md`。
-- 安装包 SHA-256 校验和随发布说明公开，便于下载后核验完整性。
+### User guide expansion
+- The guide is restructured into **4 parts and 15 chapters** with a table of contents, adding the chapters it never had: Auto pitch (register normalization), DSP effect explainers, Troubleshooting and Reference.
+- Every chapter was re-checked against the source; claims that contradicted the code were corrected.
+- The Chinese guide was re-mirrored to the new English structure, chapter for chapter.
+- Privacy and compliance cross-links now point at the real heading anchors.
 
-## 修复
-- 「我的角色」卡片与命令式赋值的界面文案在语言切换后不再滞留旧语言。
-- 签名/启动链路：未签名的托管程序集在应用控制策略下导致的静默启动失败，可通过对全部载荷签名消除（见上）。
+### Build & release
+- **Full-payload code signing**: `python build.py --sign` now signs `Vonvert.exe` **and every `Vonvert*.dll`**, including the managed entry assembly. Previously only the apphost was signed, so a machine policy could still block the process while loading an unsigned `Vonvert.dll` — the first real-world problem this release fixes.
+- Pushing a `v*` tag now makes CI attach the NSIS installer to the matching GitHub Release automatically; the release body is taken from this directory's `RELEASE-NOTES-<tag>.md` when it exists.
+- The installer's SHA-256 checksum is published with these notes so you can verify the download.
 
-## 升级提示（重要）
-应用内的“发现新版本”徽章**只在主版本号（Major）跳变时出现**，0.1.x → 0.2.0 属于次版本（minor）升级，旧客户端不会弹出任何提示。请通过 [Releases 页面](https://github.com/ninesix-ai/Vonvert/releases) 或 README 的下载链接获取新版本。
+## Fixed
+- The "My role" card and imperatively-set labels no longer keep the previous language after a language switch.
+- Signing/launch chain: silent start failures caused by an application-control policy refusing the unsigned managed assembly are gone once every payload is signed (see above).
 
-## 运行环境
-- Windows 10/11，一个麦克风，耳机或扬声器。
-- 建议配一个虚拟音频设备，让聊天应用/游戏使用变声后的声音。见 [VB-CABLE 配置指南](zh/VB-CABLE.zh.md)。
+## Upgrade note (important)
+The in-app "new version available" badge **only appears on a MAJOR version jump**. 0.1.x → 0.2.0 is a minor upgrade, so old clients will show no prompt at all. Get the new version from the [Releases page](https://github.com/ninesix-ai/Vonvert/releases) or the download link in the README.
 
-## 注意：未签名构建
-GitHub Release 提供的安装包仍**未做代码签名**（本地构建可用 `python build.py --sign` 自签）。首次运行时 Windows SmartScreen 可能提示“Windows 已保护你的电脑”——这对未签名软件是预期行为，**不是病毒警告**。点击**更多信息 → 仍要运行**。
+## Requirements
+- Windows 10/11, one microphone, headphones or speakers.
+- A virtual audio device is recommended so chat apps and games receive the changed voice. See the [VB-CABLE guide](VB-CABLE.md).
 
-## 安装
-运行 `Vonvert_Setup.exe`（用户级安装，无需管理员权限）。
+## Note: unsigned build
+The installer published on GitHub Releases is still **not code-signed** (local builds can self-sign with `python build.py --sign`). On first run Windows SmartScreen may show "Windows protected your PC" — expected for unsigned software, **not a virus warning**. Click **More info → Run anyway**.
 
-## 文件校验（SHA-256）
-本版本尚未代码签名，下载后可核对文件哈希以确认完整性：
+## Install
+Run `Vonvert_Setup.exe` (user-level install, no administrator required).
 
-| 文件 | 大小 | SHA-256 |
+## File checksum (SHA-256)
+This build is unsigned; verify the download's integrity by comparing its hash:
+
+| File | Size | SHA-256 |
 |---|---|---|
-| `Vonvert_Setup.exe` | （待 CI 构建后填写） | （待 CI 构建后填写） |
+| `Vonvert_Setup.exe` | (to be filled after the release build) | (to be filled after the release build) |
 
-在 PowerShell 中自行计算：
+Compute it yourself in PowerShell:
 
 ```powershell
-Get-FileHash .\Vonvert_Setup.exe -Algorithm SHA-256
+Get-FileHash .\Vonvert_Setup.exe -Algorithm SHA256
 ```
 
-输出应与上表逐字符一致。若不一致，请勿安装，改为从 [Releases 页面](https://github.com/ninesix-ai/Vonvert/releases/tag/v0.2.0) 重新下载。
+The output must match the table exactly. If it does not, do not install — re-download from the [Releases page](https://github.com/ninesix-ai/Vonvert/releases/tag/v0.2.0).
 
-> 该哈希由构建机对最终产物计算，与 GitHub 为该附件记录的摘要一致；它只能证明文件未被篡改或截断，**不能替代代码签名**（见上方未签名说明）。
+> The hash is computed by the build machine over the final artifact and matches the digest GitHub records for the attachment; it proves the file was not tampered with or truncated, and is **not a substitute for code signing** (see the unsigned-build note above).
 
-## 许可证
-Apache-2.0。第三方组件列于 [NOTICE](../NOTICE)。
+## License
+Apache-2.0. Third-party components are listed in [NOTICE](../NOTICE).
+
+---
+
+*This file is the canonical English release notes. Chinese: [docs/zh/RELEASE-NOTES-v0.2.0.md](zh/RELEASE-NOTES-v0.2.0.md). Other languages arrive with the website and in-app localization pipeline; until then the [GitHub Release page](https://github.com/ninesix-ai/Vonvert/releases/tag/v0.2.0) carries this English text as its body.*

@@ -253,6 +253,7 @@ public partial class MainWindow
             MainPresetPicker.RefreshTiles(); // re-localize preset tiles, keeping the current selection
         }
         ExpertPanel?.Relabel();              // re-translate the data-driven expert panel labels
+        MyPersonaView?.RefreshLocalizedContent(); // direct call: immune to the card's load/unload subscription lifetime
         RefreshSectionTitle();               // active tab's title in the new language
     }
 

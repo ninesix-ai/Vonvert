@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) 2026 ninesix-ai studio
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -26,7 +27,25 @@ public partial class SettingsMyPersonaView : UserControl
     public SettingsMyPersonaView()
     {
         InitializeComponent();
-        Loaded += (_, _) => RefreshLocalizedContent();
+        // This card is hosted in the lazily-loaded Settings tab: its content is Unloaded
+        // whenever the user leaves the tab, so subscribe on Loaded and unsubscribe on
+        // Unloaded (SYMMETRIC). Subscribing in the ctor while only unsubscribing on Unloaded
+        // would, after the first tab switch, permanently detach the listener and strand the
+        // "My role" title + role/complexity combos in the previous language. Same pattern as
+        // PersonaPickStep; RefreshLocalizedContent on load also covers the initial display.
+        Loaded += (_, _) =>
+        {
+            L.PropertyChanged -= OnLanguageChanged;   // idempotent: never double-subscribe
+            L.PropertyChanged += OnLanguageChanged;
+            RefreshLocalizedContent();
+        };
+        Unloaded += (_, _) => L.PropertyChanged -= OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(LocalizationManager.Language))
+            Dispatcher.BeginInvoke(new Action(RefreshLocalizedContent));
     }
 
     /// <summary>Rebuild labels + items and reflect current state; call on load and language switch.</summary>

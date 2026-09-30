@@ -2,6 +2,7 @@
 // Copyright (c) 2026 ninesix-ai studio
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -30,7 +31,19 @@ public partial class PersonaPickStep : UserControl
     {
         InitializeComponent();
         _sel.Changed += _ => ApplyHighlight();
+        // The cards' text is built imperatively (not XAML-bound), so this step is not
+        // covered by MainWindow's central language hook (the wizard's step lives in a
+        // local closure). Self-subscribe so switching language mid-onboarding re-localizes
+        // role names and descriptions, and unsubscribe on Unloaded to avoid a leak.
+        Loaded += (_, _) => L.PropertyChanged += OnLanguageChanged;
+        Unloaded += (_, _) => L.PropertyChanged -= OnLanguageChanged;
         Build();
+    }
+
+    private void OnLanguageChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(LocalizationManager.Language))
+            RefreshLocalizedContent();
     }
 
     /// <summary>Rebuild text after a language switch (keeps current selection highlight).</summary>

@@ -110,6 +110,13 @@ public partial class MainWindow : Window, IAppServices
 
         _uiReady = true;  // now safe for all event handlers to run
 
+        // Subscribe the central language-change hook. Without this += the handler was
+        // only ever detached (CleanupForExit), so every imperative re-localizer inside it
+        // -- dynamic status strings, tray menu, hotkey headers, preset tiles, expert panel,
+        // section title -- silently never ran, and those controls kept the previous
+        // language after a switch (XAML-bound labels refreshed, code-assigned ones did not).
+        LocalizationManager.Instance.PropertyChanged += OnLanguagePropertyChanged;
+
         // Start checking for updates on GitHub (non-blocking, best-effort)
         try
         {

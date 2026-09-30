@@ -3,7 +3,7 @@
 <!-- Copyright (c) 2026 ninesix-ai studio -->
 
 <assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
-  <assemblyIdentity version="0.1.0.0" name="Vonvert.app"/>
+  <assemblyIdentity version="0.2.0.0" name="Vonvert.app"/>
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
     <security>
       <requestedPrivileges>

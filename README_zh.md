@@ -2,7 +2,7 @@
 
 > Language：[English](README.md) · [简体中文](README_zh.md)
 
-> **下载 [v0.1.0](https://github.com/ninesix-ai/Vonvert/releases/tag/v0.1.0)** — Windows 实时变声器（未签名预览版；SmartScreen 处理步骤见[发布说明](docs/RELEASE-NOTES-v0.1.0.md)）。
+> **下载 [v0.2.0](https://github.com/ninesix-ai/Vonvert/releases/tag/v0.2.0)** — Windows 实时变声器（未签名预览版；SmartScreen 处理步骤见[发布说明](docs/RELEASE-NOTES-v0.2.0.md)）。
 
 **Windows 实时变声器** — 说话的同时改变你的声音,低延迟 WASAPI 音频,开箱即用的 8 个声线预设。
 

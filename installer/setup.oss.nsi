@@ -6,7 +6,7 @@
 ; and an Add/Remove Programs (Control Panel) uninstall entry.
 ;
 ; Local build:  makensis installer\setup.oss.nsi
-; CI build:     makensis /DBUILD_DIR=..\publish /DAPP_VERSION=0.1.0 installer\setup.oss.nsi
+; CI build:     makensis /DBUILD_DIR=..\publish /DAPP_VERSION=0.2.0 installer\setup.oss.nsi
 ;               (BUILD_DIR is relative to this script's directory; APP_VERSION should be
 ;                kept in sync with Directory.Build.props <Version>.)
 ;
@@ -26,7 +26,7 @@
   !define APP_DISPLAY "Vonvert"
 !endif
 !ifndef APP_VERSION
-  !define APP_VERSION "0.1.0"
+  !define APP_VERSION "0.2.0"
 !endif
 !ifndef APP_PUBLISHER
   !define APP_PUBLISHER "ninesix-ai studio"

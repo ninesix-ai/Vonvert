@@ -71,10 +71,11 @@ public partial class SoundboardViewControl : UserControl
 
     private void OnLanguageChanged(object? sender, PropertyChangedEventArgs e)
     {
-        // Re-localize chip labels and badges without disturbing the active filter.
+        // Re-localize chip labels, pad names and badges without disturbing the active filter.
         Dispatcher.BeginInvoke(new Action(() =>
         {
             BuildChips();
+            RelocalizePads();
             foreach (var vm in _all) vm.BadgeText = BadgeFor(vm);
             UpdateStatusBar();   // the bar's text is assigned, not XAML-bound, so refresh it here
         }));
@@ -113,9 +114,18 @@ public partial class SoundboardViewControl : UserControl
             }
         }
         foreach (var vm in _all) vm.BadgeText = BadgeFor(vm);
+        RelocalizePads();
         WarmDurations();
         BuildChips();
         ApplyFilter();
+    }
+
+    /// <summary>Apply the current language's built-in sound names to every pad.
+    /// User-imported pads keep their file name (no localized label exists).</summary>
+    private void RelocalizePads()
+    {
+        foreach (var vm in _all)
+            vm.Name = L.GetSoundDisplayName(vm.Id, vm.EnglishName);
     }
 
     /// <summary>Resolves pad duration labels off the UI thread (first touch caches the
@@ -362,7 +372,17 @@ public partial class SoundboardViewControl : UserControl
     private sealed class SoundPadVM : INotifyPropertyChanged
     {
         public string Id { get; }
-        public string Name { get; }
+        /// <summary>The built-in English name (or imported file name): the fallback
+        /// used when a language has no localized label for this sound.</summary>
+        public string EnglishName { get; }
+
+        private string _name;
+        /// <summary>Localized pad label; refreshed on language switch via RelocalizePads.</summary>
+        public string Name
+        {
+            get => _name;
+            set { if (_name != value) { _name = value; OnChanged(nameof(Name)); } }
+        }
         public string Emoji { get; }
         public string Category { get; }
         public bool IsUser { get; }
@@ -393,7 +413,7 @@ public partial class SoundboardViewControl : UserControl
 
         public SoundPadVM(string id, string name, string emoji, string category, bool isUser)
         {
-            Id = id; Name = name; Emoji = emoji; Category = category; IsUser = isUser;
+            Id = id; EnglishName = name; _name = name; Emoji = emoji; Category = category; IsUser = isUser;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

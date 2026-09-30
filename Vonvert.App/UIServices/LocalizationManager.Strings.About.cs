@@ -16,4 +16,13 @@ public partial class LocalizationManager
     public string ThirdPartyLicenses => G();
     public string LicenseIntro       => G();
     public string Trademarks         => G();
+    // Each bullet is one localized line; the library names and the SPDX-style
+    // license ids (MIT / Apache-2.0) stay verbatim inside every language's value -
+    // only the trailing descriptor ("— .NET audio library" …) is translated.
+    public string LicAudio   => G();
+    public string LicJson    => G();
+    public string LicLogging => G();
+    public string LicTray    => G();
+    public string LicRuntime => G();
+    public string LicVbCable => G();
 }

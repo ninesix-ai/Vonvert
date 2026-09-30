@@ -26,6 +26,7 @@ using Vonvert.App.UIServices;
 using Vonvert.Engine.PresetLibrary;
 using Xunit;
 
+[Collection("LocalizationManagerSingleton")]   // mutates LocalizationManager.Instance.Language (L10N-13/others): must not overlap with other singleton-mutating tests
 public class LocalizationParityTests
 {
     private static readonly System.Reflection.Assembly AppAsm = typeof(LocalizationManager).Assembly;
@@ -85,8 +86,10 @@ public class LocalizationParityTests
     [InlineData("zh-CN", "zh")]      // existing behaviour must not regress
     [InlineData("zh-TW", "zh")]
     [InlineData("en-US", "en")]
-    [InlineData("de-AT", "en")]      // "de" is not shipped yet -> must not be picked
-    [InlineData("pt-BR", "en")]      // region-qualified code absent from SupportedLanguages
+    [InlineData("de-AT", "de")]      // "de" ships now: prefix match must pick it
+    [InlineData("pt-BR", "pt-BR")]   // region-qualified code ships: full name wins over "pt"
+    [InlineData("pt-PT", "pt-BR")]   // same-language sub-tag wins over English: pt-PT users
+                                     // get pt-BR copy (documented cascade rule, step 2)
     [InlineData("xx-YY", "en")]      // unknown culture
     [InlineData("", "en")]           // empty culture name
     public void ResolveSystemLanguage_FollowsSupportedCodes(string culture, string expected)
@@ -179,6 +182,40 @@ public class LocalizationParityTests
             Assert.False(string.IsNullOrWhiteSpace(native), $"language '{code}' has no display name");
             Assert.DoesNotContain("?", native);   // guards against a mojibake'd literal
         }
+    }
+
+    [Theory(DisplayName = "L10N-12: every supported language has the same sounds key set as en")]
+    [MemberData(nameof(TranslatedLanguages))]
+    public void SoundKeys_ParityAgainstEnglish(string lang) => AssertSameKeys(lang, "sounds");
+
+    [Fact(DisplayName = "L10N-06b: every built-in sound id has an en sounds entry")]
+    public void BuiltInSoundIds_AreTranslated()
+    {
+        var enSounds = ReadTopLevel("en", "sounds");
+        foreach (var def in Vonvert.Engine.ProceduralAudio.SoundGenerator.GetAllSounds())
+            Assert.True(enSounds.Contains(def.Id),
+                $"built-in sound '{def.Id}' has no en sounds entry (pad name would strand in English)");
+    }
+
+    [Fact(DisplayName = "L10N-13: GetSoundDisplayName localizes by id and falls back to the caller's english name")]
+    public void GetSoundDisplayName_LocalizesAndFallsBack()
+    {
+        var lm = LocalizationManager.Instance;
+        string original = lm.Language;
+        try
+        {
+            lm.Language = "en";
+            Assert.Equal("Air Horn", lm.GetSoundDisplayName("airhorn", "Air Horn"));
+            // unknown / user-imported id: never surface the raw id, keep the file name
+            Assert.Equal("MyCustomTake", lm.GetSoundDisplayName("user_deadbeef", "MyCustomTake"));
+
+            lm.Language = "zh";
+            // a built-in id must come back non-empty and translated (not the id, not the english)
+            var zh = lm.GetSoundDisplayName("airhorn", "Air Horn");
+            Assert.False(string.IsNullOrWhiteSpace(zh));
+            Assert.NotEqual("airhorn", zh);
+        }
+        finally { lm.Language = original; }
     }
 
     [Fact(DisplayName = "L10N-09: check_locale.py iterates exactly the supported languages")]

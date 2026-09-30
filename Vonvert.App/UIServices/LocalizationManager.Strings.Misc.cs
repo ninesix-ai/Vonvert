@@ -12,6 +12,13 @@ public partial class LocalizationManager
     public string TrayOpen         => G();
     public string TrayQuit         => G();
 
+    // Startup/device diagnostics. Only the user-actionable ones are localized;
+    // the crash/stacktrace dialogs stay English so support can match them to logs.
+    public string NoAudioDevicesTitle          => G();
+    public string NoAudioDevicesBody           => G();
+    public string PresetIndexSaveErrorTitle    => G();
+    public string PresetIndexSaveErrorBodyFmt  => G();
+
     // ── Pitch Visualization ──
     public string CentsUnit         => G();
     public string HzUnit            => G();

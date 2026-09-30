@@ -25,6 +25,12 @@ public partial class LocalizationManager
     // looked up dynamically by persona key via GetPersonaLabel, so they don't need C# properties.
     private Dictionary<string, string> _personaStrings = new();
 
+    // Built-in soundboard pad names live in a "sounds" JSON section keyed by the
+    // stable sound Id (kick/airhorn/...), NOT by the English name: the Id never
+    // changes across languages, so it is the reliable lookup key. Looked up
+    // dynamically by GetSoundDisplayName, so no C# properties are needed.
+    private Dictionary<string, string> _soundNames = new();
+
     // ── Generic getter (avoids ambiguity with G() overloads) ─────────
 
     private string G([CallerMemberName] string? key = null)
@@ -77,6 +83,7 @@ public partial class LocalizationManager
             _presetNames = obj["presets"]?.ToObject<Dictionary<string, string>>() ?? new();
             _paramStrings = obj["params"]?.ToObject<Dictionary<string, string>>() ?? new();
             _personaStrings = obj["persona"]?.ToObject<Dictionary<string, string>>() ?? new();
+            _soundNames = obj["sounds"]?.ToObject<Dictionary<string, string>>() ?? new();
         }
         else
         {
@@ -84,6 +91,7 @@ public partial class LocalizationManager
             _presetNames = new();
             _paramStrings = new();
             _personaStrings = new();
+            _soundNames = new();
         }
 
         // English fallback: fill in any keys the target language is missing, in all
@@ -95,6 +103,7 @@ public partial class LocalizationManager
             ApplyEnglishFallback(_presetNames, enObj, "presets");
             ApplyEnglishFallback(_paramStrings, enObj, "params");
             ApplyEnglishFallback(_personaStrings, enObj, "persona");
+            ApplyEnglishFallback(_soundNames, enObj, "sounds");
         }
 
         // Fire PropertyChanged for every public property so bindings refresh
@@ -155,6 +164,18 @@ public partial class LocalizationManager
             ? localized
             : englishName;
     }
+
+    /// <summary>
+    /// Localized display name for a built-in soundboard pad, looked up by its stable
+    /// Id (kick/airhorn/...). User-imported sounds and any unknown Id fall back to
+    /// <paramref name="englishFallback"/> (the sound's built-in name or its file name),
+    /// so a pad never shows a raw id. English fallback in LoadLanguage already fills
+    /// missing "sounds" keys, so non-English locales degrade to English, not to the id.
+    /// </summary>
+    public string GetSoundDisplayName(string id, string englishFallback)
+        => !string.IsNullOrEmpty(id) && _soundNames.TryGetValue(id, out var localized)
+            ? localized
+            : englishFallback;
 
     // ── Persistence ──────────────────────────────────────────────────
 

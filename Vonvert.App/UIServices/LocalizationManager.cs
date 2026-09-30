@@ -20,7 +20,8 @@ public partial class LocalizationManager : INotifyPropertyChanged
     private Dictionary<string, string> _strings = new();
 
     /// <summary>All supported language codes.</summary>
-    public static readonly string[] SupportedLanguages = { "en", "zh" };
+    public static readonly string[] SupportedLanguages =
+        { "en", "de", "fr", "es", "pt-BR", "ru", "it", "pl", "tr", "ja", "ko", "zh" };
 
     /// <summary>
     /// The Settings language picker, derived from <see cref="SupportedLanguages"/>:
@@ -32,6 +33,16 @@ public partial class LocalizationManager : INotifyPropertyChanged
     public static readonly (string Code, string NativeName)[] SupportedLanguageOptions =
     {
         ("en", "English"),
+        ("de", "Deutsch"),
+        ("fr", "Français"),
+        ("es", "Español"),
+        ("pt-BR", "Português (Brasil)"),
+        ("ru", "Русский"),
+        ("it", "Italiano"),
+        ("pl", "Polski"),
+        ("tr", "Türkçe"),
+        ("ja", "日本語"),
+        ("ko", "한국어"),
         ("zh", "简体中文"),
     };
 

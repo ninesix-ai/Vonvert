@@ -267,8 +267,8 @@ public partial class App : Application
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         MessageBox.Show(
-                            $"Failed to save preset index to:\n{path}\n\nYour presets are still in memory, but recent changes may be lost on exit.",
-                            "Vonvert — Preset Index Save Error",
+                            string.Format(LocalizationManager.Instance.PresetIndexSaveErrorBodyFmt, path),
+                            LocalizationManager.Instance.PresetIndexSaveErrorTitle,
                             MessageBoxButton.OK, MessageBoxImage.Warning);
                     }));
                 };
@@ -284,10 +284,8 @@ public partial class App : Application
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         MessageBox.Show(
-                            "No audio devices were detected on your system.\n\n" +
-                            "Vonvert requires at least one audio input or output device to function.\n" +
-                            "Please check your audio drivers and connected devices.",
-                            "Vonvert — No Audio Devices",
+                            LocalizationManager.Instance.NoAudioDevicesBody,
+                            LocalizationManager.Instance.NoAudioDevicesTitle,
                             MessageBoxButton.OK, MessageBoxImage.Warning);
                     }));
                 }

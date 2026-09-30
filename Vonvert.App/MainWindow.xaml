@@ -546,17 +546,17 @@
                                                 <Run Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=LicenseIntro, Mode=OneWay}"/>
                                                 <LineBreak/>
                                                 <LineBreak/>
-                                                <Run Text="&#8226; NAudio / NAudio.WinMM (MIT License) &#8212; .NET audio library"/>
+                                                <Run Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=LicAudio, Mode=OneWay}"/>
                                                 <LineBreak/>
-                                                <Run Text="&#8226; Newtonsoft.Json (MIT License) &#8212; JSON library"/>
+                                                <Run Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=LicJson, Mode=OneWay}"/>
                                                 <LineBreak/>
-                                                <Run Text="&#8226; Serilog / Serilog.Sinks.File (Apache-2.0 License) &#8212; Structured logging"/>
+                                                <Run Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=LicLogging, Mode=OneWay}"/>
                                                 <LineBreak/>
-                                                <Run Text="&#8226; Hardcodet.NotifyIcon.Wpf (MIT License) &#8212; System tray component"/>
+                                                <Run Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=LicTray, Mode=OneWay}"/>
                                                 <LineBreak/>
-                                                <Run Text="&#8226; .NET Runtime (MIT License) &#8212; Runtime framework"/>
+                                                <Run Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=LicRuntime, Mode=OneWay}"/>
                                                 <LineBreak/>
-                                                <Run Text="&#8226; VB-Cable (VB-Audio) &#8212; Virtual audio driver"/>
+                                                <Run Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=LicVbCable, Mode=OneWay}"/>
                                             </TextBlock>
                                             <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=Trademarks, Mode=OneWay}"
                                                            FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextSub}"

@@ -60,7 +60,7 @@ def run(cmd, **kwargs):
     return subprocess.run(cmd, **kwargs).returncode
 
 
-# ── Read version from Vonvert.App.csproj ──────────────────────
+# ── Read version (csproj override, then Directory.Build.props) ──
 def _read_version() -> str:
     import re
     csproj = os.path.join(ROOT, "Vonvert.App", "Vonvert.App.csproj")

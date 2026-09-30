@@ -64,7 +64,7 @@ public static class VersionInfoService
     }
 
     /// <summary>
-    /// Returns the short app version string (e.g. "0.0.1").
+    /// Returns the short app version string (e.g. "0.2.0").
     /// </summary>
     public static string GetShortVersion()
     {

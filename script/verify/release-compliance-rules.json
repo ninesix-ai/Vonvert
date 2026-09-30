@@ -86,6 +86,12 @@
       "reason": "Native display name of the Chinese locale in the language picker; a native name is deliberately not translatable UI text (moved out of MainWindow.xaml, which no longer hardcodes the list)"
     },
     {
+      "file": "Vonvert.App/UIServices/LocalizationManager.cs",
+      "rule": "chinese-in-source",
+      "pattern": "\"日本語\"",
+      "reason": "Same convention as the Chinese entry: the native display name of the Japanese locale in the language picker is deliberately not translatable UI text"
+    },
+    {
       "file": "test/code/Vonvert.Tests/DSP/EffectRegistryTests.cs",
       "rule": "commercial-wording",
       "pattern": "Create(\"Watermark\")",

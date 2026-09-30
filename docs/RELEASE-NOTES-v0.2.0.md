@@ -1,6 +1,9 @@
 # Release Notes — Vonvert v0.2.0
 
-> Language: [English](RELEASE-NOTES-v0.2.0.md) · [简体中文](zh/RELEASE-NOTES-v0.2.0.md)
+<!-- This file doubles as the GitHub Release body, where relative links are not resolved -->
+<!-- against the repository path, so every cross-reference below is an absolute URL. -->
+
+> Language: [English](https://github.com/ninesix-ai/Vonvert/blob/main/docs/RELEASE-NOTES-v0.2.0.md) · [简体中文](https://github.com/ninesix-ai/Vonvert/blob/main/docs/zh/RELEASE-NOTES-v0.2.0.md)
 
 The second feature release after v0.1.0, spanning 11 commits. This version adds no new DSP effects; instead it takes the v0.1.0 feature set **to more languages, explains it better, and signs it more completely**: ten new UI languages shipped, a major user-guide expansion, and a code-signing fix that covers every payload.
 
@@ -32,7 +35,7 @@ The in-app "new version available" badge **only appears on a MAJOR version jump*
 
 ## Requirements
 - Windows 10/11, one microphone, headphones or speakers.
-- A virtual audio device is recommended so chat apps and games receive the changed voice. See the [VB-CABLE guide](VB-CABLE.md).
+- A virtual audio device is recommended so chat apps and games receive the changed voice. See the [VB-CABLE guide](https://github.com/ninesix-ai/Vonvert/blob/main/docs/VB-CABLE.md).
 
 ## Note: unsigned build
 The installer published on GitHub Releases is still **not code-signed** (local builds can self-sign with `python build.py --sign`). On first run Windows SmartScreen may show "Windows protected your PC" — expected for unsigned software, **not a virus warning**. Click **More info → Run anyway**.
@@ -60,8 +63,8 @@ The output must match the table exactly. If it does not, do not install — re-d
 > A self-contained .NET publish is not byte-reproducible, so an installer you build yourself from the same tag will differ in size and hash — that is expected and is not a tampering signal. Compare against the table only for the file downloaded from this Release.
 
 ## License
-Apache-2.0. Third-party components are listed in [NOTICE](../NOTICE).
+Apache-2.0. Third-party components are listed in [NOTICE](https://github.com/ninesix-ai/Vonvert/blob/main/NOTICE).
 
 ---
 
-*This file is the canonical English release notes. Chinese: [docs/zh/RELEASE-NOTES-v0.2.0.md](zh/RELEASE-NOTES-v0.2.0.md). Other languages arrive with the website and in-app localization pipeline; until then the [GitHub Release page](https://github.com/ninesix-ai/Vonvert/releases/tag/v0.2.0) carries this English text as its body.*
+*This file is the canonical English release notes. Chinese: [docs/zh/RELEASE-NOTES-v0.2.0.md](https://github.com/ninesix-ai/Vonvert/blob/main/docs/zh/RELEASE-NOTES-v0.2.0.md). Other languages arrive with the website and in-app localization pipeline; until then the [GitHub Release page](https://github.com/ninesix-ai/Vonvert/releases/tag/v0.2.0) carries this English text as its body.*

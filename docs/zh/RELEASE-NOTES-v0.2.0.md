@@ -1,6 +1,9 @@
 # 发布说明 — Vonvert v0.2.0
 
-> 语言：[English](../RELEASE-NOTES-v0.2.0.md) · [简体中文](RELEASE-NOTES-v0.2.0.md)
+<!-- Mirror of the canonical English notes. This text can be pasted into a Release body, -->
+<!-- where relative links do not resolve against the repository path, so all links are absolute. -->
+
+> 语言：[English](https://github.com/ninesix-ai/Vonvert/blob/main/docs/RELEASE-NOTES-v0.2.0.md) · [简体中文](https://github.com/ninesix-ai/Vonvert/blob/main/docs/zh/RELEASE-NOTES-v0.2.0.md)
 
 这是继 v0.1.0 之后的第二个功能版本，共 11 笔提交。本版没有新增 DSP 效果器，而是把 v0.1.0 的功能面**带到更多语言、讲得更清楚、签得更完整**：10 种界面语言全量落地、用户手册大幅扩充、签名修复覆盖全部产物。
 
@@ -15,12 +18,12 @@
 ### 用户手册扩充
 - 手册重排为 **4 个部分、15 个章节**并加入目录：新增 Auto pitch（音域归一化）、DSP 效果器原理、故障排查、参考资料等此前缺失的章节。
 - 逐章对照源码核实并修正了与代码不符的表述。
-- 中文版手册（[USER-GUIDE.zh.md](USER-GUIDE.zh.md)）按新版英文结构重新镜像，两语言版本章节一一对应。
+- 中文版手册（[USER-GUIDE.zh.md](https://github.com/ninesix-ai/Vonvert/blob/main/docs/zh/USER-GUIDE.zh.md)）按新版英文结构重新镜像，两语言版本章节一一对应。
 - 隐私与合规页面的文档内链指向了修正后的真实标题锚点。
 
 ### 构建与发布
 - **全载荷代码签名**：`python build.py --sign` 现在会签名 `Vonvert.exe` **和全部 `Vonvert*.dll`**（含托管主程序集）。此前只签 apphost，机器策略仍可能在加载未签名的 `Vonvert.dll` 时拦截进程——这是本版修复的首要实际问题。
-- 推送 `v*` tag 后，CI 自动把 NSIS 安装包挂载为对应 GitHub Release 的附件；Release 正文优先采用权威源文件 [RELEASE-NOTES-v0.2.0.md](../RELEASE-NOTES-v0.2.0.md)。
+- 推送 `v*` tag 后，CI 自动把 NSIS 安装包挂载为对应 GitHub Release 的附件；Release 正文优先采用权威源文件 [RELEASE-NOTES-v0.2.0.md](https://github.com/ninesix-ai/Vonvert/blob/main/docs/RELEASE-NOTES-v0.2.0.md)。
 - 安装包 SHA-256 校验和随发布说明公开，便于下载后核验完整性。
 
 ## 修复
@@ -32,7 +35,7 @@
 
 ## 运行环境
 - Windows 10/11，一个麦克风，耳机或扬声器。
-- 建议配一个虚拟音频设备，让聊天应用/游戏使用变声后的声音。见 [VB-CABLE 配置指南](VB-CABLE.zh.md)。
+- 建议配一个虚拟音频设备，让聊天应用/游戏使用变声后的声音。见 [VB-CABLE 配置指南](https://github.com/ninesix-ai/Vonvert/blob/main/docs/zh/VB-CABLE.zh.md)。
 
 ## 注意：未签名构建
 GitHub Release 提供的安装包仍**未做代码签名**（本地构建可用 `python build.py --sign` 自签）。首次运行时 Windows SmartScreen 可能提示“Windows 已保护你的电脑”——这对未签名软件是预期行为，**不是病毒警告**。点击**更多信息 → 仍要运行**。
@@ -60,8 +63,8 @@ Get-FileHash .\Vonvert_Setup.exe -Algorithm SHA256
 > .NET self-contained 发布不具备逐字节可重现性，因此你从同一 tag 自行构建出的安装包在大小与哈希上都会不同——这是预期现象，不代表文件被篡改。请仅对从本 Release 下载的文件核对上表。
 
 ## 许可证
-Apache-2.0。第三方组件列于 [NOTICE](../../NOTICE)。
+Apache-2.0。第三方组件列于 [NOTICE](https://github.com/ninesix-ai/Vonvert/blob/main/NOTICE)。
 
 ---
 
-*本文件为中文镜像，权威源为 [docs/RELEASE-NOTES-v0.2.0.md](../RELEASE-NOTES-v0.2.0.md)（英文）。其余语言的投递随网站与应用内本地化管线推进；在此之前，[GitHub Release 页面](https://github.com/ninesix-ai/Vonvert/releases/tag/v0.2.0) 正文以英文版为准。*
+*本文件为中文镜像，权威源为 [docs/RELEASE-NOTES-v0.2.0.md](https://github.com/ninesix-ai/Vonvert/blob/main/docs/RELEASE-NOTES-v0.2.0.md)（英文）。其余语言的投递随网站与应用内本地化管线推进；在此之前，[GitHub Release 页面](https://github.com/ninesix-ai/Vonvert/releases/tag/v0.2.0) 正文以英文版为准。*

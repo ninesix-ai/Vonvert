@@ -45,7 +45,7 @@ GitHub Release 提供的安装包仍**未做代码签名**（本地构建可用 
 
 | 文件 | 大小 | SHA-256 |
 |---|---|---|
-| `Vonvert_Setup.exe` | 53,453,929 字节（51.0 MB） | `e04c096120348914518b6c9754162f99acc88f437813fa7c45ab25f3a3feb939` |
+| `Vonvert_Setup.exe` | 53,440,630 字节（51.0 MB） | `4ccf8e299b82fa6716145b2208d7c06d2d90dd6457778f3f1354f6683a704089` |
 
 在 PowerShell 中自行计算：
 
@@ -55,7 +55,9 @@ Get-FileHash .\Vonvert_Setup.exe -Algorithm SHA256
 
 输出应与上表逐字符一致。若不一致，请勿安装，改为从 [Releases 页面](https://github.com/ninesix-ai/Vonvert/releases/tag/v0.2.0) 重新下载。
 
-> 该哈希由构建机对最终产物计算，与 GitHub 为该附件记录的摘要一致；它只能证明文件未被篡改或截断，**不能替代代码签名**（见上方未签名说明）。
+> 上表哈希是 GitHub 为该 Release 附件记录的摘要，安装包由 CI 基于 `v0.2.0` tag 构建产出。它只能证明文件未被篡改或截断，**不能替代代码签名**（见上方未签名说明）。
+>
+> .NET self-contained 发布不具备逐字节可重现性，因此你从同一 tag 自行构建出的安装包在大小与哈希上都会不同——这是预期现象，不代表文件被篡改。请仅对从本 Release 下载的文件核对上表。
 
 ## 许可证
 Apache-2.0。第三方组件列于 [NOTICE](../../NOTICE)。

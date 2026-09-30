@@ -45,7 +45,7 @@ This build is unsigned; verify the download's integrity by comparing its hash:
 
 | File | Size | SHA-256 |
 |---|---|---|
-| `Vonvert_Setup.exe` | 53,453,929 bytes (51.0 MB) | `e04c096120348914518b6c9754162f99acc88f437813fa7c45ab25f3a3feb939` |
+| `Vonvert_Setup.exe` | 53,440,630 bytes (51.0 MB) | `4ccf8e299b82fa6716145b2208d7c06d2d90dd6457778f3f1354f6683a704089` |
 
 Compute it yourself in PowerShell:
 
@@ -55,7 +55,9 @@ Get-FileHash .\Vonvert_Setup.exe -Algorithm SHA256
 
 The output must match the table exactly. If it does not, do not install — re-download from the [Releases page](https://github.com/ninesix-ai/Vonvert/releases/tag/v0.2.0).
 
-> The hash is computed by the build machine over the final artifact and matches the digest GitHub records for the attachment; it proves the file was not tampered with or truncated, and is **not a substitute for code signing** (see the unsigned-build note above).
+> The hash above is the digest GitHub records for the attached installer, built by CI from the `v0.2.0` tag. It proves the file was not tampered with or truncated and is **not a substitute for code signing** (see the unsigned-build note above).
+>
+> A self-contained .NET publish is not byte-reproducible, so an installer you build yourself from the same tag will differ in size and hash — that is expected and is not a tampering signal. Compare against the table only for the file downloaded from this Release.
 
 ## License
 Apache-2.0. Third-party components are listed in [NOTICE](../NOTICE).

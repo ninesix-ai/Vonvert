@@ -64,9 +64,14 @@ public sealed class SpectrogramDisplayTests
         sg.FeedSamples(Sine(500f, 512 * 30));            // > 8 hops of 256
         var (data, freqBins, frames, writePos) = sg.GetHistory();
         Assert.Equal(8, frames);                          // clamped at depth
-        Assert.InRange(writePos, 0, 7);
         Assert.Equal(32, freqBins);
-        Assert.NotNull(data);
+        // The newest column (just behind writePos) must carry real 500 Hz energy,
+        // proving the ring accumulated genuine frames rather than zeros.
+        int newest = (writePos - 1 + 8) % 8;
+        int peakBin = 0;
+        for (int b = 1; b < freqBins; b++) if (data[b, newest] > data[peakBin, newest]) peakBin = b;
+        Assert.InRange(sg.GetBinFrequencyHz(peakBin), 300f, 800f);
+        Assert.True(data[peakBin, newest] > 0.3f, $"newest column energy too low: {data[peakBin, newest]:F3}");
     }
 
     [Fact(DisplayName = "SG-004: Reset clears column, history and ring state")]
@@ -79,11 +84,12 @@ public sealed class SpectrogramDisplayTests
         Assert.All(sg.GetCurrentColumn().ToArray(), v => Assert.Equal(0f, v));
     }
 
-    [Fact(DisplayName = "SG-005: no availability gate — feeding always produces energy")]
-    public void SG005_NoLicenseGateRegression()
+    [Fact(DisplayName = "SG-005: FeedSamples never short-circuits — every fed block advances analysis")]
+    public void SG005_FeedNeverShortCircuits()
     {
-        // Regression guard: the OSS source carried a license gate that silently
-        // swallowed FeedSamples. The ported class must have no such state.
+        // Behaviour contract: there is no availability state that can silently
+        // swallow fed audio — feeding a tone must always produce energy and
+        // advance the frame counter.
         var sg = new SpectrogramDisplay();
         sg.FeedSamples(Sine(1000f, 4800));
         bool anyEnergy = false;
@@ -91,4 +97,12 @@ public sealed class SpectrogramDisplayTests
         Assert.True(anyEnergy);
         Assert.True(sg.TimeFrames > 0);
     }
+
+    [Theory(DisplayName = "SG-006: invalid constructor sizes are rejected, not silently wrong")]
+    [InlineData(3000, 128, 200)]     // not a power of two → radix-2 FFT would be wrong
+    [InlineData(256, 128, 200)]      // below the documented minimum
+    [InlineData(2048, 0, 200)]       // zero bins
+    [InlineData(2048, 128, 0)]       // zero history → modulo-by-zero
+    public void SG006_InvalidSizesThrow(int fft, int bins, int depth)
+        => Assert.ThrowsAny<ArgumentException>(() => new SpectrogramDisplay(fft, bins, depth));
 }

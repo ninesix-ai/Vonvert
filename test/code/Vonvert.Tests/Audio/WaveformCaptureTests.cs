@@ -85,4 +85,8 @@ public sealed class WaveformCaptureTests
         }
         feed.Join();
     }
+
+    [Fact(DisplayName = "WC-006: non-positive bufferSize is rejected at construction")]
+    public void WC006_InvalidBufferSizeThrows()
+        => Assert.ThrowsAny<ArgumentException>(() => new WaveformCapture(bufferSize: 0));
 }

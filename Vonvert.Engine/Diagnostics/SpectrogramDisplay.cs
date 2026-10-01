@@ -15,14 +15,15 @@ namespace Vonvert.Engine.Diagnostics;
  * values, stored in a circular history buffer.
  *
  * Features:
- *   - Configurable FFT size (512/1024/2048/4096)
- *   - Configurable frequency range and resolution
+ *   - Configurable FFT size (512/1024/2048/4096, powers of two)
+ *   - Quadratic (log-like) frequency axis with configurable bin count
  *   - Circular history buffer (last N frames)
  *   - Hann windowing for reduced spectral leakage
- *   - Logarithmic frequency axis option
  *   - Peak hold for each frequency bin
  *
- * Thread-safe: feed from DSP thread, read from UI thread.
+ * Single-writer: feed from the analyzer thread; UI readers may observe a
+ * column mid-update — values are independent magnitudes, so the worst case
+ * for a display consumer is a one-frame visual seam, never structural tearing.
  */
 public sealed class SpectrogramDisplay
 {
@@ -78,6 +79,15 @@ public sealed class SpectrogramDisplay
     /// <param name="historyDepth">Number of time frames to keep (typical: 100-500).</param>
     public SpectrogramDisplay(int fftSize = 2048, int frequencyBins = 128, int historyDepth = 200)
     {
+        // The in-place radix-2 FFT and the ring/history index arithmetic below
+        // are only valid for power-of-two sizes; reject misuse at construction
+        // instead of silently producing wrong spectra.
+        if (fftSize < 512 || (fftSize & (fftSize - 1)) != 0)
+            throw new ArgumentException($"fftSize must be a power of two >= 512, got {fftSize}", nameof(fftSize));
+        if (frequencyBins <= 0)
+            throw new ArgumentOutOfRangeException(nameof(frequencyBins));
+        if (historyDepth <= 0)
+            throw new ArgumentOutOfRangeException(nameof(historyDepth));
         _fftSize = fftSize;
         _halfSize = fftSize / 2 + 1;
         _hopSize = fftSize / 2;
@@ -111,8 +121,10 @@ public sealed class SpectrogramDisplay
     {
         for (int i = 0; i < samples.Length; i++)
         {
-            _ringBuffer[_ringWrite % _ringBuffer.Length] = samples[i];
-            _ringWrite++;
+            // Keep the write cursor inside the ring: an unbounded counter would
+            // overflow after ~12.4 h at 48 kHz and produce negative indices.
+            _ringBuffer[_ringWrite] = samples[i];
+            _ringWrite = (_ringWrite + 1) % _ringBuffer.Length;
             _ringFill++;
             _samplesSinceLastFft++;
 
@@ -131,7 +143,7 @@ public sealed class SpectrogramDisplay
     private void ProcessFrame()
     {
         // Copy windowed frame from ring buffer
-        int readPos = _ringWrite - _ringFill;
+        int readPos = (_ringWrite - _ringFill + _ringBuffer.Length) % _ringBuffer.Length;
         for (int i = 0; i < _fftSize; i++)
             _inputFrame[i] = _ringBuffer[(readPos + i) % _ringBuffer.Length] * _window[i];
         _ringFill -= _hopSize;
@@ -144,10 +156,7 @@ public sealed class SpectrogramDisplay
         // Compute magnitudes and map to frequency bins
         for (int b = 0; b < _frequencyBins; b++)
         {
-            // Map bin index to FFT bin (logarithmic or linear spacing)
-            float freqNorm = (float)b / _frequencyBins;
-            int fftBin = (int)(freqNorm * freqNorm * (_halfSize - 1)); // quadratic (log-like) spacing
-            fftBin = Math.Clamp(fftBin, 0, _halfSize - 1);
+            int fftBin = FftBinFor(b);
 
             float magnitude = (float)_spectrum[fftBin].Magnitude;
             float db = magnitude > 1e-10f ? 20f * MathF.Log10(magnitude) : -100f;
@@ -181,13 +190,18 @@ public sealed class SpectrogramDisplay
     /// <summary>Get peak hold values for each frequency bin.</summary>
     public ReadOnlySpan<float> GetPeakHold() => _peakHold;
 
+    /// <summary>Map an output bin index to its FFT bin (quadratic, log-like spacing).
+    /// Single definition shared by ProcessFrame and GetBinFrequencyHz so the
+    /// rendered energy and the UI frequency labels can never drift apart.</summary>
+    private int FftBinFor(int bin)
+    {
+        float freqNorm = (float)bin / _frequencyBins;
+        return Math.Clamp((int)(freqNorm * freqNorm * (_halfSize - 1)), 0, _halfSize - 1);
+    }
+
     /// <summary>Get the frequency in Hz for a given bin index.</summary>
     public float GetBinFrequencyHz(int binIndex)
-    {
-        float freqNorm = (float)binIndex / _frequencyBins;
-        int fftBin = (int)(freqNorm * freqNorm * (_halfSize - 1));
-        return fftBin * (float)SAMPLE_RATE / _fftSize;
-    }
+        => FftBinFor(binIndex) * (float)SAMPLE_RATE / _fftSize;
 
     /// <summary>Get history data as a flat array [frequencyBin × timeFrame].</summary>
     /// <returns>Tuple of (data, frequencyBins, timeFrames, writePosition)</returns>

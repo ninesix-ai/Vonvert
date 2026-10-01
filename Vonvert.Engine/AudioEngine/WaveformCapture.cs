@@ -28,6 +28,8 @@ public sealed class WaveformCapture : IWaveformCapture
 
     public WaveformCapture(int bufferSize = 1024)
     {
+        if (bufferSize <= 0)
+            throw new ArgumentOutOfRangeException(nameof(bufferSize));
         _bufferSize = bufferSize;
         _sampleBuf = new float[bufferSize];
         _waveA = new float[bufferSize];
@@ -74,8 +76,11 @@ public sealed class WaveformCapture : IWaveformCapture
     }
 
     /// <summary>
-    /// Get the current waveform data (-1..1 normalized). Safe to call from UI thread.
-    /// Returns a snapshot that won't be modified. Length = BufferSize.
+    /// Get the current waveform data (-1..1 normalized). Safe to call from the
+    /// UI thread, but the returned array is the live active buffer, not a copy:
+    /// after the next feed swaps the double buffer the writer reuses it. A
+    /// display consumer should read it promptly and build its own geometry
+    /// (worst case is a one-sample seam, never a crash). Length = BufferSize.
     /// </summary>
     public float[] GetWaveform() => _activeWave;
 

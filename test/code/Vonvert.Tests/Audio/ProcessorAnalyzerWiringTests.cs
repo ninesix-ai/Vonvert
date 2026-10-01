@@ -77,21 +77,26 @@ public sealed class ProcessorAnalyzerWiringTests
     public void PW004_AudioPathZeroAlloc()
     {
         var p = new NullAudioProcessor();
-        RunBlocks(p, 50);                                   // warmup
-        GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
-
-        var work = Sine(1000f, Block);
-        long before = GC.GetAllocatedBytesForCurrentThread();
-        for (int b = 0; b < 500; b++)
+        // Run with the pump live so Submit's enqueue path is inside the probe
+        // radius — the same code the real-time worker executes in production.
+        p.OnStart();
+        try
         {
-            var span = work.AsSpan();
-            p.PreMix(span, Block);
-            p.Process(span);
-            p.PostAnalyze(span, Block);
-        }
-        long perBlock = (GC.GetAllocatedBytesForCurrentThread() - before) / 500;
-        p.Dispose();
+            RunBlocks(p, 50);                               // warmup
+            GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
 
-        Assert.True(perBlock < 64, $"audio path allocated {perBlock} B/block — taps must not allocate");
+            var work = Sine(1000f, Block);
+            long before = GC.GetAllocatedBytesForCurrentThread();
+            for (int b = 0; b < 500; b++)
+            {
+                var span = work.AsSpan();
+                p.PreMix(span, Block);
+                p.Process(span);
+                p.PostAnalyze(span, Block);
+            }
+            long perBlock = (GC.GetAllocatedBytesForCurrentThread() - before) / 500;
+            Assert.True(perBlock < 64, $"audio path allocated {perBlock} B/block — taps must not allocate");
+        }
+        finally { p.OnStop(); p.Dispose(); }
     }
 }

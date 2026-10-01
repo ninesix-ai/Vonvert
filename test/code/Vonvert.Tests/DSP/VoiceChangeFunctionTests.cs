@@ -75,7 +75,10 @@ public class VoiceChangeFunctionTests
             effects.OfType<VibratoEffect>().Single(),
             effects.OfType<RingModEffect>().Single(),
             effects.OfType<LoFiReverbEffect>().Single(),
-            effects.OfType<ModulationDelayEffect>().Single());
+            effects.OfType<ModulationDelayEffect>().Single(),
+            effects.OfType<TempoDelayEffect>().Single(),
+            effects.OfType<ExpanderEffect>().Single(),
+            effects.OfType<VxDuckingCompressor>().Single());
     }
 
     /// <summary>Process a signal exactly like the engine worker loop (CompareMode.Normal).</summary>

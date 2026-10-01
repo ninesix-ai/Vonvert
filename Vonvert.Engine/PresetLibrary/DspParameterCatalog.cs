@@ -230,6 +230,35 @@ public static class DspParameterCatalog
                 DspParam.Range("P_ModDelayMix", 0f, 1f, 0.4f, p => p.ModDelayMix, (p, v) => p.ModDelayMix = v),
             }, p => p.ModulationDelayEnabled, (p, v) => p.ModulationDelayEnabled = v),
 
+            new("GrpTempoDelay", new[]
+            {
+                DspParam.Range("P_TempoBpm", 30f, 300f, 120f, p => p.TempoBpm, (p, v) => p.TempoBpm = v),
+                // Note division is a discrete enum (0 = whole .. 10 = sixteenth); a stepped
+                // integer slider keeps it editable without inventing a bespoke enum control.
+                DspParam.Range("P_TempoDivision", 0f, 10f, 7f, p => p.TempoDivision, (p, v) => p.TempoDivision = v, step: 1f),
+                DspParam.Range("P_TempoFeedback", 0f, 0.9f, 0.4f, p => p.TempoFeedback, (p, v) => p.TempoFeedback = v),
+                DspParam.Range("P_TempoDamping", 0f, 1f, 0.3f, p => p.TempoDamping, (p, v) => p.TempoDamping = v),
+                DspParam.Range("P_TempoMix", 0f, 1f, 0.35f, p => p.TempoMix, (p, v) => p.TempoMix = v),
+            }, p => p.TempoDelayEnabled, (p, v) => p.TempoDelayEnabled = v),
+
+            new("GrpExpander", new[]
+            {
+                DspParam.Range("P_ExpanderThreshold", -80f, 0f, -30f, p => p.ExpanderThresholdDb, (p, v) => p.ExpanderThresholdDb = v),
+                DspParam.Range("P_ExpanderRatio", 1f, 20f, 2f, p => p.ExpanderRatio, (p, v) => p.ExpanderRatio = v),
+                DspParam.Range("P_ExpanderAttack", 0.1f, 50f, 1f, p => p.ExpanderAttackMs, (p, v) => p.ExpanderAttackMs = v),
+                DspParam.Range("P_ExpanderRelease", 1f, 1000f, 50f, p => p.ExpanderReleaseMs, (p, v) => p.ExpanderReleaseMs = v),
+                DspParam.Range("P_ExpanderRange", -80f, 0f, -40f, p => p.ExpanderRangeDb, (p, v) => p.ExpanderRangeDb = v),
+            }, p => p.ExpanderEnabled, (p, v) => p.ExpanderEnabled = v),
+
+            new("GrpDucking", new[]
+            {
+                DspParam.Range("P_DuckThreshold", -60f, 0f, -20f, p => p.DuckThresholdDb, (p, v) => p.DuckThresholdDb = v),
+                DspParam.Range("P_DuckRatio", 1f, 20f, 4f, p => p.DuckRatio, (p, v) => p.DuckRatio = v),
+                DspParam.Range("P_DuckAttack", 0.5f, 50f, 2f, p => p.DuckAttackMs, (p, v) => p.DuckAttackMs = v),
+                DspParam.Range("P_DuckRelease", 50f, 2000f, 200f, p => p.DuckReleaseMs, (p, v) => p.DuckReleaseMs = v),
+                DspParam.Range("P_DuckRange", -60f, 0f, -20f, p => p.DuckRangeDb, (p, v) => p.DuckRangeDb = v),
+            }, p => p.DuckingEnabled, (p, v) => p.DuckingEnabled = v),
+
             GraphicEqGroup(),
         };
     }

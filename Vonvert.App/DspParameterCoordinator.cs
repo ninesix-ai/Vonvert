@@ -50,6 +50,9 @@ public sealed class DspParameterCoordinator
     private readonly RingModEffect        _ringMod;
     private readonly LoFiReverbEffect     _loFiReverb;
     private readonly ModulationDelayEffect _modulationDelay;
+    private readonly TempoDelayEffect     _tempoDelay;
+    private readonly ExpanderEffect       _expander;
+    private readonly VxDuckingCompressor  _ducking;
 
     /// <summary>
     /// Every effect instance this coordinator reads and writes. Built from the
@@ -70,7 +73,8 @@ public sealed class DspParameterCoordinator
         DelayEffect delay, DeesserEffect deesser, VxRobot robot, VxDrive drive,
         TiltEQEffect tiltEq, GraphicEQEffect graphicEq, BitcrusherEffect bitcrusher,
         FlangerEffect flanger, PhaserEffect phaser, TremoloEffect tremolo, VibratoEffect vibrato,
-        RingModEffect ringMod, LoFiReverbEffect loFiReverb, ModulationDelayEffect modulationDelay)
+        RingModEffect ringMod, LoFiReverbEffect loFiReverb, ModulationDelayEffect modulationDelay,
+        TempoDelayEffect tempoDelay, ExpanderEffect expander, VxDuckingCompressor ducking)
     {
         _engine  = engine;
         _pitch   = pitch;   _reverb = reverb; _chorus = chorus; _comp = comp;
@@ -80,6 +84,7 @@ public sealed class DspParameterCoordinator
         _tiltEq  = tiltEq;  _graphicEq = graphicEq; _bitcrusher = bitcrusher;
         _flanger = flanger; _phaser = phaser; _tremolo = tremolo; _vibrato = vibrato;
         _ringMod = ringMod; _loFiReverb = loFiReverb; _modulationDelay = modulationDelay;
+        _tempoDelay = tempoDelay; _expander = expander; _ducking = ducking;
 
         _managed = new IAudioEffect[]
         {
@@ -87,6 +92,7 @@ public sealed class DspParameterCoordinator
             _robot, _drive, _tiltEq, _graphicEq, _bitcrusher,
             _flanger, _phaser, _tremolo, _vibrato,
             _ringMod, _loFiReverb, _modulationDelay,
+            _tempoDelay, _expander, _ducking,
         };
     }
 
@@ -240,6 +246,11 @@ public sealed class DspParameterCoordinator
         ApplyRingMod(p);
         ApplyLoFiReverb(p);
         ApplyModulationDelay(p);
+
+        // ── Second-batch ported set (tempo delay / expander / ducking) ──
+        ApplyTempoDelay(p);
+        ApplyExpander(p);
+        ApplyDucking(p);
     }
 
     private void ApplyRingMod(VoiceProfile p)
@@ -267,6 +278,36 @@ public sealed class DspParameterCoordinator
         _modulationDelay.ModDepth    = p.ModDelayDepth;
         _modulationDelay.Feedback    = p.ModDelayFeedback;
         _modulationDelay.Mix         = p.ModDelayMix;
+    }
+
+    private void ApplyTempoDelay(VoiceProfile p)
+    {
+        _tempoDelay.IsEnabled = p.TempoDelayEnabled;
+        _tempoDelay.Bpm       = p.TempoBpm;
+        _tempoDelay.Division  = (TempoNoteDivision)(int)p.TempoDivision;
+        _tempoDelay.Feedback  = p.TempoFeedback;
+        _tempoDelay.Damping   = p.TempoDamping;
+        _tempoDelay.Mix       = p.TempoMix;
+    }
+
+    private void ApplyExpander(VoiceProfile p)
+    {
+        _expander.IsEnabled   = p.ExpanderEnabled;
+        _expander.ThresholdDb = p.ExpanderThresholdDb;
+        _expander.Ratio       = p.ExpanderRatio;
+        _expander.AttackMs    = p.ExpanderAttackMs;
+        _expander.ReleaseMs   = p.ExpanderReleaseMs;
+        _expander.RangeDb     = p.ExpanderRangeDb;
+    }
+
+    private void ApplyDucking(VoiceProfile p)
+    {
+        _ducking.IsEnabled   = p.DuckingEnabled;
+        _ducking.ThresholdDb = p.DuckThresholdDb;
+        _ducking.Ratio       = p.DuckRatio;
+        _ducking.AttackMs    = p.DuckAttackMs;
+        _ducking.ReleaseMs   = p.DuckReleaseMs;
+        _ducking.RangeDb     = p.DuckRangeDb;
     }
 
     // ════════════════════════════════════════════════════════════════════
@@ -392,6 +433,10 @@ public sealed class DspParameterCoordinator
         CaptureLoFiReverb(p);
         CaptureModulationDelay(p);
 
+        CaptureTempoDelay(p);
+        CaptureExpander(p);
+        CaptureDucking(p);
+
         return p;
     }
 
@@ -420,5 +465,35 @@ public sealed class DspParameterCoordinator
         p.ModDelayDepth          = _modulationDelay.ModDepth;
         p.ModDelayFeedback       = _modulationDelay.Feedback;
         p.ModDelayMix            = _modulationDelay.Mix;
+    }
+
+    private void CaptureTempoDelay(VoiceProfile p)
+    {
+        p.TempoDelayEnabled = _tempoDelay.IsEnabled;
+        p.TempoBpm          = _tempoDelay.Bpm;
+        p.TempoDivision     = (int)_tempoDelay.Division;
+        p.TempoFeedback     = _tempoDelay.Feedback;
+        p.TempoDamping      = _tempoDelay.Damping;
+        p.TempoMix          = _tempoDelay.Mix;
+    }
+
+    private void CaptureExpander(VoiceProfile p)
+    {
+        p.ExpanderEnabled     = _expander.IsEnabled;
+        p.ExpanderThresholdDb = _expander.ThresholdDb;
+        p.ExpanderRatio       = _expander.Ratio;
+        p.ExpanderAttackMs    = _expander.AttackMs;
+        p.ExpanderReleaseMs   = _expander.ReleaseMs;
+        p.ExpanderRangeDb     = _expander.RangeDb;
+    }
+
+    private void CaptureDucking(VoiceProfile p)
+    {
+        p.DuckingEnabled    = _ducking.IsEnabled;
+        p.DuckThresholdDb   = _ducking.ThresholdDb;
+        p.DuckRatio         = _ducking.Ratio;
+        p.DuckAttackMs      = _ducking.AttackMs;
+        p.DuckReleaseMs     = _ducking.ReleaseMs;
+        p.DuckRangeDb       = _ducking.RangeDb;
     }
 }

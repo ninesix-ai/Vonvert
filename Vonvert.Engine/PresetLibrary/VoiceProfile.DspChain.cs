@@ -236,6 +236,20 @@ public partial class VoiceProfile
             });
         }
 
+        // ── Tempo Delay (BPM-synced echo) ────────────────────────────────
+        if (TempoDelayEnabled)
+        {
+            chain.Add(new TempoDelayEffect
+            {
+                IsEnabled = true,
+                Bpm = TempoBpm,
+                Division = (TempoNoteDivision)(int)TempoDivision,
+                Feedback = TempoFeedback,
+                Damping = TempoDamping,
+                Mix = TempoMix
+            });
+        }
+
         // ── Reverb ───────────────────────────────────────────────────────
         if (ReverbEnabled)
         {
@@ -259,6 +273,34 @@ public partial class VoiceProfile
                 Downsample = (int)LoFiReverbDownsample,
                 BitCrush = LoFiReverbBitCrush,
                 Mix = LoFiReverbMix
+            });
+        }
+
+        // ── Expander (smooth below-threshold attenuation) ────────────────
+        if (ExpanderEnabled)
+        {
+            chain.Add(new ExpanderEffect
+            {
+                IsEnabled = true,
+                ThresholdDb = ExpanderThresholdDb,
+                Ratio = ExpanderRatio,
+                AttackMs = ExpanderAttackMs,
+                ReleaseMs = ExpanderReleaseMs,
+                RangeDb = ExpanderRangeDb
+            });
+        }
+
+        // ── Ducking Compressor (amplitude-triggered gain reduction) ──────
+        if (DuckingEnabled)
+        {
+            chain.Add(new VxDuckingCompressor
+            {
+                IsEnabled = true,
+                ThresholdDb = DuckThresholdDb,
+                Ratio = DuckRatio,
+                AttackMs = DuckAttackMs,
+                ReleaseMs = DuckReleaseMs,
+                RangeDb = DuckRangeDb
             });
         }
 

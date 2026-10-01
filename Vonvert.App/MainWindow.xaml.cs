@@ -66,6 +66,9 @@ public partial class MainWindow : Window, IAppServices
     private RingModEffect         _ringMod         = new();
     private LoFiReverbEffect      _loFiReverb      = new();
     private ModulationDelayEffect _modulationDelay = new();
+    private TempoDelayEffect      _tempoDelay      = new();
+    private ExpanderEffect        _expander        = new();
+    private VxDuckingCompressor   _ducking         = new();
 
     /// <summary>Centralized VoiceProfile ↔ Engine parameter mapping (WPF-free, testable).</summary>
     private DspParameterCoordinator? _dspCoordinator;
@@ -250,12 +253,16 @@ public partial class MainWindow : Window, IAppServices
         _ringMod         = chain.Effects.OfType<RingModEffect>().FirstOrDefault()        ?? new RingModEffect();
         _loFiReverb      = chain.Effects.OfType<LoFiReverbEffect>().FirstOrDefault()      ?? new LoFiReverbEffect();
         _modulationDelay = chain.Effects.OfType<ModulationDelayEffect>().FirstOrDefault() ?? new ModulationDelayEffect();
+        _tempoDelay      = chain.Effects.OfType<TempoDelayEffect>().FirstOrDefault()      ?? new TempoDelayEffect();
+        _expander        = chain.Effects.OfType<ExpanderEffect>().FirstOrDefault()        ?? new ExpanderEffect();
+        _ducking         = chain.Effects.OfType<VxDuckingCompressor>().FirstOrDefault()   ?? new VxDuckingCompressor();
 
         // Build the centralized parameter coordinator (WPF-free, testable)
         _dspCoordinator = new DspParameterCoordinator(
             App.Engine, _pitch, _reverb, _chorus, _comp, _gate, _eq, _noiseRed, _delay, _deesser, _robot, _drive,
             _tiltEq, _graphicEq, _bitcrusher, _flanger, _phaser, _tremolo, _vibrato,
-            _ringMod, _loFiReverb, _modulationDelay);
+            _ringMod, _loFiReverb, _modulationDelay,
+            _tempoDelay, _expander, _ducking);
     }
 
     // ════ Power ════

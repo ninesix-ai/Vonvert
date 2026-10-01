@@ -35,7 +35,8 @@ public class ModulationEffectsWiringTests
             fx.OfType<VxRobot>().Single(), fx.OfType<VxDrive>().Single(),
             fx.OfType<TiltEQEffect>().Single(), fx.OfType<GraphicEQEffect>().Single(), fx.OfType<BitcrusherEffect>().Single(),
             fx.OfType<FlangerEffect>().Single(), fx.OfType<PhaserEffect>().Single(), fx.OfType<TremoloEffect>().Single(), fx.OfType<VibratoEffect>().Single(),
-            fx.OfType<RingModEffect>().Single(), fx.OfType<LoFiReverbEffect>().Single(), fx.OfType<ModulationDelayEffect>().Single());
+            fx.OfType<RingModEffect>().Single(), fx.OfType<LoFiReverbEffect>().Single(), fx.OfType<ModulationDelayEffect>().Single(),
+            fx.OfType<TempoDelayEffect>().Single(), fx.OfType<ExpanderEffect>().Single(), fx.OfType<VxDuckingCompressor>().Single());
         return (engine, coord);
     }
 

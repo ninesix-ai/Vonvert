@@ -75,6 +75,10 @@ public partial class FullscreenVisualizationWindow : Window
 
     private void OnWindowDragStart(object sender, MouseButtonEventArgs e)
     {
+        // The second click of a double-click belongs to the pane toggle: this
+        // handler is registered handledEventsToo, so it must opt out by itself
+        // instead of relying on the toggle's e.Handled.
+        if (e.ClickCount == 2) return;
         if (e.LeftButton == MouseButtonState.Pressed) DragMove();
     }
 

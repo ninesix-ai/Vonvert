@@ -25,6 +25,9 @@ public interface IAudioProcessor
     LoudnessMeter Loudness { get; }
     IPitchAnalyzer Pitch { get; }
     IDuckingProcessor Ducking { get; }
+    IWaveformCapture InputWaveform { get; }
+    IWaveformCapture OutputWaveform { get; }
+    Diagnostics.SpectrogramDisplay Spectrogram { get; }
 
     void Dispose();
 }
@@ -41,6 +44,13 @@ public sealed class NullAudioProcessor : IAudioProcessor
     private readonly DuckingProcessor _ducking;
     private readonly LoudnessMeter _loudness;
 
+    // Display taps for the fullscreen monitor. The waveform feeds are plain
+    // memcpys and stay on the real-time audio thread; the spectrogram's FFT
+    // runs on the analyzer pump thread below.
+    private readonly WaveformCapture _inputWaveform = new();
+    private readonly WaveformCapture _outputWaveform = new();
+    private readonly Diagnostics.SpectrogramDisplay _spectrogram = new();
+
     // Heavy analysis (FFT / pitch / loudness) runs on a dedicated
     // low-priority thread, never on the real-time audio thread.
     private readonly AnalyzerPump _pump;
@@ -56,6 +66,9 @@ public sealed class NullAudioProcessor : IAudioProcessor
     public LoudnessMeter Loudness => _loudness;
     public IPitchAnalyzer Pitch => _pitch;
     public IDuckingProcessor Ducking => _ducking;
+    public IWaveformCapture InputWaveform => _inputWaveform;
+    public IWaveformCapture OutputWaveform => _outputWaveform;
+    public Diagnostics.SpectrogramDisplay Spectrogram => _spectrogram;
 
     /// <summary>Auto-pitch closed-loop control. Exposed on the concrete type only
     /// (not on IAudioProcessor).</summary>
@@ -82,6 +95,7 @@ public sealed class NullAudioProcessor : IAudioProcessor
             _spectrum.FeedSamples(block);
             _pitch.FeedSamples(block);
             _loudness.FeedSamples(block);
+            _spectrogram.FeedSamples(block);
 
             if (_pitchNormalizer.Enabled)
             {
@@ -93,6 +107,10 @@ public sealed class NullAudioProcessor : IAudioProcessor
 
     public void PreMix(Span<float> work, int read)
     {
+        // Dry waveform tap for the monitor (memcpy into a lock-free double
+        // buffer; safe on the real-time path, allocation-free).
+        _inputWaveform.FeedSamples(work[..read]);
+
         // Original mode records the pre-DSP signal captured here.
         if (_recording?.IsRecording == true && _recording.RecordMode == RecordMode.Original)
             _recording.WriteRawSamples(work[..read]);
@@ -102,7 +120,10 @@ public sealed class NullAudioProcessor : IAudioProcessor
 
     public void PostAnalyze(Span<float> work, int read)
     {
-        // Hand the heavy analyzers (FFT / AMDF / loudness) to the low-priority
+        // Wet waveform tap stays on the audio thread (cheap memcpy, no trig).
+        _outputWaveform.FeedSamples(work[..read]);
+
+        // Hand the heavy analyzers (FFT / AMDF / loudness / spectrogram) to the low-priority
         // pump thread — Submit only copies the block and returns immediately.
         _pump.Submit(work[..read]);
 
@@ -123,6 +144,9 @@ public sealed class NullAudioProcessor : IAudioProcessor
         _pitchNormalizer.Reset();
         _ducking.Reset();
         _loudness.Reset();
+        _inputWaveform.Reset();
+        _outputWaveform.Reset();
+        _spectrogram.Reset();
     }
 
     public void Dispose()

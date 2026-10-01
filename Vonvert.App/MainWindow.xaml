@@ -66,6 +66,12 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"
                             Margin="0,0,10,0">
                     <!-- Tool buttons (window controls) -->
+                    <Button x:Name="FullscreenToolBtn" Style="{StaticResource OutlineButton}" Width="32" Padding="6,4"
+                            Click="FullscreenVisualizer_Click" Margin="0,0,4,0"
+                            ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FullscreenViz, Mode=OneWay}">
+                        <Image Source="{StaticResource VM_Fullscreen}" Width="16" Height="16"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
                     <Button Style="{StaticResource OutlineButton}" Width="32" Padding="6,4"
                             Click="Minimize_Click" Margin="0,0,4,0"
                             ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MinimizeTip, Mode=OneWay}">

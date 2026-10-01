@@ -39,6 +39,7 @@ public partial class MainWindow
 
         ApplyPreset(preset);
         _selectedPresetName = displayName;
+        _fullscreenViz?.ShowPresetName(displayName);
 
         // Re-seed the expert panel with a fresh editable copy of the applied preset.
         _editProfile = preset.Clone();

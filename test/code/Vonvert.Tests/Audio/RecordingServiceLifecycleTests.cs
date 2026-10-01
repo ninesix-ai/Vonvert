@@ -9,6 +9,7 @@ namespace Vonvert.Tests.Audio;
 /// <summary>
 /// Tests for RecordingService — lifecycle, mode switching, events, and history.
 /// </summary>
+[Collection("RecordingServiceFilesystem")]   // shared Recordings folder + history file → serialize (see RecordingServiceResultTests)
 public sealed class RecordingServiceLifecycleTests : IDisposable
 {
     private readonly RecordingService _service;

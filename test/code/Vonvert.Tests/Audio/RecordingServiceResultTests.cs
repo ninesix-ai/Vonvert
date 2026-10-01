@@ -11,6 +11,12 @@ namespace Vonvert.Tests.Audio;
 /// Tests for RecordingService.Result pattern — verifies StartRecording
 /// returns a Result and callers can detect failure.
 /// </summary>
+// Every RecordingService instance shares the on-disk AppPaths.Root/Recordings
+// folder and its persisted history file. xUnit runs distinct collections in
+// parallel, so all recording test classes must be serialized into one
+// collection to stop concurrent stop/save/delete races (null history, locked
+// files) that made these tests fail intermittently.
+[Collection("RecordingServiceFilesystem")]
 public sealed class RecordingServiceResultTests
 {
     [Fact(DisplayName = "RSR-001: StartRecording — returns Ok on success")]

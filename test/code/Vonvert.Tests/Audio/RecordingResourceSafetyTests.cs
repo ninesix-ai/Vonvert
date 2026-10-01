@@ -12,6 +12,7 @@ namespace Vonvert.Tests.Audio;
 /// must not allocate per call, must write correct data, and repeated recording
 /// sessions must clean up their files.
 /// </summary>
+[Collection("RecordingServiceFilesystem")]   // shared Recordings folder + history file → serialize (see RecordingServiceResultTests)
 public class RecordingResourceSafetyTests
 {
     [Fact(DisplayName = "RS-003: RecordingService WriteSamples(Span) — no per-call allocation")]

@@ -12,6 +12,7 @@ namespace Vonvert.Tests.Audio;
 /// Tests for RecordingService export functionality and file I/O safety.
 /// Covers WAV/MP3 export, ReadAudioFile, WriteWavFile, and history persistence.
 /// </summary>
+[Collection("RecordingServiceFilesystem")]   // shared Recordings folder + history file → serialize (see RecordingServiceResultTests)
 public sealed class RecordingServiceExportTests : IDisposable
 {
     private readonly string _tempDir;

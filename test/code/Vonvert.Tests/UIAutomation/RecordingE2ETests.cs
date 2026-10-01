@@ -80,7 +80,7 @@ public sealed class RecordingE2ETests : IDisposable
         _auto?.Dispose();
     }
 
-    [Fact(DisplayName = "E2E-REC-001: select Recording tab, record a take, open + cancel Export dialog")]
+    [InteractiveDesktopFact(DisplayName = "E2E-REC-001: select Recording tab, record a take, open + cancel Export dialog")]
     public void RecordingTab_Record_And_TriggerExport()
     {
         var window = _app!.GetMainWindow(_auto);

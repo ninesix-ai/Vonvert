@@ -126,7 +126,7 @@ public sealed class MainWindowE2ETests : IDisposable
     private Window GetMainWindow()
         => (_app?.GetMainWindow(_auto)) ?? throw new InvalidOperationException("No main window");
 
-    [Fact]
+    [InteractiveDesktopFact]
     public void E2E001_AppLaunches_WindowIsVisible()
     {
         var window = GetMainWindow();

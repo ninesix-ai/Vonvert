@@ -2,6 +2,7 @@
 // Copyright (c) 2026 ninesix-ai studio
 
 using Newtonsoft.Json;
+using System.Threading;
 
 namespace Vonvert.Engine.PresetLibrary;
 
@@ -205,20 +206,13 @@ public sealed class PresetIndex
                 var tmpPath = _path + ".tmp";
                 File.WriteAllText(tmpPath, JsonConvert.SerializeObject(data, Formatting.Indented));
 
-                // Keep a .bak of the last known-good index so a corrupt
-                // load can be recovered without a full rescan.
-                if (File.Exists(_path))
-                {
-                    try
-                    {
-                        var bakPath = _path + ".bak";
-                        File.Copy(_path, bakPath, overwrite: true);
-                    }
-                    catch { /* .bak is best-effort — never blocks the real save */ }
-
-                    File.Replace(tmpPath, _path, null);
-                }
-                else File.Move(tmpPath, _path);
+                // Atomically publish the temp file over the target. Wrapped in a
+                // bounded retry because a brief external share (antivirus or the
+                // search indexer holding the target for a scan) surfaces as a
+                // transient IOException; without retry it would raise a spurious
+                // SaveFailed the user cannot act on, even though a retry a few
+                // milliseconds later succeeds.
+                PublishTempToTarget(tmpPath);
                 AppLog.Debug("[PresetIndex] Saved {Count} entries to {Path}", _entries.Count, _path);
             }
             catch (Exception ex)
@@ -226,6 +220,42 @@ public sealed class PresetIndex
                 AppLog.Warning(ex, "[PresetIndex] Failed to save to {Path}", _path);
                 // Notify subscribers (UI) so the user is aware of data-loss risk.
                 try { SaveFailed?.Invoke(_path); } catch { /* subscriber must not crash us */ }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Rename the freshly written temp file over the target with a bounded retry
+    /// on transient <see cref="IOException"/> (external file share / AV scan).
+    /// Runs under <see cref="_sync"/>, so only one publisher ever touches the target.
+    /// </summary>
+    private void PublishTempToTarget(string tmpPath, int maxAttempts = 8)
+    {
+        for (int attempt = 1; ; attempt++)
+        {
+            try
+            {
+                if (File.Exists(_path))
+                {
+                    // Keep a .bak of the last known-good index so a corrupt load
+                    // can be recovered without a full rescan.
+                    try { File.Copy(_path, _path + ".bak", overwrite: true); }
+                    catch { /* .bak is best-effort — never blocks the real save */ }
+
+                    File.Replace(tmpPath, _path, null);
+                }
+                else
+                {
+                    File.Move(tmpPath, _path);
+                }
+                return;
+            }
+            catch (IOException) when (attempt < maxAttempts)
+            {
+                // Linear backoff (15 ms .. 105 ms). After the budget is exhausted the
+                // exception propagates to the caller's catch → SaveFailed, so a genuine
+                // (non-transient) failure is still surfaced rather than silently retried forever.
+                Thread.Sleep(15 * attempt);
             }
         }
     }

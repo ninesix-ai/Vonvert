@@ -134,8 +134,8 @@ public partial class MainWindow
     {
         // No minimize-to-tray option — close exits directly.
         // No blocking confirmation: the tray icon plus toast feedback covers
-        // the "still running" case.
-        CloseFullscreenVizDeferred();
+        // the "still running" case. The owned fullscreen monitor window is
+        // closed automatically as part of this window's shutdown.
         _metricsTimer.Stop();
         CleanupForExit();
         base.OnClosing(e);

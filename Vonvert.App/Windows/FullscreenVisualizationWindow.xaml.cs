@@ -34,6 +34,7 @@ public partial class FullscreenVisualizationWindow : Window
     private readonly WriteableBitmap _waterfall = new(TimeCols, FreqBins, 96, 96, PixelFormats.Bgra32, null);
     private readonly int[] _pixels = new int[TimeCols * FreqBins];
     private readonly PaneLayoutModel _layout = new();
+    private readonly DispatcherTimer _idleTimer = new() { Interval = TimeSpan.FromSeconds(3) };
 
     private readonly Polyline _pitchCurveLine = new()
     { Stroke = new SolidColorBrush(Color.FromArgb(140, 123, 93, 255)), StrokeThickness = 2.5, Stretch = Stretch.Fill };
@@ -43,8 +44,6 @@ public partial class FullscreenVisualizationWindow : Window
     { Stroke = new SolidColorBrush(Color.FromArgb(200, 0x3E, 0xC6, 0xFF)), StrokeThickness = 1.4 };
     private bool _showDry;
 
-    private DispatcherTimer? _cursorTimer;
-
     public FullscreenVisualizationWindow()
     {
         InitializeComponent();
@@ -53,8 +52,17 @@ public partial class FullscreenVisualizationWindow : Window
         WaveformCanvas.Children.Add(_waveLine);
         UpdateDryWetButtons();
 
-        _renderTimer.Tick += (_, _) => { RenderWaterfall(); RenderWaveform(); RenderLufs(); RenderPitch(); };
+        _renderTimer.Tick += (_, _) =>
+        {
+            // Skip panes that are collapsed by a maximize toggle — no point
+            // burning the UI thread on invisible pixels.
+            if (WaterfallPanel.Visibility == Visibility.Visible) { RenderWaterfall(); RenderPitch(); }
+            if (WaveformPanel.Visibility  == Visibility.Visible) RenderWaveform();
+            if (LoudnessPanel.Visibility  == Visibility.Visible) RenderLufs();
+        };
         _renderTimer.Start();
+
+        _idleTimer.Tick += (_, _) => { Cursor = Cursors.None; CloseHint.Opacity = 0; _idleTimer.Stop(); };
 
         KeyDown += (_, e) => { if (e.Key == Key.Escape) Close(); };
         // Anywhere-drag on the borderless window (handledEventsToo: the child
@@ -74,10 +82,8 @@ public partial class FullscreenVisualizationWindow : Window
     {
         Cursor = Cursors.Arrow;
         CloseHint.Opacity = 1;
-        _cursorTimer?.Stop();
-        _cursorTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
-        _cursorTimer.Tick += (_, _) => { Cursor = Cursors.None; CloseHint.Opacity = 0; _cursorTimer!.Stop(); };
-        _cursorTimer.Start();
+        _idleTimer.Stop();
+        _idleTimer.Start();
     }
 
     /// <summary>Show the preset name overlay with a fade-in / hold / fade-out.</summary>
@@ -93,10 +99,21 @@ public partial class FullscreenVisualizationWindow : Window
     }
 
     // ── pane maximize (state in PaneLayoutModel; visuals applied here) ──
+    // PreviewMouseLeftButtonDown so the handler still runs when a child text
+    // element marks the bubbling event handled; ClickCount guards against a
+    // plain click (which must keep dragging the window) and against the
+    // double-toggle-cancels-itself trap of reacting to both halves of a dbl-click.
 
-    private void WaterfallPanel_DoubleClick(object sender, MouseButtonEventArgs e) => TogglePane(MonitorPane.Waterfall);
-    private void WaveformPanel_DoubleClick(object sender, MouseButtonEventArgs e) => TogglePane(MonitorPane.Waveform);
-    private void LoudnessPanel_DoubleClick(object sender, MouseButtonEventArgs e) => TogglePane(MonitorPane.Loudness);
+    private void WaterfallPanel_DoubleClick(object sender, MouseButtonEventArgs e) => TogglePaneOnDoubleClick(e, MonitorPane.Waterfall);
+    private void WaveformPanel_DoubleClick(object sender, MouseButtonEventArgs e) => TogglePaneOnDoubleClick(e, MonitorPane.Waveform);
+    private void LoudnessPanel_DoubleClick(object sender, MouseButtonEventArgs e) => TogglePaneOnDoubleClick(e, MonitorPane.Loudness);
+
+    private void TogglePaneOnDoubleClick(MouseButtonEventArgs e, MonitorPane pane)
+    {
+        if (e.ClickCount != 2) return;   // first click of the pair still drags
+        e.Handled = true;                // swallow the bubble → no window drag on click two
+        TogglePane(pane);
+    }
 
     private void TogglePane(MonitorPane pane)
     {
@@ -144,6 +161,7 @@ public partial class FullscreenVisualizationWindow : Window
         if (pipe == null) return;
         var (data, freqBins, frames, writePos) = pipe.Spectrogram.GetHistory();
         int bins = Math.Min(freqBins, FreqBins);
+        int depth = data.GetLength(1);                      // ring depth from the source, not assumed
 
         for (int y = 0; y < FreqBins; y++)
         {
@@ -154,13 +172,16 @@ public partial class FullscreenVisualizationWindow : Window
             for (int x = 0; x < TimeCols; x++)
             {
                 float v = 0f;
-                if (b < bins && x >= TimeCols - frames)
+                int fromNewest = TimeCols - 1 - x;          // newest frame at the right edge
+                if (b < bins && fromNewest < frames)
                 {
-                    int col = (writePos + x) % TimeCols;    // ring read, oldest→newest L→R
+                    int col = (writePos - 1 - fromNewest + 2 * depth) % depth;
                     v = data[b, col];
                 }
+                // Bgra32 little-endian uint layout is 0xAARRGGBB: red in bits 16-23,
+                // blue in bits 0-7. The ramp is purple #7B5DFF → cyan #3EC6FF.
                 _pixels[y * TimeCols + x] = unchecked((int)(0xFF000000u
-                    | ((uint)(byte)(255 * v) << 16) | ((uint)(byte)(bg * v) << 8) | (uint)(byte)(br * v)));
+                    | ((uint)(byte)(br * v) << 16) | ((uint)(byte)(bg * v) << 8) | (uint)(byte)(255 * v)));
             }
         }
         _waterfall.WritePixels(new Int32Rect(0, 0, TimeCols, FreqBins), _pixels, TimeCols * 4, 0);
@@ -230,7 +251,7 @@ public partial class FullscreenVisualizationWindow : Window
     }
 
     private void ResetIntegrated_Click(object s, RoutedEventArgs e)
-        => App.Engine?.Pipeline.Loudness.Reset();
+        => App.Engine?.Pipeline.Loudness.RequestReset();   // applied on the analyzer thread
 
     // ── pitch overlay ───────────────────────────────────────────────────
 
@@ -313,7 +334,7 @@ public partial class FullscreenVisualizationWindow : Window
     protected override void OnClosed(EventArgs e)
     {
         _renderTimer.Stop();
-        _cursorTimer?.Stop();
+        _idleTimer.Stop();
         // Release visual references (brushes can hold engine snapshots) before teardown.
         try { WaterfallImage.Source = null; } catch { /* best-effort */ }
         try { PitchCurveCanvas.Children.Clear(); } catch { /* best-effort */ }

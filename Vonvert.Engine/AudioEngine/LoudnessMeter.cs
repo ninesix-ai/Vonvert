@@ -123,9 +123,23 @@ public sealed class LoudnessMeter
     // Feed samples
     // ═══════════════════════════════════════════════════════════════════════
 
+    /// <summary>
+    /// Request a meter reset from any thread (e.g. the UI). The destructive
+    /// <see cref="Reset"/> is applied on the next <see cref="FeedSamples"/>,
+    /// i.e. on the analyzer thread that owns the block lists — callers other
+    /// than the pump must never clear shared state concurrently.
+    /// </summary>
+    public void RequestReset() => _resetRequested = true;
+    private volatile bool _resetRequested;
+
     /// <summary>Feed audio samples into the loudness meter.</summary>
     public void FeedSamples(ReadOnlySpan<float> samples)
     {
+        if (_resetRequested)
+        {
+            _resetRequested = false;
+            Reset();
+        }
         for (int i = 0; i < samples.Length; i++)
         {
             float input = samples[i];

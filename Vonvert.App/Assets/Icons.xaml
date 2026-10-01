@@ -187,18 +187,19 @@
         <PathGeometry x:Key="GeoNavRecording" Figures="M0,0 M24,24 M12,4 A8,8,0,1,0,12,20 A8,8,0,1,0,12,4 Z M12,8.4 A3.6,3.6,0,1,0,12,15.6 A3.6,3.6,0,1,0,12,8.4 Z"/>
         <PathGeometry x:Key="GeoNavSoundboard" Figures="M0,0 M24,24 M4,4 L11,4 L11,11 L4,11 Z M13,4 L20,4 L20,11 L13,11 Z M4,13 L11,13 L11,20 L4,20 Z M13,13 L20,13 L20,20 L13,20 Z"/>
 
-    <!-- Fullscreen monitor icon - four outward corner arrows (header tool row) -->
+    <!-- Fullscreen monitor icon - four outward corner arrows (header tool row),
+         drawn in the same 24-unit view as the sibling window-control icons. -->
     <DrawingImage x:Key="VM_Fullscreen">
         <DrawingImage.Drawing>
             <DrawingGroup>
                 <GeometryDrawing Brush="{x:Null}">
-                    <GeometryDrawing.Pen><Pen Brush="#FFB8C2D9" Thickness="1.4"/></GeometryDrawing.Pen>
+                    <GeometryDrawing.Pen><Pen Brush="#FFB8C2D9" Thickness="2"/></GeometryDrawing.Pen>
                     <GeometryDrawing.Geometry>
                         <GeometryGroup>
-                            <PathGeometry Figures="M2.5 6 L2.5 2.5 L6 2.5"/>
-                            <PathGeometry Figures="M10 2.5 L13.5 2.5 L13.5 6"/>
-                            <PathGeometry Figures="M13.5 10 L13.5 13.5 L10 13.5"/>
-                            <PathGeometry Figures="M6 13.5 L2.5 13.5 L2.5 10"/>
+                            <PathGeometry Figures="M4 9 L4 4 L9 4"/>
+                            <PathGeometry Figures="M15 4 L20 4 L20 9"/>
+                            <PathGeometry Figures="M20 15 L20 20 L15 20"/>
+                            <PathGeometry Figures="M9 20 L4 20 L4 15"/>
                         </GeometryGroup>
                     </GeometryDrawing.Geometry>
                 </GeometryDrawing>

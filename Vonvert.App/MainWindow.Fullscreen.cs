@@ -9,9 +9,10 @@ namespace Vonvert.App;
 
 /// <summary>
 /// Fullscreen professional monitor lifecycle: idempotent open from the header
-/// tool row, and deferred close so the child window never tears down inside
-/// the main window's OnClosing sequence (avoids re-entrancy and blocking when
-/// the app is shutting down).
+/// tool row. The window is owned by the main window, so WPF closes it as part
+/// of the main window's own shutdown — no dispatcher-priority tricks (a
+/// deferred Background close would be dropped by Application.Shutdown, which
+/// queues at Normal priority).
 /// </summary>
 public partial class MainWindow
 {
@@ -26,11 +27,12 @@ public partial class MainWindow
         }
         try
         {
-            _fullscreenViz = new FullscreenVisualizationWindow();
+            var viz = new FullscreenVisualizationWindow { Owner = this };
             if (!string.IsNullOrEmpty(_selectedPresetName))
-                _fullscreenViz.ShowPresetName(_selectedPresetName);
-            _fullscreenViz.Closed += (_, _) => _fullscreenViz = null;
-            _fullscreenViz.Show();
+                viz.ShowPresetName(_selectedPresetName);
+            viz.Closed += (_, _) => { if (ReferenceEquals(_fullscreenViz, viz)) _fullscreenViz = null; };
+            _fullscreenViz = viz;
+            viz.Show();
         }
         catch (Exception ex)
         {
@@ -38,17 +40,5 @@ public partial class MainWindow
             ShowNotification(ex.Message, "error");
             _fullscreenViz = null;
         }
-    }
-
-    /// <summary>Close the monitor after the main window's own closing sequence yields.</summary>
-    private void CloseFullscreenVizDeferred()
-    {
-        var viz = _fullscreenViz;
-        if (viz == null) return;
-        _fullscreenViz = null;
-        Dispatcher.BeginInvoke(new Action(() =>
-        {
-            try { viz.Close(); } catch { /* monitor close is best-effort */ }
-        }), System.Windows.Threading.DispatcherPriority.Background);
     }
 }

@@ -22,7 +22,7 @@ namespace Vonvert.App;
 /// <summary>
 /// Floating mini-player: an always-on-top, taskbar-hidden window showing ONLY the pads the
 /// user pinned, so a streamer can fire a favorite sound without leaving the main window.
-/// Playback reuses the shared SoundboardManager通路 (local audition always + optional engine
+/// Playback reuses the shared SoundboardManager playback path (local audition always + optional engine
 /// broadcast) and the shared pad styles/VM, so visuals cannot drift from the docked tab.
 /// </summary>
 public partial class FloatingSoundboardWindow : Window

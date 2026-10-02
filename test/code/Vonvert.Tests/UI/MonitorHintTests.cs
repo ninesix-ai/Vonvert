@@ -103,6 +103,19 @@ public sealed class MonitorHintTests
             $"non-textual glyph(s) in the monitor XAML: {string.Join(", ", suspicious.Select(c => $"U+{(int)c:X4}"))}");
     }
 
+    [Fact(DisplayName = "HG-007: every name the monitor XAML binds to actually exists on LocalizationManager")]
+    public void HG007_BoundNamesResolve()
+    {
+        // A mistyped Path= is invisible at build time and shows up as a blank label while
+        // the stream is live, which is the worst possible moment to discover a hint.
+        var lm = typeof(LocalizationManager);
+        var bound = Regex.Matches(MonitorXaml, @"Path=(\w+)").Select(m => m.Groups[1].Value).Distinct();
+        var missing = bound.Where(name => lm.GetProperty(name) is null).ToList();
+        Assert.False(missing.Any(),
+            $"bound but not a LocalizationManager property: {string.Join(", ", missing)}");
+        Assert.True(bound.Count() >= 40, $"only {bound.Count()} bound names; the monitor should bind its wording, not hard-code it");
+    }
+
     public static IEnumerable<object[]> Languages()
         => LocalizationManager.SupportedLanguages.Select(code => new object[] { code });
 

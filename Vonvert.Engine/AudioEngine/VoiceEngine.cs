@@ -448,29 +448,38 @@ public sealed class VoiceEngine : IDisposable
                 // Push-to-Talk: silence output when muted
                 if (_muted) { work.Clear(); }
 
-                // A/B Compare: three-mode processing
-                switch (Settings.Compare)
+                // A/B mode decides which stages run, in order; the order itself is the
+                // contract (PA-001 ~ PA-007). DRY used to run no stage at all, which is why
+                // the fullscreen monitor froze whenever the effect was switched off, and WET
+                // used to analyse before subtracting the dry signal, so the meters described
+                // a signal nobody was hearing.
+                foreach (var step in PipelinePlan.StepsFor(Settings.Compare))
                 {
-                    case CompareMode.Normal:
-                        _pipeline.PreMix(work, read);
-                        _pipeline.Process(work);
-                        _pipeline.PostAnalyze(work, read);
-                        break;
+                    switch (step)
+                    {
+                        case PipelineStep.CaptureDry:
+                            if (_wetDryScratch.Length < read)
+                                _wetDryScratch = new float[read * 2];
+                            work.Slice(0, read).CopyTo(_wetDryScratch);
+                            break;
 
-                    case CompareMode.Dry:
-                        // Bypass all DSP — output original dry signal
-                        break;
+                        case PipelineStep.FeedInput:
+                            _pipeline.PreMix(work, read);
+                            break;
 
-                    case CompareMode.WetOnly:
-                        if (_wetDryScratch.Length < read)
-                            _wetDryScratch = new float[read * 2];
-                        work.Slice(0, read).CopyTo(_wetDryScratch);
-                        _pipeline.PreMix(work, read);
-                        _pipeline.Process(work);
-                        _pipeline.PostAnalyze(work, read);
-                        for (int i = 0; i < read; i++)
-                            work[i] -= _wetDryScratch[i];
-                        break;
+                        case PipelineStep.ApplyDsp:
+                            _pipeline.Process(work);
+                            break;
+
+                        case PipelineStep.SubtractDry:
+                            for (int i = 0; i < read; i++)
+                                work[i] -= _wetDryScratch[i];
+                            break;
+
+                        case PipelineStep.FeedAnalyzers:
+                            _pipeline.PostAnalyze(work, read);
+                            break;
+                    }
                 }
 
                 // Track output level

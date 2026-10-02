@@ -28,9 +28,12 @@
             <Grid>
                 <Image x:Name="WaterfallImage" Stretch="Fill"
                        RenderOptions.BitmapScalingMode="Linear"/>
-                <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSpectrogram, Mode=OneWay}"
-                       FontSize="12" Foreground="#55FFFFFF" Margin="10,8,0,0"
-                       HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,8,0,0">
+                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSpectrogramLabel, Mode=OneWay}"
+                           FontSize="12" Foreground="#55FFFFFF"/>
+                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSpectrogramSub, Mode=OneWay}"
+                           FontSize="10" Foreground="#40FFFFFF" Margin="0,1,0,0"/>
+                </StackPanel>
                 <!-- pitch badges (top-right overlay) -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,14,20,0">
                     <Border x:Name="FsPitchNoteBadge" CornerRadius="8" Padding="14,6" Background="#558B5CF6" Margin="0,0,10,0" Visibility="Collapsed">
@@ -55,7 +58,10 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <vc:SelectableTextBlock Grid.Row="0" Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudness, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="#88FFFFFF"/>
+                <StackPanel Grid.Row="0">
+                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessLabel, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="#88FFFFFF"/>
+                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessSub, Mode=OneWay}" FontSize="10" Foreground="#66FFFFFF" Margin="0,1,0,0"/>
+                </StackPanel>
                 <Canvas x:Name="LufsCanvas" Grid.Row="1" ClipToBounds="True"
                         ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsTargetLufs, Mode=OneWay}"/>
                 <StackPanel Grid.Row="2">
@@ -85,10 +91,11 @@
                     <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Margin="12,8,0,8" VerticalAlignment="Top">
-                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveform, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="#88FFFFFF"/>
+                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformLabel, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="#88FFFFFF"/>
+                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformSub, Mode=OneWay}" FontSize="10" Foreground="#66FFFFFF" Margin="0,1,0,0"/>
                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <Button x:Name="DryBtn" Style="{StaticResource OutlineButton}" Padding="10,3" Margin="0,0,6,0" Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsDry, Mode=OneWay}" Click="DryBtn_Click"/>
-                        <Button x:Name="WetBtn" Style="{StaticResource OutlineButton}" Padding="10,3" Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWet, Mode=OneWay}" Click="WetBtn_Click"/>
+                        <Button x:Name="DryBtn" Style="{StaticResource OutlineButton}" Padding="10,3" Margin="0,0,6,0" Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsDryLabel, Mode=OneWay}" Click="DryBtn_Click"/>
+                        <Button x:Name="WetBtn" Style="{StaticResource OutlineButton}" Padding="10,3" Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWetLabel, Mode=OneWay}" Click="WetBtn_Click"/>
                     </StackPanel>
                 </StackPanel>
                 <Canvas x:Name="WaveformCanvas" Grid.Column="1" Margin="8" ClipToBounds="True"/>
@@ -102,13 +109,14 @@
             <vc:SelectableTextBlock.Effect><DropShadowEffect Color="#8B5CF6" BlurRadius="30" ShadowDepth="0" Opacity="0.8"/></vc:SelectableTextBlock.Effect>
         </vc:SelectableTextBlock>
 
-        <!-- close hint (revealed on mouse move). Moved to the top-left corner: it used to
-             sit 160px in from the right to dodge the LUFS column, which put it exactly where
-             the pitch badge row lands as soon as somebody speaks. -->
+        <!-- close hint (revealed on mouse move). Bottom-left: it used to sit 160 px in from
+             the right to dodge the LUFS column, which put it exactly where the pitch badge
+             row lands as soon as somebody speaks, and the top-left now carries the waterfall
+             title. Bottom-right belongs to the chrome toolbar. -->
         <Border x:Name="CloseHint" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2"
-                VerticalAlignment="Top" HorizontalAlignment="Left"
-                Margin="10,28,0,0"
-                Background="#99000000" CornerRadius="0,0,12,0" Padding="16,8" Opacity="0">
+                VerticalAlignment="Bottom" HorizontalAlignment="Left"
+                Margin="10,0,0,10"
+                Background="#99000000" CornerRadius="0,12,0,0" Padding="16,8" Opacity="0">
             <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=EscToClose, Mode=OneWay}" FontSize="12" Foreground="#88FFFFFF"/>
         </Border>
 
@@ -133,6 +141,9 @@
                 <Button x:Name="ResetViewBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
                         Click="ResetViewBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsRestoreLayout, Mode=OneWay}"/>
+                <Button x:Name="LabelModeBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                        Click="LabelModeBtn_Click"
+                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLabelModeLabel, Mode=OneWay}"/>
                 <Button x:Name="HelpBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
                         Click="HelpBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpBtn, Mode=OneWay}"/>

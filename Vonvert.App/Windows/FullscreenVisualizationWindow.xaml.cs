@@ -207,6 +207,11 @@ public partial class FullscreenVisualizationWindow : Window
 
     private void HelpBtn_Click(object s, RoutedEventArgs e) => HelpPopup.IsOpen = !HelpPopup.IsOpen;
 
+    /// <summary>Swap the panel titles between plain words and industry terms. Bound
+    /// properties do the repainting; nothing here touches a Text value.</summary>
+    private void LabelModeBtn_Click(object s, RoutedEventArgs e)
+        => LocalizationManager.Instance.ToggleMonitorLabelMode();
+
     /// <summary>Resize to the selected chrome mode, clamped to the work area, then pull the
     /// window back on screen. Deliberately not <c>WindowState.Maximized</c>: a borderless
     /// WPF window maximized that way covers the taskbar, which is exactly how a user gets

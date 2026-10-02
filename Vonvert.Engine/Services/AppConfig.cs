@@ -51,6 +51,15 @@ public sealed class AppConfig
         /// <summary>When true, soundboard pads also broadcast through the engine
         /// (heard by others); when false, pads play as local-only auditions.</summary>
         public bool   SoundboardLiveMode { get; set; } = false;
+
+        /// <summary>Floating soundboard mini-player window position (null = first launch). Persisted so the
+        /// window returns to where the user left it. Missing keys stay null (backward compatible).</summary>
+        public double?  FloatLeft      { get; set; }
+        public double?  FloatTop       { get; set; }
+        /// <summary>Whether the floating window stays above others.</summary>
+        public bool     FloatTopmost   { get; set; } = true;
+        /// <summary>Whether the floating window auto-opens on startup (when at least one pad is pinned).</summary>
+        public bool     FloatAutoOpen  { get; set; } = false;
     }
 
     /// <summary>Role/persona state persisted under the "persona" JSON key.

@@ -192,6 +192,10 @@
                                Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpRightClick, Mode=OneWay}"/>
                     <TextBlock FontSize="12" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
                                Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=EscToClose, Mode=OneWay}"/>
+                    <!-- full guide, published on the web so it renders as a page -->
+                    <TextBlock FontSize="12" Margin="0,10,0,0" TextWrapping="Wrap">
+                        <Hyperlink x:Name="GuideLink" Click="GuideLink_Click" Foreground="{DynamicResource Accent}"><Run Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsGuideLink, Mode=OneWay}"/></Hyperlink>
+                    </TextBlock>
                 </StackPanel>
             </Border>
         </Popup>

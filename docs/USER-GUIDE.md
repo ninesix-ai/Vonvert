@@ -344,6 +344,19 @@ While the engine runs, the voice page shows:
 
 These are read-only feedback; nothing to configure.
 
+### 6.4 Fullscreen monitor
+The **Fullscreen Monitor** button in the title bar opens a separate borderless window with
+four views: a spectrogram waterfall, a raw/changed waveform, a LUFS loudness meter and a
+pitch badge. It is made for OBS window capture and for a second screen.
+
+- Panel titles use plain words by default; the **Technical terms** button switches to
+  industry wording.
+- Double-click a panel to fill the window; double-click it again to restore.
+- `Esc`, or the **Close** button, exits. The window carries **no audio** - route sound to
+  OBS with **Audio Input Capture** as described in [Chapter 5](#chapter-5--audio-routing-getting-the-voice-into-other-apps).
+
+The full walkthrough of each view is in the [Fullscreen monitor guide](FULLSCREEN-MONITOR.md).
+
 ---
 
 ## Chapter 7 · Hotkeys and push-to-talk

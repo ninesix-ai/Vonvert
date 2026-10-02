@@ -2,6 +2,7 @@
 // Copyright (c) 2026 ninesix-ai studio
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -267,6 +268,22 @@ public partial class FullscreenVisualizationWindow : Window
     }
 
     private void HelpBtn_Click(object s, RoutedEventArgs e) => HelpPopup.IsOpen = !HelpPopup.IsOpen;
+
+    /// <summary>Opens the published guide for this window, in the UI language the user
+    /// picked (Chinese gets the translated page, every other language the English one).</summary>
+    private void GuideLink_Click(object s, RoutedEventArgs e)
+        => OpenWebPage(DocsLinks.MonitorGuideUrl(LocalizationManager.Instance.Language));
+
+    /// <summary>Best-effort hand-off to the default browser: a machine with no browser
+    /// association must not lose the window the user is watching on air.</summary>
+    private static void OpenWebPage(string url)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
+        }
+        catch (Exception ex) { AppLog.Warning(ex, "[FullscreenMonitor] could not open the guide page"); }
+    }
 
     /// <summary>Swap the panel titles between plain words and industry terms. Bound
     /// properties do the repainting; nothing here touches a Text value.</summary>

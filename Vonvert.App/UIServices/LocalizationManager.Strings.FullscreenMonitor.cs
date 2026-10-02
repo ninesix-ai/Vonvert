@@ -47,6 +47,9 @@ public partial class LocalizationManager
     // ── First-run walkthrough (one-time, its own marker) ──
     public string FsTourTitle        => G();
 
+    /// <summary>Link line at the bottom of the help card.</summary>
+    public string FsGuideLink        => G();
+
     // Which waveform the monitor is drawing. Bound instead of assigned so the strip
     // under the taps re-labels itself on a language change, like every other string.
     private bool _monitorShowsDry;

@@ -12,6 +12,11 @@ public partial class LocalizationManager
     public string Copied      => G();
     public string CopyFailed  => G();
 
+    // ── Help links (open the published guides in the browser) ──
+    public string AboutGuides           => G();
+    public string AboutUserGuideLink    => G();
+    public string AboutMonitorGuideLink => G();
+
     // ── Third-party licenses & attribution ──
     public string ThirdPartyLicenses => G();
     public string LicenseIntro       => G();

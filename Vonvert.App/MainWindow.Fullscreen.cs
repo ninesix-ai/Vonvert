@@ -3,6 +3,7 @@
 
 using System;
 using System.Windows;
+using Vonvert.App.UIServices;
 using Vonvert.Engine;
 
 namespace Vonvert.App;
@@ -36,8 +37,11 @@ public partial class MainWindow
         }
         catch (Exception ex)
         {
+            // Details go to the log; the user gets a sentence they can act on. Passing
+            // ex.Message straight through produced an untranslated technical string with
+            // no next step, which is how "the app just errors" support tickets start.
             AppLog.Error(ex, "[MainWindow] opening the fullscreen monitor failed");
-            ShowNotification(ex.Message, "error");
+            ShowNotification(LocalizationManager.Instance.FsErrOpenFailed, "error");
             _fullscreenViz = null;
         }
     }

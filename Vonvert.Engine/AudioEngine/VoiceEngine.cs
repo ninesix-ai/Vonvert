@@ -247,6 +247,10 @@ public sealed class VoiceEngine : IDisposable
     public void SetCompareMode(CompareMode mode) => Settings.Compare = mode;
     public void SetMute(bool m)               => _muted = m;
     public bool Muted                         => _muted;
+    /// <summary>True while the capture/DSP loop is live. Read-only by design: the monitor
+    /// window needs to tell "engine never started" apart from "engine started, no signal",
+    /// and guessing from a frozen level reading shows the user the wrong hint.</summary>
+    public bool IsRunning                     => _running;
 
     /// <summary>
     /// Queue a soundboard clip for playback (float32 mono PCM at <see cref="AudioConstants.EngineRate"/>).

@@ -36,6 +36,9 @@ public partial class FullscreenVisualizationWindow : Window
     private readonly int[] _pixels = new int[TimeCols * FreqBins];
     private readonly PaneLayoutModel _layout = new();
     private readonly MonitorChromeModel _chrome = new();
+    private readonly MonitorGuidanceModel _guidance = new();
+    // When the pipeline last saw anything above silence; drives the "no input" hint.
+    private DateTime _lastPeakUtc = DateTime.MinValue;
     private readonly DispatcherTimer _idleTimer = new() { Interval = TimeSpan.FromSeconds(3) };
 
     private readonly Polyline _pitchCurveLine = new()
@@ -62,6 +65,7 @@ public partial class FullscreenVisualizationWindow : Window
             if (WaterfallPanel.Visibility == Visibility.Visible) { RenderWaterfall(); RenderPitch(); }
             if (WaveformPanel.Visibility  == Visibility.Visible) RenderWaveform();
             if (LoudnessPanel.Visibility  == Visibility.Visible) RenderLufs();
+            UpdateGuidance();
         };
         _renderTimer.Start();
 
@@ -176,6 +180,28 @@ public partial class FullscreenVisualizationWindow : Window
             MonitorPane.Waterfall or MonitorPane.Waveform => new GridLength(0),
             _ => new GridLength(150),
         };
+    }
+
+    // ── guidance: explain a picture that is not telling the truth ──────────
+
+    /// <summary>
+    /// DRY mode (and the power button, which maps to the same engine mode) bypasses the
+    /// whole analyzer chain, so the panes freeze; and with no engine there is nothing to
+    /// draw at all. Both used to look like a crash. Runs on the render tick; the state
+    /// setter ignores no-op changes, so this costs one comparison per frame.
+    /// </summary>
+    private void UpdateGuidance()
+    {
+        var engine = App.Engine;
+        bool ready = engine != null && engine.IsRunning;
+        bool bypassed = ready && engine!.Settings.Compare == CompareMode.Dry;
+        double peak = ready ? engine!.Stats.OutputLevel : 0.0;
+
+        var now = DateTime.UtcNow;
+        if (peak > MonitorGuidanceModel.SilentPeakLevel) _lastPeakUtc = now;
+
+        var kind = _guidance.Evaluate(ready, bypassed, peak, (now - _lastPeakUtc).TotalSeconds);
+        LocalizationManager.Instance.SetMonitorGuidance(kind);
     }
 
     // ── chrome toolbar: close / always-on-top / size cycle / reset view / help ──

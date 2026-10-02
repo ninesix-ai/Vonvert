@@ -37,6 +37,33 @@ public partial class LocalizationManager
     public string FsLabelsPlain      => G();
     public string FsLabelsTechnical  => G();
 
+    // ── State and failure copy (what the picture is not telling you) ──
+    public string FsStateNotRunning  => G();
+    public string FsStateNoInput     => G();
+    public string FsStateDryBypass   => G();
+    public string FsErrOpenFailed    => G();
+
+    // The monitor window works out which state it is in; the wording lives here so the
+    // banner re-translates on a language change like every other label, with no
+    // imperative Text assignment to remember.
+    private GuidanceKind _monitorGuidance = GuidanceKind.None;
+
+    /// <summary>True when the monitor should show its one-line explanation.</summary>
+    public bool MonitorGuidanceVisible => _monitorGuidance != GuidanceKind.None;
+
+    /// <summary>The sentence for the current guidance state, empty when there is none.</summary>
+    public string MonitorGuidanceText => GetUiString(MonitorGuidanceModel.KeyFor(_monitorGuidance));
+
+    /// <summary>Called by the monitor on its render tick; ignores no-op updates so a 30 fps
+    /// loop does not raise a change notification every frame.</summary>
+    public void SetMonitorGuidance(GuidanceKind kind)
+    {
+        if (_monitorGuidance == kind) return;
+        _monitorGuidance = kind;
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MonitorGuidanceVisible)));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MonitorGuidanceText)));
+    }
+
     // ── Plain-word / technical vocabulary switch (R-19) ──
     //
     // Exposed as computed bound properties on purpose, the same way PttHoldModeLabel

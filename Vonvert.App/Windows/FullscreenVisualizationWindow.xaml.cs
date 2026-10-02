@@ -2,6 +2,8 @@
 // Copyright (c) 2026 ninesix-ai studio
 
 using System;
+using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -11,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Vonvert.App.UIServices;
+using Vonvert.Engine;
 using Vonvert.Engine.AudioEngine;
 
 namespace Vonvert.App;
@@ -86,12 +89,44 @@ public partial class FullscreenVisualizationWindow : Window
         // canvases mark the mouse event handled and would otherwise starve us).
         AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(OnWindowDragStart), handledEventsToo: true);
         MouseMove += (_, _) => ShowCursorAndHint();
+        Loaded += (_, _) => MaybeRunGuide();
+    }
+
+    /// <summary>
+    /// One-time walkthrough on a fresh install. Reuses the main window's spotlight control
+    /// but supplies this window's copy and its OWN marker file, so finishing the monitor
+    /// guide cannot mark the first-run tour as done (and vice versa).
+    /// </summary>
+    private void MaybeRunGuide()
+    {
+        try
+        {
+            if (!MonitorFirstRunGuide.ShouldShow(File.Exists(MonitorFirstRunGuide.MarkerPath))) return;
+
+            var strings = LocalizationManager.Instance;
+            MonitorTour.TitleText = strings.FsTourTitle;
+            MonitorTour.MarkerPathOverride = MonitorFirstRunGuide.MarkerPath;
+            MonitorTour.StepBodies = MonitorFirstRunGuide.StepKeys.Select(strings.GetUiString).ToArray();
+
+            // The last stop explains the toolbar, so it has to be on screen while it is
+            // being pointed at; the normal idle beat hides it again afterwards.
+            ChromeBar.Opacity = 1;
+            ChromeBar.IsHitTestVisible = true;
+
+            MonitorTour.StartTour(new FrameworkElement[]
+            {
+                WaterfallPanel, LoudnessPanel, WaveformPanel, ChromeBar,
+            });
+        }
+        catch (Exception ex) { AppLog.Warning(ex, "[FullscreenMonitor] first-run guide skipped"); }
     }
 
     // ── window chrome behaviour ─────────────────────────────────────────
 
     private void OnWindowDragStart(object sender, MouseButtonEventArgs e)
     {
+        // While the walkthrough is up a press belongs to the tour, not to the window.
+        if (MonitorTour.Visibility == Visibility.Visible) return;
         // The second click of a double-click belongs to the pane toggle: this
         // handler is registered handledEventsToo, so it must opt out by itself
         // instead of relying on the toggle's e.Handled.

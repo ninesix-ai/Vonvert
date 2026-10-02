@@ -33,6 +33,21 @@ public partial class TourOverlay : UserControl
     private int _tourStep = -1;
     private FrameworkElement[]? _tourTargets;
 
+    /// <summary>Per-step copy for a different host. Left null, the spotlight shows the
+    /// main window's own TourStep1..4 text; the fullscreen monitor supplies its own lines
+    /// so one control can walk either window without either one losing its wording.</summary>
+    public string[]? StepBodies { get; set; }
+
+    /// <summary>Bubble heading, replacing the shared "Quick tour" title.</summary>
+    public string? TitleText { get; set; }
+
+    /// <summary>Marker file for THIS tour. Without an override a second host would write
+    /// the main tour's marker and silently skip the first-run walkthrough.</summary>
+    public string? MarkerPathOverride { get; set; }
+
+    private string MarkerPath => MarkerPathOverride ?? TourMarkerPath;
+
+    // Fully qualified: this file also imports System.Windows.Shapes, whose Path collides.
     private static string TourMarkerPath => System.IO.Path.Combine(AppPaths.Root, "tour_done");
 
     /// <summary>True once the tour marker file exists (tour completed in a prior session).</summary>
@@ -142,7 +157,7 @@ public partial class TourOverlay : UserControl
                 TourHighlight.Width = w;
                 TourHighlight.Height = h;
 
-                TourStepTitle.Text = string.Format(L.TourTitle + "  {0}/{1}", _tourStep + 1, _tourTargets!.Length);
+                TourStepTitle.Text = string.Format((TitleText ?? L.TourTitle) + "  {0}/{1}", _tourStep + 1, _tourTargets!.Length);
                 TourStepBody.Text = StepBody(_tourStep);
                 TourNextBtn.Content = _tourStep == last ? L.TourDone : L.OnbNext;
 
@@ -160,8 +175,10 @@ public partial class TourOverlay : UserControl
         }), DispatcherPriority.Loaded);
     }
 
-    /// <summary>Localized body text for a step index (mapped to the tour keys).</summary>
-    private string StepBody(int step) => step switch
+    /// <summary>Localized body text for a step index (mapped to the tour keys, or to the
+    /// bodies the host supplied).</summary>
+    private string StepBody(int step)
+        => StepBodies is { Length: > 0 } b && step < b.Length ? b[step] : step switch
     {
         0 => L.TourStep1,
         1 => L.TourStep2,
@@ -183,9 +200,9 @@ public partial class TourOverlay : UserControl
         Visibility = Visibility.Collapsed;
         try
         {
-            var dir = System.IO.Path.GetDirectoryName(TourMarkerPath);
+            var dir = System.IO.Path.GetDirectoryName(MarkerPath);
             if (dir != null) Directory.CreateDirectory(dir);
-            if (!File.Exists(TourMarkerPath)) File.WriteAllText(TourMarkerPath, DateTime.UtcNow.ToString("o"));
+            if (!File.Exists(MarkerPath)) File.WriteAllText(MarkerPath, DateTime.UtcNow.ToString("o"));
         }
         catch { /* tour marker write is best-effort */ }
         TourCompleted?.Invoke();

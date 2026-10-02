@@ -195,5 +195,9 @@
                 </StackPanel>
             </Border>
         </Popup>
+
+        <!-- first-run walkthrough: the main window's spotlight control, given this window's
+             own copy and its own marker file so the two tours cannot cancel each other -->
+        <vc:TourOverlay x:Name="MonitorTour" Panel.ZIndex="300"/>
     </Grid>
 </Window>

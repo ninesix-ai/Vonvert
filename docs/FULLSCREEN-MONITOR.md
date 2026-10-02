@@ -69,7 +69,12 @@ a captured picture stays clean.
 | **Technical terms** / **Plain words** | Switches the panel titles between everyday words and audio-industry words. See [§3](#3-the-four-panels-in-plain-words). |
 | **Help** | Opens a small card with the gestures and a short reading guide. |
 
-The window is 1280×720 when it opens, and you can resize it from its edge.
+The window is 1280x720 the first time you open it, and you can resize it from its edge.
+After that it comes back the size and in the place you left it, still showing the same
+voice, the same loudness target and the same wording - so an OBS layout survives to the
+next stream. **Reset view** returns it to the defaults. If a stored position was on a
+monitor that is no longer connected, the window opens in the middle of your main screen
+instead of off-screen where you cannot reach it.
 
 **One hidden gesture worth knowing:** double-click any panel and it fills the whole
 window; double-click it again and the three-panel layout returns. A single click never

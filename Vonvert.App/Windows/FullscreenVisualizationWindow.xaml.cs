@@ -91,6 +91,29 @@ public partial class FullscreenVisualizationWindow : Window
         AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(OnWindowDragStart), handledEventsToo: true);
         MouseMove += (_, _) => ShowCursorAndHint();
         Loaded += (_, _) => MaybeRunGuide();
+        // The strips scale with the window; ContentRendered is the first point where
+        // ActualWidth/ActualHeight are real, and SizeChanged covers every resize after it.
+        ContentRendered += (_, _) => ApplyPaneGeometry();
+        SizeChanged += (_, _) => ApplyPaneGeometry();
+    }
+
+    /// <summary>
+    /// Re-derive the waveform row height, the loudness column width and the banner width
+    /// from the current window size. Skipped while a pane is maximized: in that state the
+    /// strips are deliberately 0 or star-sized by <see cref="TogglePane"/>.
+    /// </summary>
+    private void ApplyPaneGeometry()
+    {
+        if (ActualWidth <= 0 || ActualHeight <= 0) return;
+        var sizes = MonitorPaneGeometry.Compute(ActualWidth, ActualHeight);
+        if (_layout.Maximized is null)
+        {
+            WaveRow.Height = new GridLength(sizes.WaveformRowHeight);
+            LufsCol.Width = new GridLength(sizes.LoudnessColumnWidth);
+        }
+        // The banner is top-centre, between the panel title and the pitch badges; on a
+        // narrow window it has to give way instead of overlapping both.
+        GuidanceBand.MaxWidth = MonitorPaneGeometry.GuidanceMaxWidth(ActualWidth);
     }
 
     /// <summary>
@@ -203,18 +226,21 @@ public partial class FullscreenVisualizationWindow : Window
         LoudnessPanel.Visibility  = (m is null || m == MonitorPane.Loudness)  ? Visibility.Visible : Visibility.Collapsed;
 
         MainRow.Height = m == MonitorPane.Waveform ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
+        // Restoring the grid re-derives the strips from the current size (GM rules);
+        // the 140 / 150 literals this replaced are what made a corner capture unreadable.
+        var sizes = MonitorPaneGeometry.Compute(ActualWidth, ActualHeight);
         WaveRow.Height = m switch
         {
             MonitorPane.Waveform => new GridLength(1, GridUnitType.Star),
             MonitorPane.Waterfall or MonitorPane.Loudness => new GridLength(0),
-            _ => new GridLength(140),
+            _ => new GridLength(sizes.WaveformRowHeight),
         };
         MainCol.Width = m == MonitorPane.Loudness ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
         LufsCol.Width = m switch
         {
             MonitorPane.Loudness => new GridLength(1, GridUnitType.Star),
             MonitorPane.Waterfall or MonitorPane.Waveform => new GridLength(0),
-            _ => new GridLength(150),
+            _ => new GridLength(sizes.LoudnessColumnWidth),
         };
     }
 

@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Vonvert.Tests.UI;
 
-// RD-001 ~ RD-003: source-level readability guards for the fullscreen monitor.
+// RD-001 ~ RD-004: source-level readability guards for the fullscreen monitor.
 //
 // This window is built to be captured: OBS downscales it, a second screen is viewed
 // from a distance, and a bright room washes out thin text. Every label used to sit at
@@ -81,5 +81,15 @@ public sealed class MonitorReadabilityTests
         var hits = Regex.Matches(MonitorCode, @"^\s*\w*Btn\w*\.Foreground\s*=", RegexOptions.Multiline);
         Assert.True(hits.Count == 0,
             $"{hits.Count} imperative button Foreground assignment(s) in the monitor; use SetResourceReference(StyleProperty, ...) instead");
+    }
+
+    [Fact(DisplayName = "RD-004: strip sizes come from the geometry rules, not from hardcoded pixels")]
+    public void RD004_NoHardcodedStripSizes()
+    {
+        // 140 and 150 were the original fixed strips. A literal back in this file would
+        // silently undo proportional layout at every window size except 1280x720.
+        var literals = Regex.Matches(MonitorCode, @"new GridLength\((140|150)\)");
+        Assert.True(literals.Count == 0,
+            $"{literals.Count} hardcoded strip size(s) in the monitor; use MonitorPaneGeometry.Compute instead");
     }
 }

@@ -40,7 +40,7 @@
     "FsLabelsTechnical": "Termes techniques",
     "FsStateNotRunning": "Le changement de voix est désactivé — activez-le dans la fenêtre principale",
     "FsStateNoInput": "Aucun signal du micro — vérifiez le périphérique d'entrée et le câble virtuel",
-    "FsStateDryBypass": "Vous entendez votre voix brute — l'analyse est en pause",
+    "FsStateRawVoice": "A/B sur DRY : les mesures affichent votre voix brute",
     "FsErrOpenFailed": "Le moniteur ne s'est pas ouvert. Cliquez à nouveau sur l'icône pour réessayer.",
     "FsCurrentSource": "Actuel : {0}",
     "FsTourTitle": "Visite du moniteur",

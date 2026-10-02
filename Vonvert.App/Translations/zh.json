@@ -40,7 +40,7 @@
     "FsLabelsTechnical": "专业术语",
     "FsStateNotRunning": "还没开启变声：请在主窗口点电源钮",
     "FsStateNoInput": "麦克风没有输入：检查输入设备与虚拟音频线",
-    "FsStateDryBypass": "正在播放原声：监看已暂停",
+    "FsStateRawVoice": "A/B 选了 DRY：画面显示的是你的原声",
     "FsErrOpenFailed": "监视器没能打开，可再点一次图标重试",
     "FsCurrentSource": "当前：{0}",
     "FsTourTitle": "监视器导览",

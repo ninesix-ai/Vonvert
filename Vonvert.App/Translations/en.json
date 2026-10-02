@@ -40,7 +40,7 @@
     "FsLabelsTechnical": "Technical terms",
     "FsStateNotRunning": "Voice changing is off — turn it on in the main window",
     "FsStateNoInput": "No sound from your microphone — check the input device and the virtual cable",
-    "FsStateDryBypass": "Playing your raw voice — analysis is paused",
+    "FsStateRawVoice": "A/B is on DRY: the meters show your raw voice",
     "FsErrOpenFailed": "The monitor could not be opened. Click the icon again to retry.",
     "FsCurrentSource": "Current: {0}",
     "FsTourTitle": "Monitor tour",

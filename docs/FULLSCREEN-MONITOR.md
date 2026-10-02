@@ -270,7 +270,7 @@ A short banner appears at the top when the picture cannot tell the whole truth.
 |---|---|---|
 | "Voice changing is off — turn it on in the main window" | There is no processed audio to measure | Press the power button in the main window |
 | "No sound from your microphone — check the input device and the virtual cable" | The engine runs but receives nothing | Check **Settings → Input Microphone**, and that the cable is installed |
-| "Playing your raw voice — analysis is paused" | A/B is set to **DRY**, so the analyzers are bypassed and the pictures freeze | Switch A/B back to normal, or turn the effect on |
+| "A/B is on DRY: the meters show your raw voice" | A/B is set to **DRY**, so the effect chain is out and the meters follow your unprocessed voice | Switch A/B back to normal when you want the pictures to describe what the audience hears |
 | "The monitor could not be opened. Click the icon again to retry." | Opening failed | Click the icon again; if it repeats, restart Vonvert |
 
 ## 11. Privacy and safety

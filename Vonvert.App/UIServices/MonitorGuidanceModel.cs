@@ -6,14 +6,16 @@ namespace Vonvert.App.UIServices;
 /// <summary>What the monitor should tell the user about the signal it is showing.</summary>
 public enum GuidanceKind
 {
-    /// <summary>Everything is live; show nothing.</summary>
+    /// <summary>Everything is live and speaks for itself; show nothing.</summary>
     None,
     /// <summary>No engine to read from yet (voice changing is off / not started).</summary>
     EngineNotReady,
-    /// <summary>Engine running, but the analyzers are bypassed (A/B on DRY).</summary>
-    DryBypass,
     /// <summary>Engine is analysing and nothing has come in for a while.</summary>
     NoInput,
+    /// <summary>Informational: A/B is on DRY, so the meters describe the raw voice rather
+    /// than what the audience hears. It used to be a fault - the analyzers were skipped
+    /// and the picture froze - until the worker started feeding them in every mode.</summary>
+    RawVoice,
 }
 
 /// <summary>
@@ -31,14 +33,16 @@ public sealed class MonitorGuidanceModel
     /// <summary>Absolute sample peak below which the signal counts as silence.</summary>
     public const double SilentPeakLevel = 0.001;
 
-    public GuidanceKind Evaluate(bool engineReady, bool analysisBypassed, double peakLevel, double secondsSincePeak)
+    public GuidanceKind Evaluate(bool engineReady, bool showingRawVoice, double peakLevel, double secondsSincePeak)
     {
-        // Order matters: the engine state explains the picture better than the level does.
+        // Order matters: a fault is worth more attention than an explanation. "Showing the
+        // raw voice" is only context, so a dead microphone still gets the louder message.
         if (!engineReady) return GuidanceKind.EngineNotReady;
-        if (analysisBypassed) return GuidanceKind.DryBypass;
 
         bool quiet = peakLevel <= SilentPeakLevel && secondsSincePeak >= SilenceSeconds;
-        return quiet ? GuidanceKind.NoInput : GuidanceKind.None;
+        if (quiet) return GuidanceKind.NoInput;
+        if (showingRawVoice) return GuidanceKind.RawVoice;
+        return GuidanceKind.None;
     }
 
     /// <summary>Translation key of the sentence for a guidance state. Kept next to the
@@ -46,8 +50,8 @@ public sealed class MonitorGuidanceModel
     public static string KeyFor(GuidanceKind kind) => kind switch
     {
         GuidanceKind.EngineNotReady => "FsStateNotRunning",
-        GuidanceKind.DryBypass      => "FsStateDryBypass",
         GuidanceKind.NoInput        => "FsStateNoInput",
+        GuidanceKind.RawVoice       => "FsStateRawVoice",
         _                           => "",
     };
 }

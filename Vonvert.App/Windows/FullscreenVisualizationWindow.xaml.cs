@@ -405,22 +405,22 @@ public partial class FullscreenVisualizationWindow : Window
     // ── guidance: explain a picture that is not telling the truth ──────────
 
     /// <summary>
-    /// DRY mode (and the power button, which maps to the same engine mode) bypasses the
-    /// whole analyzer chain, so the panes freeze; and with no engine there is nothing to
-    /// draw at all. Both used to look like a crash. Runs on the render tick; the state
-    /// setter ignores no-op changes, so this costs one comparison per frame.
+    /// Explains a picture that could otherwise be misread. A/B on DRY and the power button
+    /// map to the same engine mode; since the worker feeds the analyzers in every mode the
+    /// panels no longer freeze there, so this is context, not an error. A microphone that
+    /// delivers nothing is still the louder message.
     /// </summary>
     private void UpdateGuidance()
     {
         var engine = App.Engine;
         bool ready = engine != null && engine.IsRunning;
-        bool bypassed = ready && engine!.Settings.Compare == CompareMode.Dry;
+        bool rawVoice = ready && engine!.Settings.Compare == CompareMode.Dry;
         double peak = ready ? engine!.Stats.OutputLevel : 0.0;
 
         var now = DateTime.UtcNow;
         if (peak > MonitorGuidanceModel.SilentPeakLevel) _lastPeakUtc = now;
 
-        var kind = _guidance.Evaluate(ready, bypassed, peak, (now - _lastPeakUtc).TotalSeconds);
+        var kind = _guidance.Evaluate(ready, rawVoice, peak, (now - _lastPeakUtc).TotalSeconds);
         LocalizationManager.Instance.SetMonitorGuidance(kind);
     }
 

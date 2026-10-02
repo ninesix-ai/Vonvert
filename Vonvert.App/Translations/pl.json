@@ -40,7 +40,7 @@
     "FsLabelsTechnical": "Terminy techniczne",
     "FsStateNotRunning": "Zmiana głosu jest wyłączona — włącz ją w oknie głównym",
     "FsStateNoInput": "Brak sygnału z mikrofonu — sprawdź urządzenie wejściowe i wirtualny kabel",
-    "FsStateDryBypass": "Słyszysz swój oryginalny głos — analiza jest wstrzymana",
+    "FsStateRawVoice": "A/B w trybie DRY: mierniki pokazują twój oryginalny głos",
     "FsErrOpenFailed": "Nie udało się otworzyć monitora. Kliknij ikonę ponownie, aby spróbować.",
     "FsCurrentSource": "Obecnie: {0}",
     "FsTourTitle": "Przewodnik po monitorze",

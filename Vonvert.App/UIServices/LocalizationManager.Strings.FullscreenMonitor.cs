@@ -40,7 +40,8 @@ public partial class LocalizationManager
     // ── State and failure copy (what the picture is not telling you) ──
     public string FsStateNotRunning  => G();
     public string FsStateNoInput     => G();
-    public string FsStateDryBypass   => G();
+    /// <summary>Informational: A/B is on DRY, so the meters follow the raw voice.</summary>
+    public string FsStateRawVoice    => G();
     public string FsErrOpenFailed    => G();
     public string FsCurrentSource    => G();
 

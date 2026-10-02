@@ -40,7 +40,7 @@
     "FsLabelsTechnical": "Teknik terimler",
     "FsStateNotRunning": "Ses değiştirme kapalı — ana pencereden açın",
     "FsStateNoInput": "Mikrofondan ses gelmiyor — giriş aygıtını ve sanal kabloyu denetleyin",
-    "FsStateDryBypass": "Orijinal sesinizi duyuyorsunuz — analiz duraklatıldı",
+    "FsStateRawVoice": "A/B, DRY konumunda: ölçer orijinal sesinizi gösteriyor",
     "FsErrOpenFailed": "Monitör açılamadı. Yeniden denemek için simgeye tekrar tıklayın.",
     "FsCurrentSource": "Şu an: {0}",
     "FsTourTitle": "Monitör turu",

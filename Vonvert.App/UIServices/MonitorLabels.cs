@@ -32,6 +32,9 @@ public sealed class MonitorLabels
                 ? MonitorLabelMode.Technical
                 : MonitorLabelMode.Plain;
 
+    /// <summary>Applies a mode read back from disk, where there is nothing to toggle from.</summary>
+    public void SetMode(MonitorLabelMode mode) => Mode = mode;
+
     /// <summary>Translation key for the main label of a slot.</summary>
     public string KeyFor(MonitorLabelSlot slot)
         => Mode == MonitorLabelMode.Plain ? PlainKey(slot) : TechnicalKey(slot);

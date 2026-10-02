@@ -2,6 +2,7 @@
 // Copyright (c) 2026 ninesix-ai studio
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -42,6 +43,7 @@ public partial class FullscreenVisualizationWindow : Window
     private readonly PaneLayoutModel _layout = new();
     private readonly MonitorChromeModel _chrome = new();
     private readonly MonitorGuidanceModel _guidance = new();
+    private readonly MonitorPreferences _prefs = MonitorStore.Load();
     // Size the overlay axis was last built for; positions only move with the panel.
     private double _axisWidth = -1, _axisHeight = -1;
     // When the pipeline last saw anything above silence; drives the "no input" hint.
@@ -59,6 +61,7 @@ public partial class FullscreenVisualizationWindow : Window
     public FullscreenVisualizationWindow()
     {
         InitializeComponent();
+        RestorePreferences();
 
         WaterfallImage.Source = _waterfall;
         WaveformCanvas.Children.Add(_waveLine);
@@ -430,12 +433,14 @@ public partial class FullscreenVisualizationWindow : Window
         _chrome.ToggleTopmost();
         Topmost = _chrome.Topmost;
         UpdateChromeVisuals();
+        SavePreferences();
     }
 
     private void SizeBtn_Click(object s, RoutedEventArgs e)
     {
         _chrome.CycleSize();
         ApplyChromeSize();
+        SavePreferences();
     }
 
     private void ResetViewBtn_Click(object s, RoutedEventArgs e)
@@ -446,6 +451,7 @@ public partial class FullscreenVisualizationWindow : Window
         Topmost = _chrome.Topmost;
         ApplyChromeSize();
         UpdateChromeVisuals();
+        SavePreferences();
     }
 
     private void HelpBtn_Click(object s, RoutedEventArgs e) => HelpPopup.IsOpen = !HelpPopup.IsOpen;
@@ -456,6 +462,7 @@ public partial class FullscreenVisualizationWindow : Window
     {
         LocalizationManager.Instance.CycleMonitorLufsTarget();
         RenderLufs();      // reflect the new line at once instead of after the next tick
+        SavePreferences();
     }
 
     /// <summary>Opens the published guide for this window, in the UI language the user
@@ -477,7 +484,10 @@ public partial class FullscreenVisualizationWindow : Window
     /// <summary>Swap the panel titles between plain words and industry terms. Bound
     /// properties do the repainting; nothing here touches a Text value.</summary>
     private void LabelModeBtn_Click(object s, RoutedEventArgs e)
-        => LocalizationManager.Instance.ToggleMonitorLabelMode();
+    {
+        LocalizationManager.Instance.ToggleMonitorLabelMode();
+        SavePreferences();
+    }
 
     /// <summary>Resize to the selected chrome mode, clamped to the work area, then pull the
     /// window back on screen. Deliberately not <c>WindowState.Maximized</c>: a borderless
@@ -502,8 +512,8 @@ public partial class FullscreenVisualizationWindow : Window
 
     // ── waveform dry/wet source ─────────────────────────────────────────
 
-    private void DryBtn_Click(object s, RoutedEventArgs e) { _showDry = true;  UpdateDryWetButtons(); }
-    private void WetBtn_Click(object s, RoutedEventArgs e) { _showDry = false; UpdateDryWetButtons(); }
+    private void DryBtn_Click(object s, RoutedEventArgs e) { _showDry = true;  UpdateDryWetButtons(); SavePreferences(); }
+    private void WetBtn_Click(object s, RoutedEventArgs e) { _showDry = false; UpdateDryWetButtons(); SavePreferences(); }
 
     /// <summary>
     /// Active state by style switch, never by assigning <c>Foreground</c>. A local value
@@ -517,6 +527,66 @@ public partial class FullscreenVisualizationWindow : Window
         WetBtn.SetResourceReference(StyleProperty, _showDry ? "SegmentButton" : "SegmentButtonActive");
         // Bound read-out so the source is stated in words, not only in a tint.
         LocalizationManager.Instance.MonitorShowsDry = _showDry;
+    }
+
+    // ── remembered state ──────────────────────────────────────────
+
+    /// <summary>
+    /// Put the window back the way the user left it: which voice to look at, always-on-top,
+    /// loudness target, wording of the labels, and where it sat.
+    ///
+    /// The position is honoured only while it is still reachable. A borderless window
+    /// restored onto a second monitor that has been unplugged cannot be dragged back by
+    /// someone who does not know Reset view exists, and looks like the feature is broken.
+    /// </summary>
+    private void RestorePreferences()
+    {
+        _showDry = _prefs.ShowDry;
+        Topmost = _prefs.Topmost;
+        LocalizationManager.Instance.SetMonitorLufsTarget(_prefs.Target);
+        LocalizationManager.Instance.SetMonitorLabelMode(_prefs.LabelMode);
+
+        if (!_prefs.HasBounds) return;
+        WindowStartupLocation = WindowStartupLocation.Manual;
+        var (left, top) = MonitorPlacement.Clamp(_prefs.Left, _prefs.Top, _prefs.Width, _prefs.Height, Screens());
+        Left = left;
+        Top = top;
+        Width = _prefs.Width;
+        Height = _prefs.Height;
+    }
+
+    /// <summary>Primary work area first, because that is the screen a lost window gets
+    /// returned to; then the union of all screens, so a position on a still-connected
+    /// second monitor counts as reachable.</summary>
+    private static IReadOnlyList<ScreenRect> Screens() => new[]
+    {
+        new ScreenRect(SystemParameters.WorkArea.Left, SystemParameters.WorkArea.Top,
+                       SystemParameters.WorkArea.Width, SystemParameters.WorkArea.Height),
+        new ScreenRect(SystemParameters.VirtualScreenLeft, SystemParameters.VirtualScreenTop,
+                       SystemParameters.VirtualScreenWidth, SystemParameters.VirtualScreenHeight),
+    };
+
+    /// <summary>
+    /// Writes the current state. Called on the discrete choices and once on close; a drag
+    /// would otherwise rewrite the file for every pixel of movement.
+    /// </summary>
+    private void SavePreferences()
+    {
+        // Before the window has been laid out, Left/Top/Width/Height are placeholders; saving
+        // them would replace a good stored position with a meaningless one.
+        if (IsLoaded || ActualWidth > 0)
+        {
+            _prefs.HasBounds = true;
+            _prefs.Left = Left;
+            _prefs.Top = Top;
+            _prefs.Width = Width;
+            _prefs.Height = Height;
+        }
+        _prefs.ShowDry = _showDry;
+        _prefs.Topmost = _chrome.Topmost;
+        _prefs.Target = LocalizationManager.Instance.LufsTarget.Preset;
+        _prefs.LabelMode = LocalizationManager.Instance.MonitorLabels.Mode;
+        MonitorStore.Save(_prefs);
     }
 
     // ── renderers (pull from lock-free engine snapshots) ────────────────
@@ -747,6 +817,7 @@ public partial class FullscreenVisualizationWindow : Window
 
     protected override void OnClosed(EventArgs e)
     {
+        SavePreferences();
         _renderTimer.Stop();
         _idleTimer.Stop();
         // Release visual references (brushes can hold engine snapshots) before teardown.

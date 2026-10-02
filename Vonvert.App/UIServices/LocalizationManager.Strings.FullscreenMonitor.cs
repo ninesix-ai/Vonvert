@@ -105,6 +105,13 @@ public partial class LocalizationManager
         NotifyMonitorTargetChanged();
     }
 
+    /// <summary>Applies a target read back from disk, then refreshes the button label.</summary>
+    public void SetMonitorLufsTarget(LufsTargetPreset preset)
+    {
+        LufsTarget.Set(preset);
+        NotifyMonitorTargetChanged();
+    }
+
     public void NotifyMonitorTargetChanged() =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MonitorTargetLabel)));
 
@@ -180,6 +187,13 @@ public partial class LocalizationManager
     public void ToggleMonitorLabelMode()
     {
         MonitorLabels.Toggle();
+        NotifyMonitorLabelsChanged();
+    }
+
+    /// <summary>Applies a vocabulary mode read back from disk.</summary>
+    public void SetMonitorLabelMode(MonitorLabelMode mode)
+    {
+        MonitorLabels.SetMode(mode);
         NotifyMonitorLabelsChanged();
     }
 

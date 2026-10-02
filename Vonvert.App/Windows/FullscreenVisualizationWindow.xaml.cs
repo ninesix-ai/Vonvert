@@ -99,7 +99,10 @@ public partial class FullscreenVisualizationWindow : Window
         Loaded += (_, _) => MaybeRunGuide();
         // The strips scale with the window; ContentRendered is the first point where
         // ActualWidth/ActualHeight are real, and SizeChanged covers every resize after it.
-        ContentRendered += (_, _) => ApplyPaneGeometry();
+        // UpdateCollapseBar also resets the shared chip wording: this window starts in the
+        // grid layout, while LocalizationManager is a singleton that still remembers the last
+        // session's filled panel, which would have left a chip saying "restore" over a grid.
+        ContentRendered += (_, _) => { ApplyPaneGeometry(); UpdateCollapseBar(); ShowGesturePill(); };
         SizeChanged += (_, _) => ApplyPaneGeometry();
     }
 
@@ -357,6 +360,56 @@ public partial class FullscreenVisualizationWindow : Window
             MonitorPane.Waterfall or MonitorPane.Waveform => new GridLength(0),
             _ => new GridLength(sizes.LoudnessColumnWidth),
         };
+
+        UpdateCollapseBar();
+    }
+
+    /// <summary>
+    /// Keeps the way out of a filled panel visible: every panel the layout hid gets a
+    /// clickable strip, and the chips change wording with the state. Leaving the state
+    /// should never depend on knowing that a second double-click exists.
+    /// </summary>
+    private void UpdateCollapseBar()
+    {
+        var hidden = _layout.Collapsed();
+        LocalizationManager.Instance.SetMonitorMaximizedPane(_layout.Maximized);
+        CollapseBar.Visibility = hidden.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+        CollapseWaterfall.Visibility = hidden.Contains(MonitorPane.Waterfall) ? Visibility.Visible : Visibility.Collapsed;
+        CollapseWaveform.Visibility = hidden.Contains(MonitorPane.Waveform) ? Visibility.Visible : Visibility.Collapsed;
+        CollapseLoudness.Visibility = hidden.Contains(MonitorPane.Loudness) ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    /// <summary>
+    /// Names the hidden gestures once per opening, then fades itself out - the picture is
+    /// the point of this window, so the reminder has to leave without being told to.
+    /// </summary>
+    private void ShowGesturePill()
+    {
+        GesturePill.Opacity = 1;
+        GesturePill.BeginAnimation(UIElement.OpacityProperty,
+            new System.Windows.Media.Animation.DoubleAnimation(0, TimeSpan.FromSeconds(0.8))
+            {
+                BeginTime = TimeSpan.FromSeconds(7),
+                EasingFunction = new System.Windows.Media.Animation.CubicEase
+                { EasingMode = System.Windows.Media.Animation.EasingMode.EaseIn },
+            });
+    }
+
+    // One click on a labelled chip does what the double-click on the panel does. A gesture
+    // nobody can see is a feature nobody finds, and the tour and the help card are both
+    // opt-in: a returning user who skipped them still met a window that looked inert.
+    private void WaterfallHint_Click(object sender, RoutedEventArgs e) => TogglePane(MonitorPane.Waterfall);
+    private void LoudnessHint_Click(object sender, RoutedEventArgs e) => TogglePane(MonitorPane.Loudness);
+    private void WaveformHint_Click(object sender, RoutedEventArgs e) => TogglePane(MonitorPane.Waveform);
+
+    private void CollapseWaterfall_Click(object sender, RoutedEventArgs e) => TogglePane(MonitorPane.Waterfall);
+    private void CollapseWaveform_Click(object sender, RoutedEventArgs e) => TogglePane(MonitorPane.Waveform);
+    private void CollapseLoudness_Click(object sender, RoutedEventArgs e) => TogglePane(MonitorPane.Loudness);
+
+    private void ExpandAll_Click(object sender, RoutedEventArgs e)
+    {
+        // The same thing as the second double-click nobody thinks to try.
+        if (_layout.Maximized is MonitorPane pane) TogglePane(pane);
     }
 
     /// <summary>Pane order walked by the Enter key, matching the reading order of the window.</summary>

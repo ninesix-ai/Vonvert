@@ -58,6 +58,37 @@ public partial class LocalizationManager
     /// <summary>Says which way time runs, because the newest frame is at the right edge.</summary>
     public string FsAxisTimeHint     => G();
 
+    // ── Discoverability: the hidden gestures get visible, clickable hints ──
+    public string FsDblClickHint     => G();
+    public string FsDblClickRestore  => G();
+    public string FsExpandHint       => G();
+    public string FsGestureHint      => G();
+
+    // Which panel currently fills the window, so a chip can say "fill" or "restore".
+    // Kept next to the other monitor state: the chips are bound, so they re-translate
+    // with the UI language without anyone re-assigning Text.
+    private MonitorPane? _hintMaximized;
+
+    public string FsWaterfallHint => HintFor(MonitorPane.Waterfall);
+    public string FsLoudnessHint  => HintFor(MonitorPane.Loudness);
+    public string FsWaveformHint  => HintFor(MonitorPane.Waveform);
+
+    private string HintFor(MonitorPane pane) =>
+        GetUiString(_hintMaximized == pane ? "FsDblClickRestore" : "FsDblClickHint");
+
+    public void SetMonitorMaximizedPane(MonitorPane? pane)
+    {
+        if (_hintMaximized == pane) return;
+        _hintMaximized = pane;
+        NotifyHintLabelsChanged();
+    }
+
+    public void NotifyHintLabelsChanged()
+    {
+        foreach (var name in new[] { nameof(FsWaterfallHint), nameof(FsLoudnessHint), nameof(FsWaveformHint) })
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
     // ── Loudness meter legend, switchable target, peak alert ──
     public string FsLegendMomentary  => G();
     public string FsLegendShort      => G();

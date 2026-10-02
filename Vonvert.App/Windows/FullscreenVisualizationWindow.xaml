@@ -14,6 +14,19 @@
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="B2V"/>
+        <!-- The double-click gesture, turned into a control you can see and press. Dim
+             until hovered so it stays out of a captured picture. -->
+        <Style TargetType="Button" x:Key="HintChip" BasedOn="{StaticResource SegmentButton}">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="Opacity" Value="0.6"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="1"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
     <Grid x:Name="RootGrid">
@@ -64,6 +77,11 @@
                 <!-- pitch curve + cents meter (bottom overlay inside the pane) -->
                 <Canvas x:Name="PitchCurveCanvas" Height="80" VerticalAlignment="Bottom" Background="#08080E" ClipToBounds="True"/>
                 <Canvas x:Name="FsCentsMeterCanvas" Height="8" VerticalAlignment="Bottom" Margin="30,0,30,84" ClipToBounds="True" Visibility="Collapsed"/>
+                <!-- sits above the curve strip, clear of the title and the badges -->
+                <Button x:Name="WaterfallHintChip" Style="{StaticResource HintChip}" VerticalAlignment="Bottom" Margin="0,0,0,96"
+                        Click="WaterfallHint_Click"
+                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaterfallHint, Mode=OneWay}"
+                        ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsGestureHint, Mode=OneWay}"/>
             </Grid>
         </Border>
 
@@ -111,6 +129,10 @@
                         <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLegendIntegrated, Mode=OneWay}"
                                    FontSize="9" Foreground="#FFD700"/>
                     </StackPanel>
+                    <Button x:Name="LoudnessHintChip" Style="{StaticResource HintChip}" Margin="0,6,0,0"
+                            HorizontalAlignment="Stretch"
+                            Click="LoudnessHint_Click"
+                            Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessHint, Mode=OneWay}"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -139,6 +161,9 @@
                          their tint difference is invisible once the window is downscaled -->
                     <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorSourceLabel, Mode=OneWay}"
                            FontSize="10" Foreground="#99FFFFFF" Margin="0,6,0,0"/>
+                    <Button x:Name="WaveformHintChip" Style="{StaticResource HintChip}" HorizontalAlignment="Left" Margin="0,8,0,0"
+                            Click="WaveformHint_Click"
+                            Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformHint, Mode=OneWay}"/>
                 </StackPanel>
                 <Canvas x:Name="WaveformCanvas" Grid.Column="1" Margin="8" ClipToBounds="True"/>
             </Grid>
@@ -171,6 +196,39 @@
                 Visibility="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorGuidanceVisible, Mode=OneWay, Converter={StaticResource B2V}}">
             <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorGuidanceText, Mode=OneWay}"
                        FontSize="13" Foreground="#F4E3C4" TextWrapping="Wrap" TextAlignment="Center"/>
+        </Border>
+
+        <!-- ══ way back from a filled panel: the hidden gesture gets a visible control, so nobody
+             has to know that a second double-click is the exit. Bottom-centre because the
+             guidance band owns the top and both corners already hold something. ══ -->
+        <Border x:Name="CollapseBar" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2"
+                VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,12"
+                Background="#B30A0C12" BorderBrush="#33FFFFFF" BorderThickness="1"
+                CornerRadius="10" Padding="5,3" Visibility="Collapsed">
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="CollapseWaterfall" Style="{StaticResource SegmentButton}" FontSize="10" Padding="8,2"
+                        Click="CollapseWaterfall_Click"
+                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSpectrogramLabel, Mode=OneWay}"/>
+                <Button x:Name="CollapseWaveform" Style="{StaticResource SegmentButton}" FontSize="10" Padding="8,2"
+                        Click="CollapseWaveform_Click"
+                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformLabel, Mode=OneWay}"/>
+                <Button x:Name="CollapseLoudness" Style="{StaticResource SegmentButton}" FontSize="10" Padding="8,2"
+                        Click="CollapseLoudness_Click"
+                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessLabel, Mode=OneWay}"/>
+                <Button x:Name="ExpandAll" Style="{StaticResource SegmentButtonActive}" FontSize="10" Padding="8,2"
+                        Click="ExpandAll_Click"
+                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsExpandHint, Mode=OneWay}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ══ gesture pill: shown on every opening, fades itself away after a few seconds, and
+             hit-test invisible so it can never swallow the drag or double-click it describes. ══ -->
+        <Border x:Name="GesturePill" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2"
+                VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,44"
+                Background="#B30A0C12" BorderBrush="#33FFFFFF" BorderThickness="1"
+                CornerRadius="10" Padding="10,4" IsHitTestVisible="False">
+            <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsGestureHint, Mode=OneWay}"
+                       FontSize="10" Foreground="#CCFFFFFF" TextAlignment="Center" MaxWidth="720" TextWrapping="Wrap"/>
         </Border>
 
         <!-- ══ chrome toolbar: revealed with the cursor on mouse move, hidden after the same

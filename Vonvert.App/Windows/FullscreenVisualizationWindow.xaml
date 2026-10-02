@@ -28,6 +28,7 @@
 
         <!-- ══ Waterfall pane (main view, pitch overlay) ══ -->
         <Border x:Name="WaterfallPanel" Grid.Row="0" Grid.Column="0" Background="Black"
+                AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsWaterfall, Mode=OneWay}"
                 PreviewMouseLeftButtonDown="WaterfallPanel_DoubleClick">
             <Grid>
                 <Image x:Name="WaterfallImage" Stretch="Fill"
@@ -68,6 +69,7 @@
 
         <!-- ══ Loudness pane (vertical LUFS meter) ══ -->
         <Border x:Name="LoudnessPanel" Grid.Row="0" Grid.Column="1" Background="#0A0C12"
+                AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsLoudness, Mode=OneWay}"
                 BorderBrush="#22FFFFFF" BorderThickness="1,0,0,0"
                 PreviewMouseLeftButtonDown="LoudnessPanel_DoubleClick">
             <Grid Margin="10,8">
@@ -92,10 +94,12 @@
                     <!-- The integrated reading restarts from a right-click on the text above, which
                          nobody discovers. Same action, visible button (keeps the menu for muscle memory). -->
                     <Button x:Name="ResetIntegratedBtn" Style="{StaticResource SegmentButton}" FontSize="10" Padding="8,2"
+                            AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsResetIntegrated, Mode=OneWay}"
                             HorizontalAlignment="Left" Margin="0,4,0,0" Click="ResetIntegrated_Click"
                             Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsResetIntegrated, Mode=OneWay}"/>
                     <!-- which platform the reference line aims at; click to change it -->
                     <Button x:Name="TargetBtn" Style="{StaticResource SegmentButton}" FontSize="10" Padding="8,2"
+                            AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsTarget, Mode=OneWay}"
                             HorizontalAlignment="Left" Margin="0,4,0,0" Click="TargetBtn_Click"
                             Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorTargetLabel, Mode=OneWay}"/>
                     <!-- the three pointers mean nothing without names; colours match the marks -->
@@ -113,6 +117,7 @@
 
         <!-- ══ Waveform pane (dry/wet) ══ -->
         <Border x:Name="WaveformPanel" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Background="#0A0C12"
+                AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsWaveform, Mode=OneWay}"
                 BorderBrush="#22FFFFFF" BorderThickness="0,1,0,0"
                 PreviewMouseLeftButtonDown="WaveformPanel_DoubleClick">
             <Grid>
@@ -123,8 +128,12 @@
                     <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformLabel, Mode=OneWay}" FontSize="12" FontWeight="Bold" Foreground="#CCFFFFFF"/>
                     <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformSub, Mode=OneWay}" FontSize="10" Foreground="#99FFFFFF" Margin="0,1,0,0"/>
                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <Button x:Name="DryBtn" Style="{StaticResource SegmentButton}" Padding="10,3" Margin="0,0,6,0" Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsDryLabel, Mode=OneWay}" Click="DryBtn_Click"/>
-                        <Button x:Name="WetBtn" Style="{StaticResource SegmentButton}" Padding="10,3" Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWetLabel, Mode=OneWay}" Click="WetBtn_Click"/>
+                        <Button x:Name="DryBtn" Style="{StaticResource SegmentButton}" Padding="10,3" Margin="0,0,6,0"
+                                AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsDry, Mode=OneWay}"
+                                Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsDryLabel, Mode=OneWay}" Click="DryBtn_Click"/>
+                        <Button x:Name="WetBtn" Style="{StaticResource SegmentButton}" Padding="10,3"
+                                AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsWet, Mode=OneWay}"
+                                Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWetLabel, Mode=OneWay}" Click="WetBtn_Click"/>
                     </StackPanel>
                     <!-- which signal this really is, in words: the two taps are small and
                          their tint difference is invisible once the window is downscaled -->
@@ -174,21 +183,27 @@
                 CornerRadius="12,0,0,0" Padding="8,6" Opacity="0" IsHitTestVisible="False">
             <StackPanel Orientation="Horizontal">
                 <Button x:Name="CloseBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                        AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsClose, Mode=OneWay}"
                         Click="CloseBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsClose, Mode=OneWay}"/>
                 <Button x:Name="TopmostBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                        AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsTopmost, Mode=OneWay}"
                         Click="TopmostBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsTopmost, Mode=OneWay}"/>
                 <Button x:Name="SizeBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                        AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsSize, Mode=OneWay}"
                         Click="SizeBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSize, Mode=OneWay}"/>
                 <Button x:Name="ResetViewBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                        AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsResetView, Mode=OneWay}"
                         Click="ResetViewBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsRestoreLayout, Mode=OneWay}"/>
                 <Button x:Name="LabelModeBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                        AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsLabelMode, Mode=OneWay}"
                         Click="LabelModeBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLabelModeLabel, Mode=OneWay}"/>
                 <Button x:Name="HelpBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                        AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsHelp, Mode=OneWay}"
                         Click="HelpBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpBtn, Mode=OneWay}"/>
             </StackPanel>
@@ -211,6 +226,8 @@
                                Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpDblClick, Mode=OneWay}"/>
                     <TextBlock FontSize="12" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
                                Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpRightClick, Mode=OneWay}"/>
+                    <TextBlock FontSize="12" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
+                               Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpKeys, Mode=OneWay}"/>
                     <TextBlock FontSize="12" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
                                Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=EscToClose, Mode=OneWay}"/>
                     <!-- full guide, published on the web so it renders as a page -->

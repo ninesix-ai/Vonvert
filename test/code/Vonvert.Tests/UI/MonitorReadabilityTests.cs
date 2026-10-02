@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Vonvert.Tests.UI;
 
-// RD-001 ~ RD-005: source-level readability guards for the fullscreen monitor.
+// RD-001 ~ RD-006: source-level readability and accessibility guards for the monitor.
 //
 // This window is built to be captured: OBS downscales it, a second screen is viewed
 // from a distance, and a bright room washes out thin text. Every label used to sit at
@@ -102,5 +102,16 @@ public sealed class MonitorReadabilityTests
         var axis = Regex.Match(MonitorXaml, @"<Canvas x:Name=""AxisCanvas""[^>]*?/?>");
         Assert.True(axis.Success, "AxisCanvas not found in the monitor XAML - update this guard");
         Assert.Contains("IsHitTestVisible=\"False\"", axis.Value);
+    }
+
+    [Fact(DisplayName = "RD-006: every panel and every control in the monitor is named for a screen reader")]
+    public void RD006_ControlsAreNamed()
+    {
+        // The rest of the app already names its controls (Acc* on the tab strip, the bottom
+        // bar, the sidebar); this window had none, so a screen reader announced an unnamed
+        // rectangle. A count, not a sample, because new buttons arrive with names or not.
+        int named = Regex.Matches(MonitorXaml, @"AutomationProperties\.Name=""").Count;
+        Assert.True(named >= 13,
+            $"only {named} AutomationProperties.Name bindings in the monitor; panels and every control need one");
     }
 }

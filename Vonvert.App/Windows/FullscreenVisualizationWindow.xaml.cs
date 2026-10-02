@@ -88,7 +88,7 @@ public partial class FullscreenVisualizationWindow : Window
             _idleTimer.Stop();
         };
 
-        KeyDown += (_, e) => { if (e.Key == Key.Escape) Close(); };
+        KeyDown += OnMonitorKeyDown;
         // Anywhere-drag on the borderless window (handledEventsToo: the child
         // canvases mark the mouse event handled and would otherwise starve us).
         AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(OnWindowDragStart), handledEventsToo: true);
@@ -354,6 +354,49 @@ public partial class FullscreenVisualizationWindow : Window
             MonitorPane.Waterfall or MonitorPane.Waveform => new GridLength(0),
             _ => new GridLength(sizes.LoudnessColumnWidth),
         };
+    }
+
+    /// <summary>Pane order walked by the Enter key, matching the reading order of the window.</summary>
+    private static readonly MonitorPane[] MaximizeOrder =
+        { MonitorPane.Waterfall, MonitorPane.Loudness, MonitorPane.Waveform };
+
+    /// <summary>
+    /// Keyboard route to everything that used to need a mouse. Enter is left to a focused
+    /// button, otherwise a keyboard user pressing Enter on "Close" would also re-arrange
+    /// the panels.
+    /// </summary>
+    private void OnMonitorKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key is Key.Enter or Key.Space
+            && Keyboard.FocusedElement is DependencyObject focused && IsOnInteractiveElement(focused))
+            return;
+
+        switch (MonitorKeys.Map(e.Key, Keyboard.Modifiers))
+        {
+            case MonitorKeyAction.Close: Close(); break;
+            case MonitorKeyAction.ToggleHelp: HelpPopup.IsOpen = !HelpPopup.IsOpen; break;
+            case MonitorKeyAction.ToggleTopmost: TopmostBtn_Click(this, new RoutedEventArgs()); break;
+            case MonitorKeyAction.CycleSize: SizeBtn_Click(this, new RoutedEventArgs()); break;
+            case MonitorKeyAction.ResetView: ResetViewBtn_Click(this, new RoutedEventArgs()); break;
+            case MonitorKeyAction.ShowDry: DryBtn_Click(this, new RoutedEventArgs()); break;
+            case MonitorKeyAction.ShowWet: WetBtn_Click(this, new RoutedEventArgs()); break;
+            case MonitorKeyAction.ToggleTarget: TargetBtn_Click(this, new RoutedEventArgs()); break;
+            case MonitorKeyAction.MaximizeNext: MaximizeNextPane(); break;
+            default: return;
+        }
+        e.Handled = true;
+    }
+
+    /// <summary>Steps none -> voice detail -> volume -> voice shape -> none, so double-click
+    /// has a keyboard equivalent without a focusable container hack.</summary>
+    private void MaximizeNextPane()
+    {
+        var current = _layout.Maximized;
+        int index = current is null ? -1 : Array.IndexOf(MaximizeOrder, current.Value);
+
+        if (index == MaximizeOrder.Length - 1) { TogglePane(MaximizeOrder[index]); return; }   // wrap to the grid
+        var next = MaximizeOrder[index + 1];
+        TogglePane(next);   // PL-002: toggling a pane supersedes whichever was maximized
     }
 
     // ── guidance: explain a picture that is not telling the truth ──────────

@@ -72,6 +72,23 @@ public partial class LocalizationManager
     public string FsPitchNear        => G();
     public string FsPitchOff         => G();
 
+    // ── Keyboard access and screen-reader names (Acc* prefix, as the rest of the app) ──
+    /// <summary>Shortcut line shown on the help card.</summary>
+    public string FsHelpKeys         => G();
+    public string AccFsWaterfall      => G();
+    public string AccFsLoudness       => G();
+    public string AccFsWaveform       => G();
+    public string AccFsClose          => G();
+    public string AccFsTopmost        => G();
+    public string AccFsSize           => G();
+    public string AccFsResetView      => G();
+    public string AccFsLabelMode      => G();
+    public string AccFsHelp           => G();
+    public string AccFsDry            => G();
+    public string AccFsWet            => G();
+    public string AccFsTarget         => G();
+    public string AccFsResetIntegrated => G();
+
     /// <summary>
     /// Which delivery target the meter draws its line for. Owned here for the same reason
     /// the guidance banner is: the button label is then a bound string that follows the UI

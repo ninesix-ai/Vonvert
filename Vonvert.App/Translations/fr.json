@@ -59,6 +59,7 @@
     "FsExpandHint": "afficher les 3 volets",
     "FsGestureHint": "Faites glisser pour déplacer · double-cliquez pour agrandir · boutons en bas à droite",
     "FsColorScheme": "Apparence : {0}",
+    "FsAppearance": "Apparence",
     "FsColorBrand": "Par défaut",
     "FsColorHighContrast": "Contraste élevé",
     "FsColorChroma": "Fond vert",

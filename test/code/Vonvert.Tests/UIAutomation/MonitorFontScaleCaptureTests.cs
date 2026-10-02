@@ -109,6 +109,109 @@ public sealed class MonitorFontScaleCaptureTests
         Assert.Contains("tmp", dir);
     }
 
+    /// <summary>
+    /// The bottom of the window carries four independent overlays: the close hint on the left,
+    /// the collapse strips and the gesture pill in the middle, and the chrome toolbar on the
+    /// right. A user reported that the toolbar grew to two rows and covered the text in the
+    /// middle, so the rectangles are compared here rather than eyeballed - and the picture is
+    /// written out so the report can be checked by eye too.
+    /// </summary>
+    [InteractiveDesktopFact(DisplayName = "MF-004: the bottom overlays never sit on top of each other")]
+    public void MF004_BottomOverlaysDoNotCollide()
+    {
+        var outputDir = OutputDirectory();
+        var report = new List<string>();
+        var overlaps = new List<string>();
+        Exception? failure = null;
+
+        var worker = new Thread(() =>
+        {
+            try { MeasureBottomBand(outputDir, report, overlaps); }
+            catch (Exception ex) { failure = ex; }
+        });
+        worker.SetApartmentState(ApartmentState.STA);
+        worker.IsBackground = true;
+        worker.Start();
+        Assert.True(worker.Join(TimeSpan.FromMinutes(2)), "the WPF measurement thread did not finish");
+
+        Assert.True(failure is null, "measurement failed: " + failure);
+        File.WriteAllLines(Path.Combine(outputDir, "bottom-band.txt"), report, new UTF8Encoding(false));
+        Assert.True(overlaps.Count == 0, string.Join("; ", overlaps));
+    }
+
+    private static void MeasureBottomBand(string outputDir, List<string> report, List<string> overlaps)
+    {
+        var root = Path.Combine(Path.GetTempPath(), "vonvert-band-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        AppPaths.RootOverride = root;
+        AppPaths.Invalidate();
+        try { File.WriteAllText(MonitorFirstRunGuide.MarkerPath, "measured"); } catch { /* not fatal */ }
+
+        var app = HostedApplication();
+        MonitorStore.Save(new MonitorPreferences());
+
+        // The narrow case is where a wrapping toolbar runs out of room; the wide one is the
+        // report's own setup, so both are checked.
+        foreach (var (width, height) in new[] { (1280.0, 720.0), (900.0, 500.0), (640.0, 360.0) })
+        {
+            var window = new FullscreenVisualizationWindow { Width = width, Height = height, Topmost = false };
+            window.Show();
+            Pump(40);
+
+            // Reveal what a moving mouse reveals, including the toolbar the user saw.
+            var chrome = window.FindName("ChromeBar") as FrameworkElement;
+            if (chrome is not null)
+            {
+                chrome.Opacity = 1;
+                chrome.IsHitTestVisible = true;
+            }
+            Pump(3);
+
+            var boxes = new Dictionary<string, Rect>
+            {
+                ["chrome"] = OnScreen(chrome),
+                ["pill"] = OnScreen(window.FindName("GesturePill") as FrameworkElement),
+                ["collapse"] = OnScreen(window.FindName("CollapseBar") as FrameworkElement),
+                ["hint"] = OnScreen(window.FindName("CloseHint") as FrameworkElement),
+            };
+            report.Add($"{width:F0}x{height:F0}: " + string.Join(
+                "  ", boxes.Select(b => $"{b.Key}={b.Value.Width:F0}x{b.Value.Height:F0}@{b.Value.Left:F0},{b.Value.Top:F0}")));
+
+            // The complaint was specifically that the corner strip had become two rows, so the
+            // height is pinned at the size the report was made at, not only the overlap.
+            if (width >= 1280 && chrome is { ActualHeight: > 40 })
+                overlaps.Add($"{width:F0}x{height:F0}: the toolbar is {chrome.ActualHeight:F0} DIP tall, so it wrapped to a second row");
+
+            foreach (var (name, box) in boxes)
+                foreach (var (other, otherBox) in boxes)
+                {
+                    if (name.CompareTo(other) >= 0) continue;      // compare each pair once
+                    if (!box.IntersectsWith(otherBox)) continue;
+                    var clip = Rect.Intersect(box, otherBox);
+                    overlaps.Add($"{width:F0}x{height:F0}: {name} covers {other} by {clip.Width:F0}x{clip.Height:F0} px");
+                }
+
+            SavePng(window, Path.Combine(outputDir, $"bottom-band-{width:F0}.png"));
+            window.Close();
+            Pump(5);
+        }
+
+        AppPaths.RootOverride = null;
+        AppPaths.Invalidate();
+        Dispatcher.CurrentDispatcher.InvokeShutdown();
+        GC.KeepAlive(app);
+    }
+
+    /// <summary>A element's box in screen pixels; an element that is not on screen reports an
+    /// empty rect, which cannot overlap anything.</summary>
+    private static Rect OnScreen(FrameworkElement? element)
+    {
+        if (element is null || !element.IsVisible || element.ActualWidth <= 0) return Rect.Empty;
+        var topLeft = element.PointToScreen(new Point(0, 0));
+        var bottomRight = element.PointToScreen(new Point(element.ActualWidth, element.ActualHeight));
+        return new Rect(topLeft, bottomRight);
+    }
+
     // ── the WPF side ────────────────────────────────────────────────────
 
     private static void CaptureAll(string outputDir, List<string> measurements,
@@ -172,6 +275,9 @@ public sealed class MonitorFontScaleCaptureTests
         GC.KeepAlive(app);
     }
 
+    private static readonly object AppGate = new();
+    private static Application? s_app;
+
     /// <summary>
     /// A bare Application has no styles, and the monitor's buttons resolve SegmentButton from
     /// the application dictionaries. They are loaded by pack URI instead of starting the real
@@ -180,32 +286,41 @@ public sealed class MonitorFontScaleCaptureTests
     /// </summary>
     private static Application HostedApplication()
     {
-        // WPF resolves a pack URI by calling Assembly.Load on the assembly name, and in a test
-        // host that misses the already-loaded Vonvert.App (the entry assembly is the runner).
-        // Point the name at the instance we are holding instead of pretending to control
-        // Application.ResourceAssembly, which refuses to change once WPF has set it.
-        AppDomain.CurrentDomain.AssemblyResolve += (_, args) =>
-            args.Name.StartsWith("Vonvert.App", StringComparison.Ordinal)
-                ? typeof(FullscreenVisualizationWindow).Assembly
-                : null;
+        // One Application per AppDomain is all WPF allows, and this class runs two tests that
+        // each need it on their own STA thread. Windows keep their own dispatcher, so sharing
+        // the instance (and its merged dictionaries) is enough.
+        lock (AppGate)
+        {
+            if (s_app is not null) return s_app;
 
-        var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
-        // Closing the first captured window would otherwise take the whole Application down
-        // with it (the default is OnLastWindowClose), and the second size would never render.
-        foreach (string path in new[]
-        {
-            "AppStyles/Theme.xaml",
-            "AppStyles/Controls.xaml",
-            "AppStyles/SoundboardPadStyles.xaml",
-            "Assets/Icons.xaml",
-        })
-        {
-            app.Resources.MergedDictionaries.Add(new ResourceDictionary
+            // WPF resolves a pack URI by calling Assembly.Load on the assembly name, and in a test
+            // host that misses the already-loaded Vonvert.App (the entry assembly is the runner).
+            // Point the name at the instance we are holding instead of pretending to control
+            // Application.ResourceAssembly, which refuses to change once WPF has set it.
+            AppDomain.CurrentDomain.AssemblyResolve += (_, args) =>
+                args.Name.StartsWith("Vonvert.App", StringComparison.Ordinal)
+                    ? typeof(FullscreenVisualizationWindow).Assembly
+                    : null;
+
+            var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
+            // Closing a captured window would otherwise take the whole Application down with it
+            // (the default is OnLastWindowClose), and the later sizes would never render.
+            foreach (string path in new[]
             {
-                Source = new Uri("pack://application:,,,/Vonvert.App;component/" + path, UriKind.Absolute),
-            });
+                "AppStyles/Theme.xaml",
+                "AppStyles/Controls.xaml",
+                "AppStyles/SoundboardPadStyles.xaml",
+                "Assets/Icons.xaml",
+            })
+            {
+                app.Resources.MergedDictionaries.Add(new ResourceDictionary
+                {
+                    Source = new Uri("pack://application:,,,/Vonvert.App;component/" + path, UriKind.Absolute),
+                });
+            }
+            s_app = app;
+            return s_app;
         }
-        return app;
     }
 
     private static void SavePng(Visual visual, string path)

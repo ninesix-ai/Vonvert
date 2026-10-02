@@ -59,6 +59,7 @@
     "FsExpandHint": "すべてのパネルを表示",
     "FsGestureHint": "ドラッグで移動・ダブルクリックで拡大・その他のボタンは右下にあります",
     "FsColorScheme": "表示:{0}",
+    "FsAppearance": "表示",
     "FsColorBrand": "標準",
     "FsColorHighContrast": "ハイコントラスト",
     "FsColorChroma": "クロマキー",

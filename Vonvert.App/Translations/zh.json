@@ -59,6 +59,7 @@
     "FsExpandHint": "显示全部面板",
     "FsGestureHint": "按住任意处拖动 · 双击面板放大 · 右下角还有更多按钮",
     "FsColorScheme": "配色：{0}",
+    "FsAppearance": "外观",
     "FsColorBrand": "默认",
     "FsColorHighContrast": "高对比",
     "FsColorChroma": "绿幕",

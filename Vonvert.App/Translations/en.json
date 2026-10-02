@@ -59,6 +59,7 @@
     "FsExpandHint": "show all panels",
     "FsGestureHint": "Drag anywhere to move · double-click a panel to enlarge · more buttons sit bottom-right",
     "FsColorScheme": "Look: {0}",
+    "FsAppearance": "Appearance",
     "FsColorBrand": "Default",
     "FsColorHighContrast": "High contrast",
     "FsColorChroma": "Green screen",

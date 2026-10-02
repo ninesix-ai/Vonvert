@@ -272,26 +272,47 @@
                         AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsResetView, Mode=OneWay}"
                         Click="ResetViewBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsRestoreLayout, Mode=OneWay}"/>
-                <!-- capture palette: named by what it is for, so "Green screen" says more than
-                     "Theme 3" would. Reads as offer + current value. -->
-                <Button x:Name="ProfileBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"
-                        AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorProfileButton, Mode=OneWay}"
-                        Click="ProfileBtn_Click"
-                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorProfileButton, Mode=OneWay}"/>
-                <Button x:Name="LabelModeBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"
-                        AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsLabelMode, Mode=OneWay}"
-                        Click="LabelModeBtn_Click"
-                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLabelModeLabel, Mode=OneWay}"/>
-                <Button x:Name="FontBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"
-                        AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorFontButton, Mode=OneWay}"
-                        Click="FontBtn_Click"
-                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorFontButton, Mode=OneWay}"/>
+                <!-- The three look choices live in a popup of their own. With eight labelled
+                     buttons in this corner the strip wrapped to two rows and covered the
+                     gesture line in the middle of the window; grouping them by purpose keeps
+                     the strip on one row and gives the long labels room to breathe. -->
+                <Button x:Name="AppearanceBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"
+                        AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsAppearance, Mode=OneWay}"
+                        Click="AppearanceBtn_Click"
+                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsAppearance, Mode=OneWay}"/>
                 <Button x:Name="HelpBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"
                         AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsHelp, Mode=OneWay}"
                         Click="HelpBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpBtn, Mode=OneWay}"/>
             </WrapPanel>
         </Border>
+
+        <!-- ══ appearance popup: capture palette, wording and text size ══ -->
+        <Popup x:Name="AppearancePopup" PlacementTarget="{Binding ElementName=AppearanceBtn}" Placement="Top"
+               StaysOpen="False" AllowsTransparency="True">
+            <Border Background="#F20A0C12" BorderBrush="#44FFFFFF" BorderThickness="1"
+                    CornerRadius="12" Padding="10,8">
+                <StackPanel MinWidth="220">
+                    <!-- capture palette: named by what it is for, so "Green screen" says more
+                         than "Theme 3" would. Reads as offer + current value. -->
+                    <Button x:Name="ProfileBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"
+                            HorizontalAlignment="Stretch" Margin="0,0,0,6"
+                            AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorProfileButton, Mode=OneWay}"
+                            Click="ProfileBtn_Click"
+                            Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorProfileButton, Mode=OneWay}"/>
+                    <Button x:Name="LabelModeBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"
+                            HorizontalAlignment="Stretch" Margin="0,0,0,6"
+                            AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsLabelMode, Mode=OneWay}"
+                            Click="LabelModeBtn_Click"
+                            Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLabelModeLabel, Mode=OneWay}"/>
+                    <Button x:Name="FontBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"
+                            HorizontalAlignment="Stretch"
+                            AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorFontButton, Mode=OneWay}"
+                            Click="FontBtn_Click"
+                            Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorFontButton, Mode=OneWay}"/>
+                </StackPanel>
+            </Border>
+        </Popup>
 
         <!-- ══ help card: the gestures that used to be invisible, written down ══ -->
         <Popup x:Name="HelpPopup" PlacementTarget="{Binding ElementName=HelpBtn}" Placement="Top"

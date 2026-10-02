@@ -59,6 +59,7 @@
     "FsExpandHint": "tüm panelleri göster",
     "FsGestureHint": "Taşımak için sürükleyin · büyütmek için çift tıklayın · diğer düğmeler sağ altta",
     "FsColorScheme": "Görünüm: {0}",
+    "FsAppearance": "Görünüm",
     "FsColorBrand": "Varsayılan",
     "FsColorHighContrast": "Yüksek kontrast",
     "FsColorChroma": "Yeşil ekran",

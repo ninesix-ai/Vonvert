@@ -59,6 +59,7 @@
     "FsExpandHint": "모든 패널 보기",
     "FsGestureHint": "드래그로 이동 · 두 번 클릭으로 확대 · 다른 버튼은 오른쪽 아래에 있습니다",
     "FsColorScheme": "테마: {0}",
+    "FsAppearance": "외관",
     "FsColorBrand": "기본",
     "FsColorHighContrast": "고대비",
     "FsColorChroma": "크로마키",

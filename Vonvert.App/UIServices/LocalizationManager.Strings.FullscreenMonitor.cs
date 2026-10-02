@@ -246,6 +246,8 @@ public partial class LocalizationManager
     private string LabelOf(MonitorLabelSlot slot) => GetUiString(MonitorLabels.KeyFor(slot));
 
     // ── capture colour profiles ──
+    /// <summary>Label of the corner button that opens the palette / wording / text-size popup.</summary>
+    public string FsAppearance        => G();
     public string FsColorScheme       => G();   // carries {0}
     public string FsColorBrand        => G();
     public string FsColorHighContrast => G();

@@ -59,6 +59,7 @@
     "FsExpandHint": "alle panels anzeigen",
     "FsGestureHint": "Ziehen zum Verschieben · Doppelklick vergrößert · unten rechts weitere Buttons",
     "FsColorScheme": "Darstellung: {0}",
+    "FsAppearance": "Darstellung",
     "FsColorBrand": "Standard",
     "FsColorHighContrast": "Hoher Kontrast",
     "FsColorChroma": "Greenscreen",

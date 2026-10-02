@@ -85,7 +85,8 @@ public sealed class MonitorHintTests
     public void HG005_HintCopyIsTranslatedEverywhere(string lang)
     {
         var ui = ReadUiSection(lang);
-        var required = new[] { "FsDblClickHint", "FsDblClickRestore", "FsExpandHint", "FsGestureHint" };
+        var required = new[] { "FsDblClickHint", "FsDblClickRestore", "FsExpandHint", "FsGestureHint",
+                               "FsAppearance" };
         var missing = required.Where(k => !ui.Contains(k));
         Assert.True(!missing.Any(), $"{lang}: missing hint keys [{string.Join(", ", missing)}]");
     }

@@ -81,9 +81,10 @@ public partial class FullscreenVisualizationWindow : Window
 
         _idleTimer.Tick += (_, _) =>
         {
-            // The help card is meant to be read, so the idle beat must not wipe the
-            // cursor and toolbar out from under it; just re-arm and stay revealed.
-            if (HelpPopup.IsOpen) { _idleTimer.Stop(); _idleTimer.Start(); return; }
+            // The help card and the appearance popup are meant to be read and clicked, so the
+            // idle beat must not wipe the cursor and toolbar out from under them; just re-arm
+            // and stay revealed.
+            if (HelpPopup.IsOpen || AppearancePopup.IsOpen) { _idleTimer.Stop(); _idleTimer.Start(); return; }
             // High-contrast users keep their pointer. In a borderless window the cursor is the
             // only thing showing where they are aiming, and Windows already told us they asked
             // for help seeing it.
@@ -127,7 +128,22 @@ public partial class FullscreenVisualizationWindow : Window
         // The banner is top-centre, between the panel title and the pitch badges; on a
         // narrow window it has to give way instead of overlapping both.
         GuidanceBand.MaxWidth = MonitorPaneGeometry.GuidanceMaxWidth(ActualWidth);
+        LiftBottomOverlays();
         UpdateAxis();
+    }
+
+    /// <summary>
+    /// Keep the centred overlays clear of the toolbar. The toolbar is anchored to the bottom
+    /// right and wraps to a second row when the window is narrow, while the gesture line and
+    /// the collapse strips are centred on the same band - they used to end up underneath it.
+    /// The lift follows the toolbar's measured height rather than a guessed constant, so it
+    /// stays right at every text size too.
+    /// </summary>
+    private void LiftBottomOverlays()
+    {
+        double above = ChromeBar.ActualHeight + 10;
+        CollapseBar.Margin = new Thickness(0, 0, 0, above);
+        GesturePill.Margin = new Thickness(0, 0, 0, above + 34);
     }
 
     /// <summary>Height the bottom of the waterfall gives up to the pitch curve and cents
@@ -544,6 +560,13 @@ public partial class FullscreenVisualizationWindow : Window
     }
 
     private void HelpBtn_Click(object s, RoutedEventArgs e) => HelpPopup.IsOpen = !HelpPopup.IsOpen;
+
+    private void AppearanceBtn_Click(object s, RoutedEventArgs e)
+    {
+        // One button for the three look choices: eight labelled buttons in this corner wrapped
+        // the strip onto a second row, which then covered the gesture line in the middle.
+        AppearancePopup.IsOpen = !AppearancePopup.IsOpen;
+    }
 
     /// <summary>Broadcast / streaming / podcast / hidden. The meter line used to be welded
     /// to the broadcast number, which told a podcaster to sit about 7 LUFS too quiet.</summary>

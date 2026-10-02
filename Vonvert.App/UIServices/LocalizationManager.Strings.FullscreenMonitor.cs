@@ -91,7 +91,7 @@ public partial class LocalizationManager
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MonitorGuidanceText)));
     }
 
-    // ── Plain-word / technical vocabulary switch (R-19) ──
+    // ── Plain-word / technical vocabulary switch ──
     //
     // Exposed as computed bound properties on purpose, the same way PttHoldModeLabel
     // works: LoadLanguage raises PropertyChanged for every string property, so the

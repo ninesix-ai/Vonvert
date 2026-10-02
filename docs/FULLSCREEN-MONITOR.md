@@ -88,11 +88,12 @@ label.
 | **Volume** | Loudness (LUFS) | Am I too quiet, or too loud? | One vertical meter with three marks. Watch the purple one. See [§6](#6-loudness-numbers-explained). |
 | **Pitch badges** | cents / note | Am I in tune? | A note name, a number in cents, and a colour: green close, amber near, red off. |
 
-Two honest limits:
+Two things worth knowing:
 
-- **There are no numbers on the frequency axis yet.** Read the picture as *bottom = low,
-  top = high*, and *right = now*. The voice you care about sits mostly in the **lower
-  half** of the picture; the upper part is hiss, "s" sounds and room noise.
+- **The frequency axis is labelled, and it is not evenly spaced.** Bottom is low, top is
+  high, the right edge is now. The shaded band marked "your voice lives here" is the part
+  that matters; above it is mostly hiss, "s" sounds and room noise - which is exactly why
+  the busiest-looking area of the picture is not the important one.
 - **The horizontal window is about 4 seconds of sound**, not a minute.
 
 ### Voice detail: what the shapes mean
@@ -139,10 +140,10 @@ You do not need to read four panels at once. Learn one rule:
 - The **cyan** mark moves every fraction of a second. Ignore it; watching it makes you
   nervous for no benefit.
 
-Note: the green line is drawn at **-23**, which is the broadcast target. Live streaming
-and uploaded video usually sit closer to **-14**, and podcasts around **-16**. The line
-cannot be moved yet, so read the number itself and treat the green line as "a bit
-quieter than your real target".
+Note: the green line marks a **target**, and the button under the readings changes which
+one - **broadcast -23**, **streaming -14**, **podcast -16**, or none at all. Pick the one
+that matches where your audio is going. The line carries its own number, so you can always
+see what you are aiming at.
 
 ## 5. Quick checks before you go live
 
@@ -170,6 +171,11 @@ average. Streaming platforms use the same measurement to level everything they h
 | Green line, labelled **-23** | Broadcast target (EBU R128) | A reference, not necessarily your platform's target |
 | `TP -x dBTP` | True peak: how close you are to clipping. 0 or above cracks. | Keep it at -1 or below when you are loudest |
 | `Integrated -x LUFS` | The yellow mark as a number | Write it down before you publish |
+
+The three marks are lettered **M**, **S** and **I** on the meter so you never have to guess
+which is which, and the scale shows its numbers (louder is higher, and every figure is
+negative). The `TP` line turns amber as you approach the ceiling and red once you cross it,
+and says so in words rather than in colour alone.
 
 **Why this matters:** if your recording is too loud, the platform turns it down and your
 voice ends up small and distant in the listener's ears. If it is too quiet, some
@@ -239,8 +245,17 @@ in the Vonvert data folder (default
 | Resize | Drag the window edge |
 | Forget the layout you made | **Reset view** in the corner strip |
 | Keep the picture clean | Stop moving the mouse for 3 seconds |
+| Help card | `H` or `F1` |
+| Always on top | `T` |
+| Window size | `S` |
+| Reset view | `R` |
+| Raw or changed voice | `D` / `W` |
+| Loudness target | `G` |
+| Fill the window with one panel | `Enter` steps through voice detail, volume, voice shape, then back to the three-panel view |
 
-Keyboard-only operation and screen-reader labels are not available yet.
+The window is driven by keyboard alone: every panel and every control is named for a
+screen reader, and `Tab` reaches the buttons. Keys are ignored while Ctrl, Alt or Shift is
+held, so nothing here takes a shortcut away from Windows.
 
 ## 10. Messages you may see
 

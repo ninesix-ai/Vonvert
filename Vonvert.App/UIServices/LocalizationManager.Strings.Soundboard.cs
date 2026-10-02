@@ -35,4 +35,15 @@ public partial class LocalizationManager
     public string CatRetro   => G();
     public string CatAmbient => G();
     public string CatImported => G();
+
+    // ── Floating mini-player ──
+    public string FloatSbTitle     => G();
+    public string FloatSbEmpty     => G();
+    public string SoundboardPin    => G();
+    public string SoundboardUnpin  => G();
+    public string FloatingTitle    => G();
+    public string FloatingOpen     => G();
+    public string FloatingAutoOpen => G();
+    public string FloatingTopmost  => G();
+    public string FloatingToggle   => G();
 }

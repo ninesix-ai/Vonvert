@@ -84,7 +84,11 @@ public partial class FullscreenVisualizationWindow : Window
             // The help card is meant to be read, so the idle beat must not wipe the
             // cursor and toolbar out from under it; just re-arm and stay revealed.
             if (HelpPopup.IsOpen) { _idleTimer.Stop(); _idleTimer.Start(); return; }
-            Cursor = Cursors.None;
+            // High-contrast users keep their pointer. In a borderless window the cursor is the
+            // only thing showing where they are aiming, and Windows already told us they asked
+            // for help seeing it.
+            if (MonitorAccessibilityPolicy.ShouldHideCursorWhenIdle(SystemParameters.HighContrast))
+                Cursor = Cursors.None;
             CloseHint.Opacity = 0;
             ChromeBar.Opacity = 0;
             ChromeBar.IsHitTestVisible = false;
@@ -630,7 +634,8 @@ public partial class FullscreenVisualizationWindow : Window
         Topmost = _prefs.Topmost;
         LocalizationManager.Instance.SetMonitorLufsTarget(_prefs.Target);
         LocalizationManager.Instance.SetMonitorLabelMode(_prefs.LabelMode);
-        LocalizationManager.Instance.SetMonitorProfile(_prefs.VisualProfile);
+        LocalizationManager.Instance.SetMonitorProfile(MonitorAccessibilityPolicy.InitialProfile(
+            SystemParameters.HighContrast, _prefs.VisualProfile, _prefs.ProfileChosen));
         ApplyVisualProfile();
 
         if (!_prefs.HasBounds) return;
@@ -680,6 +685,7 @@ public partial class FullscreenVisualizationWindow : Window
     private void ProfileBtn_Click(object s, RoutedEventArgs e)
     {
         LocalizationManager.Instance.CycleMonitorProfile();
+        _prefs.ProfileChosen = true;   // an explicit pick outranks the system signal next time
         ApplyVisualProfile();
         SavePreferences();
     }

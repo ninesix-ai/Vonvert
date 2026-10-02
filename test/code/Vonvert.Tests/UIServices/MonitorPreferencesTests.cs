@@ -63,6 +63,7 @@ public sealed class MonitorPreferencesTests : IDisposable
         prefs.LabelMode = MonitorLabelMode.Technical;
         prefs.ReduceMotion = true;         // differs from the default, so the read cannot pass by accident
         prefs.VisualProfile = MonitorVisualProfile.Chroma;
+        prefs.ProfileChosen = true;          // the flag that makes an explicit pick outrank the system
         MonitorStore.Save(prefs);
 
         var again = MonitorStore.Load();
@@ -76,6 +77,7 @@ public sealed class MonitorPreferencesTests : IDisposable
         Assert.Equal(MonitorLabelMode.Technical, again.LabelMode);
         Assert.True(again.ReduceMotion);
         Assert.Equal(MonitorVisualProfile.Chroma, again.VisualProfile);
+        Assert.True(again.ProfileChosen);
     }
 
     [Fact(DisplayName = "PR-003: a half-written file falls back to defaults instead of throwing at startup")]

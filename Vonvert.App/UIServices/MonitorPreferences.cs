@@ -74,6 +74,11 @@ public sealed class MonitorPreferences
     /// look the window shipped with.</summary>
     public MonitorVisualProfile VisualProfile { get; set; } = MonitorVisualProfile.Brand;
 
+    /// <summary>False until the user actually presses the palette button. The system
+    /// high-contrast signal may pick a palette for them, but a choice they made themselves
+    /// outranks it forever - otherwise the button would be undone on the next open.</summary>
+    public bool ProfileChosen { get; set; }
+
     /// <summary>Turns the layout fade-off into an explicit choice instead of a guess. WPF has
     /// no standard reduce-motion signal and reading a registry key to invent one is not this
     /// app's business, so it stays a stored preference until the accessibility toggle lands.
@@ -97,6 +102,7 @@ public static class MonitorStore
         public int Target { get; set; }
         public int LabelMode { get; set; }
         public int VisualProfile { get; set; }
+        public bool ProfileChosen { get; set; }
         public bool ReduceMotion { get; set; }
     }
 
@@ -131,6 +137,7 @@ public static class MonitorStore
                     ? (MonitorLabelMode)dto.LabelMode : MonitorLabelMode.Plain,
                 VisualProfile = Enum.IsDefined(typeof(MonitorVisualProfile), dto.VisualProfile)
                     ? (MonitorVisualProfile)dto.VisualProfile : MonitorVisualProfile.Brand,
+                ProfileChosen = dto.ProfileChosen,
                 ReduceMotion = dto.ReduceMotion,
             };
         }
@@ -154,6 +161,7 @@ public static class MonitorStore
                 ShowDry = prefs.ShowDry, Topmost = prefs.Topmost,
                 Target = (int)prefs.Target, LabelMode = (int)prefs.LabelMode,
                 VisualProfile = (int)prefs.VisualProfile,
+                ProfileChosen = prefs.ProfileChosen,
                 ReduceMotion = prefs.ReduceMotion,
             };
             // Write-then-move so a crash mid-save cannot leave a truncated file behind.

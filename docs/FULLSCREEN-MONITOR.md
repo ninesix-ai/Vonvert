@@ -232,7 +232,7 @@ set the canvas to 720p.
 
 ### Keying the window over your stream
 
-Choose **Green screen** in the corner strip and the surfaces behind the pictures turn the
+Choose **Appearance → Green screen** in the corner strip and the surfaces behind the pictures turn the
 standard OBS keying green (`#00B140`). Add a **Chroma Key** filter to the window capture in
 OBS and that field disappears, leaving the meters and the waterfall floating over your scene.
 The green value is deliberately OBS's default, so the filter needs no tuning.
@@ -242,10 +242,10 @@ opaque white on black for a bright room or low vision, **Neutral grey** drops th
 chrome so the overlay matches any stream, and **Default** is the look the window shipped with.
 Whichever you pick is remembered for the next session.
 
-**Text size** is a separate choice in the same strip: **Compact** for a small window, **Standard** (the size the window shipped with) and **Large** for a screen seen from across a room or downscaled inside OBS. The panels grow with the text, so nothing is cut off at the large size, and the choice is remembered like the rest.
+**Text size** sits in the same **Appearance** popup: **Compact** for a small window, **Standard** (the size the window shipped with) and **Large** for a screen seen from across a room or downscaled inside OBS. The panels grow with the text, so nothing is cut off at the large size, and the choice is remembered like the rest.
 
 If Windows is set to high contrast, the monitor opens in **High contrast** on its own - until
-you choose a look yourself, after which your choice wins. In that mode the mouse pointer also
+you choose a look yourself under **Appearance**, after which your choice wins. In that mode the mouse pointer also
 stays visible when you stop moving: in a borderless window the pointer is the only thing
 showing where you are aiming, and hiding it would take that away from exactly the people who
 need to see it.
@@ -274,8 +274,9 @@ in the Vonvert data folder (default
 | Compare raw and changed voice | The two buttons under the Voice shape panel |
 | Resize | Drag the window edge |
 | Forget the layout you made | **Reset view** in the corner strip |
-| Change the look for capture | **Look: …** in the corner strip - Default, High contrast, Green screen (for OBS chroma key), Neutral grey |
-| Make the text bigger or smaller | **Text size: …** in the corner strip - Compact, Standard, Large |
+| Change the look for capture | **Appearance → Look** - Default, High contrast, Green screen (for OBS chroma key), Neutral grey |
+| Make the text bigger or smaller | **Appearance → Text size** - Compact, Standard, Large |
+| Change plain words vs technical terms | **Appearance → Wording** |
 | Keep the picture clean | Stop moving the mouse for 3 seconds |
 | Help card | `H` or `F1` |
 | Always on top | `T` |

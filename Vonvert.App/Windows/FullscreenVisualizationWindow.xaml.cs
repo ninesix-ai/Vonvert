@@ -370,11 +370,6 @@ public partial class FullscreenVisualizationWindow : Window
         FadeInNewlyVisible(before, m);
     }
 
-    /// <summary>Off until an in-app accessibility switch exists for the user to turn it on;
-    /// WPF exposes no standard reduce-motion signal and reading a registry key to guess one
-    /// is not something this app does on its own.</summary>
-    private bool _reduceMotion;
-
     /// <summary>
     /// Eases in the panels a layout change just revealed, so switching is not a hard cut that
     /// reads as a glitch on a captured stream. Only panels that actually became visible are
@@ -383,7 +378,7 @@ public partial class FullscreenVisualizationWindow : Window
     /// </summary>
     private void FadeInNewlyVisible(MonitorPane? before, MonitorPane? after)
     {
-        int ms = MonitorTransition.DurationMs(_reduceMotion);
+        int ms = MonitorTransition.DurationMs(_prefs.ReduceMotion);
         if (ms == 0) return;
 
         var ease = new System.Windows.Media.Animation.DoubleAnimation(

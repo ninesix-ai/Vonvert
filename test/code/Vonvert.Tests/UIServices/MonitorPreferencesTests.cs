@@ -61,6 +61,7 @@ public sealed class MonitorPreferencesTests : IDisposable
         prefs.Topmost = false;
         prefs.Target = LufsTargetPreset.Podcast;
         prefs.LabelMode = MonitorLabelMode.Technical;
+        prefs.ReduceMotion = true;         // differs from the default, so the read cannot pass by accident
         MonitorStore.Save(prefs);
 
         var again = MonitorStore.Load();
@@ -72,6 +73,7 @@ public sealed class MonitorPreferencesTests : IDisposable
         Assert.False(again.Topmost);
         Assert.Equal(LufsTargetPreset.Podcast, again.Target);
         Assert.Equal(MonitorLabelMode.Technical, again.LabelMode);
+        Assert.True(again.ReduceMotion);
     }
 
     [Fact(DisplayName = "PR-003: a half-written file falls back to defaults instead of throwing at startup")]

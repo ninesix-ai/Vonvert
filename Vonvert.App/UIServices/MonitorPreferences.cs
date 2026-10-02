@@ -69,6 +69,12 @@ public sealed class MonitorPreferences
     public bool Topmost { get; set; } = true;
     public LufsTargetPreset Target { get; set; } = LufsTargetPreset.Broadcast;
     public MonitorLabelMode LabelMode { get; set; } = MonitorLabelMode.Plain;
+
+    /// <summary>Turns the layout fade-off into an explicit choice instead of a guess. WPF has
+    /// no standard reduce-motion signal and reading a registry key to invent one is not this
+    /// app's business, so it stays a stored preference until the accessibility toggle lands.
+    /// Default false: animation on, matching what shipped before.</summary>
+    public bool ReduceMotion { get; set; }
 }
 
 /// <summary>Reads and writes <see cref="MonitorPreferences"/>. Never throws: a missing,
@@ -86,6 +92,7 @@ public static class MonitorStore
         public bool Topmost { get; set; } = true;
         public int Target { get; set; }
         public int LabelMode { get; set; }
+        public bool ReduceMotion { get; set; }
     }
 
     public static string FilePath => Path.Combine(AppPaths.Root, "monitor.json");
@@ -117,6 +124,7 @@ public static class MonitorStore
                     ? (LufsTargetPreset)dto.Target : LufsTargetPreset.Broadcast,
                 LabelMode = Enum.IsDefined(typeof(MonitorLabelMode), dto.LabelMode)
                     ? (MonitorLabelMode)dto.LabelMode : MonitorLabelMode.Plain,
+                ReduceMotion = dto.ReduceMotion,
             };
         }
         catch (Exception ex)
@@ -138,6 +146,7 @@ public static class MonitorStore
                 Width = prefs.Width, Height = prefs.Height,
                 ShowDry = prefs.ShowDry, Topmost = prefs.Topmost,
                 Target = (int)prefs.Target, LabelMode = (int)prefs.LabelMode,
+                ReduceMotion = prefs.ReduceMotion,
             };
             // Write-then-move so a crash mid-save cannot leave a truncated file behind.
             var tmp = FilePath + ".tmp";

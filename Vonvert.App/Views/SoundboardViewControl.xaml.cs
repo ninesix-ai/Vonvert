@@ -32,7 +32,7 @@ public partial class SoundboardViewControl : UserControl
 
     private const string UserFilter = "__user__";
 
-    private readonly List<SoundPadVM> _all = new();
+    private readonly List<SoundPadItemViewModel> _all = new();
     private string _filter = "";          // "" = All, else an engine category name or UserFilter
     private string? _capturingId;         // soundId currently awaiting a key press
     private bool _rebuildingChips;        // re-entry guard for programmatic chip (re)selection
@@ -51,6 +51,7 @@ public partial class SoundboardViewControl : UserControl
         VolumeSlider.ValueChanged += (_, args) => { if (Board != null) Board.Volume = (float)args.NewValue; };
 
         if (Board != null) Board.SoundsChanged += OnSoundsChanged;
+        if (Board != null) Board.FavoritesChanged += OnFavoritesChanged;
         if (App.Engine != null) App.Engine.StatusChanged += OnEngineStatusChanged;
         L.PropertyChanged += OnLanguageChanged;
 
@@ -62,11 +63,21 @@ public partial class SoundboardViewControl : UserControl
     private void OnUnloaded(object s, RoutedEventArgs e)
     {
         if (Board != null) Board.SoundsChanged -= OnSoundsChanged;
+        if (Board != null) Board.FavoritesChanged -= OnFavoritesChanged;
         if (App.Engine != null) App.Engine.StatusChanged -= OnEngineStatusChanged;
         L.PropertyChanged -= OnLanguageChanged;
     }
 
     private void OnSoundsChanged() => Dispatcher.BeginInvoke(new Action(RebuildPads));
+    private void OnFavoritesChanged() => Dispatcher.BeginInvoke(new Action(RebuildPads));
+
+    /// <summary>📌 button: toggles this pad's pin; FavoritesChanged then rebuilds the grid.</summary>
+    private void Pin_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not System.Windows.FrameworkElement fe || fe.DataContext is not SoundPadItemViewModel vm) return;
+        Board?.TogglePin(vm.Id);
+        e.Handled = true;
+    }
     private void OnEngineStatusChanged(EngineStatus status) => Dispatcher.Invoke(UpdateStatusBar);
 
     private void OnLanguageChanged(object? sender, PropertyChangedEventArgs e)
@@ -105,11 +116,12 @@ public partial class SoundboardViewControl : UserControl
         {
             foreach (var def in Board.Sounds)
             {
-                _all.Add(new SoundPadVM(
+                _all.Add(new SoundPadItemViewModel(
                     def.Id, def.Name, def.Emoji, def.Category,
                     def.SourceType == SoundSourceType.File)
                 {
                     HotkeyText = FormatHotkey(Board.GetHotkey(def.Id)),
+                    IsPinned = Board.IsPinned(def.Id),
                 });
             }
         }
@@ -194,7 +206,7 @@ public partial class SoundboardViewControl : UserControl
 
     private void ApplyFilter()
     {
-        IEnumerable<SoundPadVM> view = _filter switch
+        IEnumerable<SoundPadItemViewModel> view = _filter switch
         {
             "" => _all,
             UserFilter => _all.Where(x => x.IsUser),
@@ -207,7 +219,7 @@ public partial class SoundboardViewControl : UserControl
 
     private void Pad_Up(object sender, MouseButtonEventArgs e)
     {
-        if (sender is not FrameworkElement fe || fe.DataContext is not SoundPadVM vm) return;
+        if (sender is not FrameworkElement fe || fe.DataContext is not SoundPadItemViewModel vm) return;
         if (Board == null || App.Engine == null) return;
         Board.Play(vm.Id, App.Engine);
 
@@ -247,7 +259,7 @@ public partial class SoundboardViewControl : UserControl
 
     private void Pad_ClearHotkey(object sender, MouseButtonEventArgs e)
     {
-        if (sender is not FrameworkElement fe || fe.DataContext is not SoundPadVM vm) return;
+        if (sender is not FrameworkElement fe || fe.DataContext is not SoundPadItemViewModel vm) return;
         if (Board != null && Board.RemoveHotkey(vm.Id))
         {
             vm.HotkeyText = "";
@@ -258,11 +270,11 @@ public partial class SoundboardViewControl : UserControl
 
     private void Bind_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is not FrameworkElement fe || fe.DataContext is not SoundPadVM vm) return;
+        if (sender is not FrameworkElement fe || fe.DataContext is not SoundPadItemViewModel vm) return;
         BeginCapture(vm);
     }
 
-    private void BeginCapture(SoundPadVM vm)
+    private void BeginCapture(SoundPadItemViewModel vm)
     {
         CancelCapture();
         _capturingId = vm.Id;
@@ -332,13 +344,13 @@ public partial class SoundboardViewControl : UserControl
 
     private void Delete_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is not FrameworkElement fe || fe.DataContext is not SoundPadVM vm) return;
+        if (sender is not FrameworkElement fe || fe.DataContext is not SoundPadItemViewModel vm) return;
         Board?.RemoveUserSound(vm.Id);   // raises SoundsChanged → RebuildPads
     }
 
     // ════════ Helpers ════════
 
-    private string BadgeFor(SoundPadVM vm)
+    private string BadgeFor(SoundPadItemViewModel vm)
         => string.IsNullOrEmpty(vm.HotkeyText) ? "\u2328" : vm.HotkeyText;   // ⌨
 
     private static string FormatHotkey(SoundHotkeyBinding? b)
@@ -368,55 +380,6 @@ public partial class SoundboardViewControl : UserControl
         _         => cat,
     };
 
-    /// <summary>Row view-model for a single soundboard pad. Only the mutable bits notify.</summary>
-    private sealed class SoundPadVM : INotifyPropertyChanged
-    {
-        public string Id { get; }
-        /// <summary>The built-in English name (or imported file name): the fallback
-        /// used when a language has no localized label for this sound.</summary>
-        public string EnglishName { get; }
-
-        private string _name;
-        /// <summary>Localized pad label; refreshed on language switch via RelocalizePads.</summary>
-        public string Name
-        {
-            get => _name;
-            set { if (_name != value) { _name = value; OnChanged(nameof(Name)); } }
-        }
-        public string Emoji { get; }
-        public string Category { get; }
-        public bool IsUser { get; }
-        public string HotkeyText { get; set; } = "";
-
-        private string _badge = "";
-        public string BadgeText
-        {
-            get => _badge;
-            set { if (_badge != value) { _badge = value; OnChanged(nameof(BadgeText)); } }
-        }
-
-        private bool _playing;
-        public bool IsPlaying
-        {
-            get => _playing;
-            set { if (_playing != value) { _playing = value; OnChanged(nameof(IsPlaying)); } }
-        }
-
-        private string? _durationText;
-        /// <summary>Tiered duration label (50ms / 1.2s / 30s) inlined after the pad name
-        /// and mirrored in the tooltip; null until resolved (null tooltip content stays hidden).</summary>
-        public string? DurationText
-        {
-            get => _durationText;
-            set { if (_durationText != value) { _durationText = value; OnChanged(nameof(DurationText)); } }
-        }
-
-        public SoundPadVM(string id, string name, string emoji, string category, bool isUser)
-        {
-            Id = id; EnglishName = name; _name = name; Emoji = emoji; Category = category; IsUser = isUser;
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        private void OnChanged(string n) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(n));
-    }
+    // The pad row view-model now lives in the shared Vonvert.App.UIServices.SoundPadItemViewModel,
+    // so the docked tab and the floating mini-player bind one data shape and cannot drift.
 }

@@ -57,13 +57,15 @@ public sealed class SoundboardCategoryColorTests
     private static string Collapse(string text)
         => Regex.Replace(text, "\\s+", " ");
 
-    [Theory(DisplayName = "SBCAT-003: pad template tints the glyph for every category")]
+    [Theory(DisplayName = "SBCAT-003: pad glyph is tinted for every category")]
     [MemberData(nameof(AllCategories))]
     public void EveryCategory_IsAppliedInPadTemplate(string category)
     {
-        var view = Read("Vonvert.App", "Views", "SoundboardViewControl.xaml");
-        Assert.Contains($"Value=\"{category}\"", view);
-        Assert.Contains($"DynamicResource IconCat{category}", view);
+        // The category->hue mapping now lives in the shared pad-style dictionary (single
+        // source of truth for BOTH the docked tab and the floating mini-player).
+        var pad = Read("Vonvert.App", "AppStyles", "SoundboardPadStyles.xaml");
+        Assert.Contains($"Value=\"{category}\"", pad);
+        Assert.Contains($"DynamicResource IconCat{category}", pad);
     }
 
     public static TheoryData<string> AllCategories()

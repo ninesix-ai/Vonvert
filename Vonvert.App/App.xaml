@@ -11,6 +11,7 @@
                 <ResourceDictionary Source="AppStyles/Theme.xaml"/>
                 <ResourceDictionary Source="AppStyles/Controls.xaml"/>
                 <ResourceDictionary Source="Assets/Icons.xaml"/>
+                <ResourceDictionary Source="AppStyles/SoundboardPadStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

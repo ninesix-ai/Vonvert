@@ -139,34 +139,8 @@
             </Setter>
         </Style>
 
-        <!-- Pad card: hover + playing feedback mirror PresetTile (voice page): corner 10,
-             TileSurface bg, CtrlHover/CtrlBorder on hover, Accent ring when active.
-             Fixed 96x96 square sized from real glyph metrics: 26 px emoji (~35 line) +
-             name/duration up to two 13 px lines + hotkey badge (~16) + padding fits with
-             slack, so the card can never grow into a rectangle. -->
-        <Style x:Key="SbPad" TargetType="Border">
-            <Setter Property="Width" Value="96"/>
-            <Setter Property="Height" Value="96"/>
-            <Setter Property="Margin" Value="0,0,14,14"/>
-            <Setter Property="Padding" Value="6,6"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="Background" Value="{DynamicResource TileSurface}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Border}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="{DynamicResource CtrlBorder}"/>
-                    <Setter Property="Background" Value="{DynamicResource CtrlHover}"/>
-                </Trigger>
-                <DataTrigger Binding="{Binding IsPlaying}" Value="True">
-                    <Setter Property="BorderBrush" Value="{DynamicResource AccentGrad}"/>
-                    <Setter Property="Background" Value="{DynamicResource CtrlHover}"/>
-                    <Setter Property="BorderThickness" Value="2"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
+        <!-- SbPad now lives in the shared AppStyles/SoundboardPadStyles.xaml (merged at App
+             level) so the docked tab and the floating mini-player render identical cards. -->
     </UserControl.Resources>
 
     <Grid>
@@ -297,41 +271,9 @@
                                          layered (AllowsTransparency), where WPF drops COLR color glyphs, so a
                                          theme-token hue - not the artwork - carries the category grouping.
                                          DataTriggers keep it reactive to a future theme swap. -->
-                                    <TextBlock Text="{Binding Emoji}" FontSize="26" HorizontalAlignment="Center"
-                                               Margin="0,0,0,3" FontFamily="Segoe UI Emoji">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Category}" Value="Drums">
-                                                        <Setter Property="Foreground" Value="{DynamicResource IconCatDrums}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Category}" Value="Tones">
-                                                        <Setter Property="Foreground" Value="{DynamicResource IconCatTones}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Category}" Value="SFX">
-                                                        <Setter Property="Foreground" Value="{DynamicResource IconCatSFX}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Category}" Value="Memes">
-                                                        <Setter Property="Foreground" Value="{DynamicResource IconCatMemes}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Category}" Value="Music">
-                                                        <Setter Property="Foreground" Value="{DynamicResource IconCatMusic}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Category}" Value="Retro">
-                                                        <Setter Property="Foreground" Value="{DynamicResource IconCatRetro}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Category}" Value="Ambient">
-                                                        <Setter Property="Foreground" Value="{DynamicResource IconCatAmbient}"/>
-                                                    </DataTrigger>
-                                                    <!-- Imported files are not a catalogue category: brand accent. -->
-                                                    <DataTrigger Binding="{Binding IsUser}" Value="True">
-                                                        <Setter Property="Foreground" Value="{DynamicResource Accent}"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
+                                    <TextBlock Text="{Binding Emoji}"
+                                               Style="{StaticResource SbEmojiCategory}"
+                                               FontSize="26" HorizontalAlignment="Center" Margin="0,0,0,3"/>
                                     <!-- Name with the tiered duration inlined (Kick · 50ms): text flow,
                                          so no overlay can ever collide with emoji or badges. -->
                                     <TextBlock FontSize="10" TextWrapping="Wrap"

@@ -52,11 +52,19 @@ public partial class MainWindow
             Dispatcher.Invoke(ApplyRoleToPanel);
     }
 
-    /// <summary>Expert panel two-state mode is the complexity landing point: L3/L4 -> Professional.</summary>
+    /// <summary>Expert panel two-state mode is the complexity landing point: L3/L4 -> Professional.
+    /// The Simple/Professional combo keeps its own SelectedIndex state, so it must be re-pointed
+    /// here too — otherwise the panel switches modes while the combo still shows the old label,
+    /// and the user's first toggle is swallowed by SetMode's same-state no-op guard.</summary>
     private void ApplyRoleToPanel()
     {
         bool professional = AppConfig.Instance.Ui.RoleSystemEnabled
             && Role.EffectiveComplexity >= ComplexityLevel.Advanced;
+        // Sync the combo first: assigning a different SelectedIndex fires
+        // ExpertMode_Changed, which calls SetMode; the direct call below stays
+        // as the null-combo fallback (SetMode is idempotent on same state).
+        try { if (ExpertModeCombo != null) ExpertModeCombo.SelectedIndex = professional ? 1 : 0; }
+        catch (Exception ex) { AppLog.Warning(ex, "ExpertModeCombo sync failed"); }
         try { ExpertPanel?.SetMode(professional); }
         catch (Exception ex) { AppLog.Warning(ex, "ApplyRoleToPanel failed"); }
     }

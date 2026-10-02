@@ -78,6 +78,10 @@ public partial class SoundboardViewControl : UserControl
         Board?.TogglePin(vm.Id);
         e.Handled = true;
     }
+
+    /// <summary>Header button: opens/closes the floating mini-player owned by the main window.</summary>
+    private void Float_Click(object sender, RoutedEventArgs e)
+        => (Window.GetWindow(this) as MainWindow)?.ToggleFloatingSoundboard();
     private void OnEngineStatusChanged(EngineStatus status) => Dispatcher.Invoke(UpdateStatusBar);
 
     private void OnLanguageChanged(object? sender, PropertyChangedEventArgs e)

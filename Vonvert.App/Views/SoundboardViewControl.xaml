@@ -164,6 +164,11 @@
                                      GroupName="SbMode" VerticalAlignment="Center" Margin="0,0,12,0"
                                      Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SoundboardModeLive, Mode=OneWay}"
                                      Checked="OnModeLive_Checked"/>
+                        <Button x:Name="FloatBtn" Style="{StaticResource OutlineButton}"
+                                Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FloatingToggle, Mode=OneWay}"
+                                Click="Float_Click" Padding="10,4" FontSize="11" Margin="0,0,10,0"
+                                FontFamily="{StaticResource FontFallback}"
+                                ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FloatingOpen, Mode=OneWay}"/>
                         <Button x:Name="ImportBtn" Style="{StaticResource OutlineButton}"
                                 Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=ImportSound, Mode=OneWay}"
                                 Click="Import_Click" Padding="10,4" FontSize="11" Margin="0,0,10,0"
@@ -286,8 +291,12 @@
                                             ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AssignHotkey, Mode=OneWay}"
                                             Click="Bind_Click"/>
                                 </StackPanel>
-                                <Button Content="&#x2715;" Style="{StaticResource SbDelete}"
+                                <Button Style="{StaticResource SbPin}"
                                         HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,4,0"
+                                        Click="Pin_Click"
+                                        ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=SoundboardPin, Mode=OneWay}"/>
+                                <Button Content="&#x2715;" Style="{StaticResource SbDelete}"
+                                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,26,0"
                                         Click="Delete_Click"
                                         ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=RemoveSound, Mode=OneWay}"
                                         Visibility="{Binding IsUser, Converter={StaticResource B2V}}"/>

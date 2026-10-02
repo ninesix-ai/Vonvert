@@ -42,6 +42,30 @@ public partial class LocalizationManager
     public string FsStateNoInput     => G();
     public string FsStateDryBypass   => G();
     public string FsErrOpenFailed    => G();
+    public string FsCurrentSource    => G();
+
+    // Which waveform the monitor is drawing. Bound instead of assigned so the strip
+    // under the taps re-labels itself on a language change, like every other string.
+    private bool _monitorShowsDry;
+
+    /// <summary>True while the waveform strip is showing the dry (raw) capture.</summary>
+    public bool MonitorShowsDry
+    {
+        get => _monitorShowsDry;
+        set
+        {
+            if (_monitorShowsDry == value) return;
+            _monitorShowsDry = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MonitorShowsDry)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MonitorSourceLabel)));
+        }
+    }
+
+    /// <summary>"Current: Changed voice" - which signal the picture is really of. The
+    /// dry/wet taps are small and their tint difference is subtle, so the source is also
+    /// spelled out in words.</summary>
+    public string MonitorSourceLabel =>
+        string.Format(FsCurrentSource, MonitorShowsDry ? FsDryLabel : FsWetLabel);
 
     // The monitor window works out which state it is in; the wording lives here so the
     // banner re-translates on a language change like every other label, with no

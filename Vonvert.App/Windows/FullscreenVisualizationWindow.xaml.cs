@@ -264,12 +264,18 @@ public partial class FullscreenVisualizationWindow : Window
     private void DryBtn_Click(object s, RoutedEventArgs e) { _showDry = true;  UpdateDryWetButtons(); }
     private void WetBtn_Click(object s, RoutedEventArgs e) { _showDry = false; UpdateDryWetButtons(); }
 
+    /// <summary>
+    /// Active state by style switch, never by assigning <c>Foreground</c>. A local value
+    /// outranks the template's own <c>IsMouseOver</c> setter, so the old version of this
+    /// method silently killed the hover feedback on both taps; it also allocated two
+    /// brushes on every click. Same pattern the main window's A/B segments use.
+    /// </summary>
     private void UpdateDryWetButtons()
     {
-        var on  = new SolidColorBrush(Color.FromRgb(0x3E, 0xC6, 0xFF));
-        var off = new SolidColorBrush(Color.FromArgb(0x88, 0xFF, 0xFF, 0xFF));
-        DryBtn.Foreground = _showDry ? on : off;
-        WetBtn.Foreground = _showDry ? off : on;
+        DryBtn.SetResourceReference(StyleProperty, _showDry ? "SegmentButtonActive" : "SegmentButton");
+        WetBtn.SetResourceReference(StyleProperty, _showDry ? "SegmentButton" : "SegmentButtonActive");
+        // Bound read-out so the source is stated in words, not only in a tint.
+        LocalizationManager.Instance.MonitorShowsDry = _showDry;
     }
 
     // ── renderers (pull from lock-free engine snapshots) ────────────────
@@ -342,13 +348,16 @@ public partial class FullscreenVisualizationWindow : Window
         });
 
         double ty = LufsScale.MapToPixel(LufsScale.TargetLufs, h);
-        var tick = new Rectangle { Width = w, Height = 2, Fill = new SolidColorBrush(Color.FromArgb(120, 0x39, 0xE8, 0x8A)) };
+        var tick = new Rectangle { Width = w, Height = 2, Fill = new SolidColorBrush(Color.FromArgb(170, 0x39, 0xE8, 0x8A)) };
         Canvas.SetLeft(tick, 0); Canvas.SetTop(tick, ty);
         LufsCanvas.Children.Add(tick);
         var targetLabel = new TextBlock
         {
-            Text = "-23", FontSize = 10,
-            Foreground = new SolidColorBrush(Color.FromArgb(120, 0x39, 0xE8, 0x8A))
+            // Drawn on a canvas, so it is not covered by the XAML alpha guard: the target
+            // line is the one number a podcast user is supposed to aim at, it has to survive
+            // an OBS downscale.
+            Text = "-23", FontSize = 11,
+            Foreground = new SolidColorBrush(Color.FromArgb(210, 0x39, 0xE8, 0x8A))
         };
         Canvas.SetLeft(targetLabel, 18); Canvas.SetTop(targetLabel, ty - 7);
         LufsCanvas.Children.Add(targetLabel);

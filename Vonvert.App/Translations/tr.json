@@ -42,6 +42,7 @@
     "FsStateNoInput": "Mikrofondan ses gelmiyor — giriş aygıtını ve sanal kabloyu denetleyin",
     "FsStateDryBypass": "Orijinal sesinizi duyuyorsunuz — analiz duraklatıldı",
     "FsErrOpenFailed": "Monitör açılamadı. Yeniden denemek için simgeye tekrar tıklayın.",
+    "FsCurrentSource": "Şu an: {0}",
     "VoiceChanger": "SES DEĞİŞTİRİCİ",
     "VoiceToggle": "Ses Değiştirme",
     "VuIn": "GİRİŞ",

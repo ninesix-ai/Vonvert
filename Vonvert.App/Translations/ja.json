@@ -42,6 +42,7 @@
     "FsStateNoInput": "マイク入力がありません。入力デバイスと仮想ケーブルを確認してください",
     "FsStateDryBypass": "元の声を再生中のため、解析は一時停止しています",
     "FsErrOpenFailed": "モニターを開けませんでした。アイコンをもう一度押すと再試行できます",
+    "FsCurrentSource": "現在：{0}",
     "VoiceChanger": "ボイスチェンジャー",
     "VoiceToggle": "声の変更",
     "VuIn": "IN",

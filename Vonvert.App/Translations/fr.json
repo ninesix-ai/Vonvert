@@ -42,6 +42,7 @@
     "FsStateNoInput": "Aucun signal du micro — vérifiez le périphérique d'entrée et le câble virtuel",
     "FsStateDryBypass": "Vous entendez votre voix brute — l'analyse est en pause",
     "FsErrOpenFailed": "Le moniteur ne s'est pas ouvert. Cliquez à nouveau sur l'icône pour réessayer.",
+    "FsCurrentSource": "Actuel : {0}",
     "VoiceChanger": "MODIFICATEUR DE VOIX",
     "VoiceToggle": "Changement de voix",
     "VuIn": "ENTRÉE",

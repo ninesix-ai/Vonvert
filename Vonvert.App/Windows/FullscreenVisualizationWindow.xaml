@@ -34,19 +34,23 @@
                        RenderOptions.BitmapScalingMode="Linear"/>
                 <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,8,0,0">
                     <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSpectrogramLabel, Mode=OneWay}"
-                           FontSize="12" Foreground="#55FFFFFF"/>
+                           FontSize="13" Foreground="#CCFFFFFF"/>
                     <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSpectrogramSub, Mode=OneWay}"
-                           FontSize="10" Foreground="#40FFFFFF" Margin="0,1,0,0"/>
+                           FontSize="10" Foreground="#99FFFFFF" Margin="0,1,0,0"/>
                 </StackPanel>
-                <!-- pitch badges (top-right overlay) -->
+                <!-- pitch badges: solid dark plates with a colored rim. The note color is
+                     set per deviation (green/amber/red), so the plate has to stay dark and
+                     opaque - purple text on a purple wash was unreadable once captured. -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,14,20,0">
-                    <Border x:Name="FsPitchNoteBadge" CornerRadius="8" Padding="14,6" Background="#558B5CF6" Margin="0,0,10,0" Visibility="Collapsed">
-                        <vc:SelectableTextBlock x:Name="FsPitchNoteText" Text="—" FontSize="36" FontWeight="Bold" Foreground="#DD8B5CF6"/>
+                    <Border x:Name="FsPitchNoteBadge" CornerRadius="8" Padding="14,6" Background="#E61B1631"
+                            BorderBrush="#808B5CF6" BorderThickness="1" Margin="0,0,10,0" Visibility="Collapsed">
+                        <vc:SelectableTextBlock x:Name="FsPitchNoteText" Text="—" FontSize="36" FontWeight="Bold" Foreground="#DDFFFFFF"/>
                     </Border>
-                    <Border x:Name="FsPitchCentsBadge" CornerRadius="8" Padding="10,6" Background="#333EC6FF" Margin="0,0,10,0" Visibility="Collapsed">
+                    <Border x:Name="FsPitchCentsBadge" CornerRadius="8" Padding="10,6" Background="#E6101A24"
+                            BorderBrush="#803EC6FF" BorderThickness="1" Margin="0,0,10,0" Visibility="Collapsed">
                         <vc:SelectableTextBlock x:Name="FsPitchCentsText" Text="0 cents" FontSize="20" Foreground="#BB3EC6FF" VerticalAlignment="Center"/>
                     </Border>
-                    <vc:SelectableTextBlock x:Name="FsPitchFreqText" Text="" FontSize="16" Foreground="#66FFFFFF" VerticalAlignment="Center"/>
+                    <vc:SelectableTextBlock x:Name="FsPitchFreqText" Text="" FontSize="16" Foreground="#99FFFFFF" VerticalAlignment="Center"/>
                 </StackPanel>
                 <!-- pitch curve + cents meter (bottom overlay inside the pane) -->
                 <Canvas x:Name="PitchCurveCanvas" Height="80" VerticalAlignment="Bottom" Background="#08080E" ClipToBounds="True"/>
@@ -63,13 +67,13 @@
                     <RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0">
-                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessLabel, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="#88FFFFFF"/>
-                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessSub, Mode=OneWay}" FontSize="10" Foreground="#66FFFFFF" Margin="0,1,0,0"/>
+                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessLabel, Mode=OneWay}" FontSize="12" FontWeight="Bold" Foreground="#CCFFFFFF"/>
+                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessSub, Mode=OneWay}" FontSize="10" Foreground="#99FFFFFF" Margin="0,1,0,0"/>
                 </StackPanel>
                 <Canvas x:Name="LufsCanvas" Grid.Row="1" ClipToBounds="True"
                         ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsTargetLufs, Mode=OneWay}"/>
                 <StackPanel Grid.Row="2">
-                    <vc:SelectableTextBlock x:Name="LufsTruePeakText" Text="TP -∞" FontSize="11" Foreground="#88FFFFFF" Margin="0,6,0,0"/>
+                    <vc:SelectableTextBlock x:Name="LufsTruePeakText" Text="TP -∞" FontSize="12" Foreground="#CCFFFFFF" Margin="0,6,0,0"/>
                     <vc:SelectableTextBlock x:Name="LufsIntegratedText" Text="I -∞" FontSize="12" Foreground="#BB3EC6FF" Margin="0,2,0,0">
                         <vc:SelectableTextBlock.ContextMenu>
                             <ContextMenu>
@@ -95,12 +99,16 @@
                     <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Margin="12,8,0,8" VerticalAlignment="Top">
-                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformLabel, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="#88FFFFFF"/>
-                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformSub, Mode=OneWay}" FontSize="10" Foreground="#66FFFFFF" Margin="0,1,0,0"/>
+                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformLabel, Mode=OneWay}" FontSize="12" FontWeight="Bold" Foreground="#CCFFFFFF"/>
+                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformSub, Mode=OneWay}" FontSize="10" Foreground="#99FFFFFF" Margin="0,1,0,0"/>
                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <Button x:Name="DryBtn" Style="{StaticResource OutlineButton}" Padding="10,3" Margin="0,0,6,0" Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsDryLabel, Mode=OneWay}" Click="DryBtn_Click"/>
-                        <Button x:Name="WetBtn" Style="{StaticResource OutlineButton}" Padding="10,3" Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWetLabel, Mode=OneWay}" Click="WetBtn_Click"/>
+                        <Button x:Name="DryBtn" Style="{StaticResource SegmentButton}" Padding="10,3" Margin="0,0,6,0" Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsDryLabel, Mode=OneWay}" Click="DryBtn_Click"/>
+                        <Button x:Name="WetBtn" Style="{StaticResource SegmentButton}" Padding="10,3" Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWetLabel, Mode=OneWay}" Click="WetBtn_Click"/>
                     </StackPanel>
+                    <!-- which signal this really is, in words: the two taps are small and
+                         their tint difference is invisible once the window is downscaled -->
+                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorSourceLabel, Mode=OneWay}"
+                           FontSize="10" Foreground="#99FFFFFF" Margin="0,6,0,0"/>
                 </StackPanel>
                 <Canvas x:Name="WaveformCanvas" Grid.Column="1" Margin="8" ClipToBounds="True"/>
             </Grid>
@@ -121,7 +129,7 @@
                 VerticalAlignment="Bottom" HorizontalAlignment="Left"
                 Margin="10,0,0,10"
                 Background="#99000000" CornerRadius="0,12,0,0" Padding="16,8" Opacity="0">
-            <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=EscToClose, Mode=OneWay}" FontSize="12" Foreground="#88FFFFFF"/>
+            <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=EscToClose, Mode=OneWay}" FontSize="12" Foreground="#CCFFFFFF"/>
         </Border>
 
         <!-- ══ guidance band: the one sentence that stops a frozen or black picture being

@@ -42,6 +42,7 @@
     "FsStateNoInput": "麦克风没有输入：检查输入设备与虚拟音频线",
     "FsStateDryBypass": "正在播放原声：监看已暂停",
     "FsErrOpenFailed": "监视器没能打开，可再点一次图标重试",
+    "FsCurrentSource": "当前：{0}",
     "VoiceChanger": "变声器",
     "VoiceToggle": "变声",
     "VuIn": "输入",

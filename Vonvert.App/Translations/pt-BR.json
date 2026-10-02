@@ -42,6 +42,7 @@
     "FsStateNoInput": "Sem sinal do microfone — verifique o dispositivo de entrada e o cabo virtual",
     "FsStateDryBypass": "Você está ouvindo sua voz original — a análise está pausada",
     "FsErrOpenFailed": "Não foi possível abrir o monitor. Clique no ícone novamente para tentar.",
+    "FsCurrentSource": "Atual: {0}",
     "VoiceChanger": "ALTERADOR DE VOZ",
     "VoiceToggle": "Mudança de Voz",
     "VuIn": "ENT",

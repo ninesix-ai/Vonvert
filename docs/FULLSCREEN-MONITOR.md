@@ -76,9 +76,14 @@ next stream. **Reset view** returns it to the defaults. If a stored position was
 monitor that is no longer connected, the window opens in the middle of your main screen
 instead of off-screen where you cannot reach it.
 
-**One hidden gesture worth knowing:** double-click any panel and it fills the whole
-window; double-click it again and the three-panel layout returns. A single click never
-changes the layout, so you cannot break your picture by accident mid-stream.
+**None of this is a hidden gesture any more.** Each panel carries a small labelled chip:
+click it, or double-click the panel, and that panel fills the whole window. While one panel
+fills the window, the panels it hid do not vanish - they stay listed as a strip at the
+bottom, and one click there brings them back, so you never have to know that a second
+double-click exists. A single click on a panel itself never changes the layout, so you
+cannot break your picture by accident mid-stream. Every time the window opens it also names
+the three gestures - drag to move, double-click to enlarge, more buttons in the bottom-right
+corner - for a few seconds, then fades out by itself.
 
 ## 3. The four panels in plain words
 
@@ -245,7 +250,7 @@ in the Vonvert data folder (default
 |---|---|
 | Move the window | Hold and drag anywhere |
 | Close | `Esc`, or the **Close** button |
-| Fill the window with one panel | Double-click that panel; double-click again to restore |
+| Fill the window with one panel | Click the chip on the panel, or double-click the panel; the strip at the bottom brings the hidden ones back |
 | Compare raw and changed voice | The two buttons under the Voice shape panel |
 | Resize | Drag the window edge |
 | Forget the layout you made | **Reset view** in the corner strip |

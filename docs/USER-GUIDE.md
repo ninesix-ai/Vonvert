@@ -351,7 +351,8 @@ pitch badge. It is made for OBS window capture and for a second screen.
 
 - Panel titles use plain words by default; the **Technical terms** button switches to
   industry wording.
-- Double-click a panel to fill the window; double-click it again to restore.
+- Each panel carries a labelled chip: click it (or double-click the panel) to fill the
+  window, and the strip at the bottom brings the hidden panels back with one click.
 - `Esc`, or the **Close** button, exits. The window carries **no audio** - route sound to
   OBS with **Audio Input Capture** as described in [Chapter 5](#chapter-5--audio-routing-getting-the-voice-into-other-apps).
 

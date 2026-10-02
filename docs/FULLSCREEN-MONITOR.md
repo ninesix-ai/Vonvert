@@ -230,6 +230,18 @@ set the canvas to 720p.
 **If OBS shows a black or empty capture:** in the Window Capture properties, change
 **Method** to "Windows 10 (1903 or later)".
 
+### Keying the window over your stream
+
+Choose **Green screen** in the corner strip and the surfaces behind the pictures turn the
+standard OBS keying green (`#00B140`). Add a **Chroma Key** filter to the window capture in
+OBS and that field disappears, leaving the meters and the waterfall floating over your scene.
+The green value is deliberately OBS's default, so the filter needs no tuning.
+
+The other three profiles change only what you see on your own screen: **High contrast** is
+opaque white on black for a bright room or low vision, **Neutral grey** drops the purple-blue
+chrome so the overlay matches any stream, and **Default** is the look the window shipped with.
+Whichever you pick is remembered for the next session.
+
 ## 8. First-run walkthrough and the help card
 
 The first time you open the monitor it walks you through four stops — what the big
@@ -254,6 +266,7 @@ in the Vonvert data folder (default
 | Compare raw and changed voice | The two buttons under the Voice shape panel |
 | Resize | Drag the window edge |
 | Forget the layout you made | **Reset view** in the corner strip |
+| Change the look for capture | **Look: …** in the corner strip - Default, High contrast, Green screen (for OBS chroma key), Neutral grey |
 | Keep the picture clean | Stop moving the mouse for 3 seconds |
 | Help card | `H` or `F1` |
 | Always on top | `T` |

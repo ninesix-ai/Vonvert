@@ -242,6 +242,12 @@ opaque white on black for a bright room or low vision, **Neutral grey** drops th
 chrome so the overlay matches any stream, and **Default** is the look the window shipped with.
 Whichever you pick is remembered for the next session.
 
+If Windows is set to high contrast, the monitor opens in **High contrast** on its own - until
+you choose a look yourself, after which your choice wins. In that mode the mouse pointer also
+stays visible when you stop moving: in a borderless window the pointer is the only thing
+showing where you are aiming, and hiding it would take that away from exactly the people who
+need to see it.
+
 ## 8. First-run walkthrough and the help card
 
 The first time you open the monitor it walks you through four stops — what the big

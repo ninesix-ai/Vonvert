@@ -114,4 +114,46 @@ public sealed class MonitorReadabilityTests
         Assert.True(named >= 13,
             $"only {named} AutomationProperties.Name bindings in the monitor; panels and every control need one");
     }
+
+    /// <summary>
+    /// The only text left selectable in this window: readings a user might quote to support.
+    /// Anything else that can be highlighted competes with dragging the window.
+    /// </summary>
+    private static readonly string[] CopyableReadings =
+    {
+        "FsPitchNoteText", "FsPitchCentsText", "FsPitchFreqText",
+        "LufsTruePeakText", "LufsIntegratedText",
+    };
+
+    [Fact(DisplayName = "RD-007: labels and wording are plain text; only numeric readings stay selectable")]
+    public void RD007_OnlyReadingsAreSelectable()
+    {
+        // Titles, subtitles and the Esc hint carry no information worth copying, and every
+        // one of them used to start a text selection the moment the user grabbed the window
+        // to move it - a blue smear across the panel during a drag.
+        var offenders = new List<string>();
+        foreach (Match m in Regex.Matches(MonitorXaml, @"<vc:SelectableTextBlock(?=[\s/>])(?<attrs>[^>]*?)(?:/>|>)"))
+        {
+            var name = Regex.Match(m.Groups["attrs"].Value, @"x:Name=""(?<n>[^""]+)""");
+            if (!name.Success || !CopyableReadings.Contains(name.Groups["n"].Value))
+                offenders.Add(name.Success ? name.Groups["n"].Value : $"unbound text at char {m.Index}");
+        }
+        Assert.False(offenders.Any(),
+            $"selectable wording in the monitor (drag and select fight over the same press): {string.Join(", ", offenders)}");
+
+        int plainLabels = Regex.Matches(MonitorXaml, @"<TextBlock Text=""\{Binding Source=\{x:Static local:LocalizationManager").Count;
+        Assert.True(plainLabels >= 6,
+            $"expected the panel wording to be plain TextBlock, found {plainLabels}; wording must not be selectable");
+    }
+
+    [Fact(DisplayName = "RD-008: a press that starts on copyable text does not drag the window")]
+    public void RD008_DragYieldsToCopyableText()
+    {
+        // The window hook runs even when a child claimed the event, so without this guard
+        // both the drag and the selection happen at once.
+        var drag = Regex.Match(MonitorCode, @"private void OnWindowDragStart[\s\S]*?\n    \}");
+        Assert.True(drag.Success, "OnWindowDragStart not found - update this guard");
+        Assert.True(drag.Value.Contains("SelectableTextBlock"),
+            "a press on a reading the user means to copy must not move the window");
+    }
 }

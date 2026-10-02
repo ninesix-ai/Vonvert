@@ -52,9 +52,9 @@
                      the panel itself. -->
                 <Canvas x:Name="AxisCanvas" IsHitTestVisible="False" ClipToBounds="True"/>
                 <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,8,0,0">
-                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSpectrogramLabel, Mode=OneWay}"
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSpectrogramLabel, Mode=OneWay}"
                            FontSize="13" Foreground="#CCFFFFFF"/>
-                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSpectrogramSub, Mode=OneWay}"
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSpectrogramSub, Mode=OneWay}"
                            FontSize="10" Foreground="#99FFFFFF" Margin="0,1,0,0"/>
                 </StackPanel>
                 <!-- pitch badges: solid dark plates with a colored rim. The note color is
@@ -71,7 +71,7 @@
                     </Border>
                     <vc:SelectableTextBlock x:Name="FsPitchFreqText" Text="" FontSize="16" Foreground="#99FFFFFF" VerticalAlignment="Center"/>
                     <!-- what the badge colour means, in words rather than in hue -->
-                    <vc:SelectableTextBlock x:Name="FsPitchLegendText" Text="" FontSize="12" Foreground="#CCFFFFFF"
+                    <TextBlock x:Name="FsPitchLegendText" Text="" FontSize="12" Foreground="#CCFFFFFF"
                            VerticalAlignment="Center" Margin="8,0,0,0"/>
                 </StackPanel>
                 <!-- pitch curve + cents meter (bottom overlay inside the pane) -->
@@ -95,8 +95,8 @@
                     <RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0">
-                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessLabel, Mode=OneWay}" FontSize="12" FontWeight="Bold" Foreground="#CCFFFFFF"/>
-                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessSub, Mode=OneWay}" FontSize="10" Foreground="#99FFFFFF" Margin="0,1,0,0"/>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessLabel, Mode=OneWay}" FontSize="12" FontWeight="Bold" Foreground="#CCFFFFFF"/>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessSub, Mode=OneWay}" FontSize="10" Foreground="#99FFFFFF" Margin="0,1,0,0"/>
                 </StackPanel>
                 <Canvas x:Name="LufsCanvas" Grid.Row="1" ClipToBounds="True"
                         ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsScaleTip, Mode=OneWay}"/>
@@ -147,8 +147,8 @@
                     <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Margin="12,8,0,8" VerticalAlignment="Top">
-                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformLabel, Mode=OneWay}" FontSize="12" FontWeight="Bold" Foreground="#CCFFFFFF"/>
-                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformSub, Mode=OneWay}" FontSize="10" Foreground="#99FFFFFF" Margin="0,1,0,0"/>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformLabel, Mode=OneWay}" FontSize="12" FontWeight="Bold" Foreground="#CCFFFFFF"/>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformSub, Mode=OneWay}" FontSize="10" Foreground="#99FFFFFF" Margin="0,1,0,0"/>
                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                         <Button x:Name="DryBtn" Style="{StaticResource SegmentButton}" Padding="10,3" Margin="0,0,6,0"
                                 AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsDry, Mode=OneWay}"
@@ -159,7 +159,7 @@
                     </StackPanel>
                     <!-- which signal this really is, in words: the two taps are small and
                          their tint difference is invisible once the window is downscaled -->
-                    <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorSourceLabel, Mode=OneWay}"
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorSourceLabel, Mode=OneWay}"
                            FontSize="10" Foreground="#99FFFFFF" Margin="0,6,0,0"/>
                     <Button x:Name="WaveformHintChip" Style="{StaticResource HintChip}" HorizontalAlignment="Left" Margin="0,8,0,0"
                             Click="WaveformHint_Click"
@@ -170,11 +170,11 @@
         </Border>
 
         <!-- preset-name fade overlay (spans both rows so it survives any maximize state) -->
-        <vc:SelectableTextBlock x:Name="PresetNameOverlay" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2"
+        <TextBlock x:Name="PresetNameOverlay" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2"
                FontSize="48" FontWeight="Bold"
                Foreground="#AA8B5CF6" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0" IsHitTestVisible="False">
-            <vc:SelectableTextBlock.Effect><DropShadowEffect Color="#8B5CF6" BlurRadius="30" ShadowDepth="0" Opacity="0.8"/></vc:SelectableTextBlock.Effect>
-        </vc:SelectableTextBlock>
+            <TextBlock.Effect><DropShadowEffect Color="#8B5CF6" BlurRadius="30" ShadowDepth="0" Opacity="0.8"/></TextBlock.Effect>
+        </TextBlock>
 
         <!-- close hint (revealed on mouse move). Bottom-left: it used to sit 160 px in from
              the right to dodge the LUFS column, which put it exactly where the pitch badge
@@ -184,7 +184,7 @@
                 VerticalAlignment="Bottom" HorizontalAlignment="Left"
                 Margin="10,0,0,10"
                 Background="#99000000" CornerRadius="0,12,0,0" Padding="16,8" Opacity="0">
-            <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=EscToClose, Mode=OneWay}" FontSize="12" Foreground="#CCFFFFFF"/>
+            <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=EscToClose, Mode=OneWay}" FontSize="12" Foreground="#CCFFFFFF"/>
         </Border>
 
         <!-- ══ guidance band: the one sentence that stops a frozen or black picture being

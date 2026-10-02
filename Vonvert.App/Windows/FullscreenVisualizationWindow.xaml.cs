@@ -277,6 +277,10 @@ public partial class FullscreenVisualizationWindow : Window
         // the window-level handledEventsToo hook steals it from the chrome toolbar and
         // every button click would also drag the window.
         if (IsOnInteractiveElement(e.OriginalSource)) return;
+        // Copyable text is not a handle either. This hook also sees events the child
+        // already claimed, so without this guard the window slid across the desk while the
+        // selection highlight smeared over the reading at the same time.
+        if (e.OriginalSource is Vonvert.App.Controls.SelectableTextBlock) return;
         if (e.LeftButton == MouseButtonState.Pressed) DragMove();
     }
 
@@ -336,6 +340,7 @@ public partial class FullscreenVisualizationWindow : Window
 
     private void TogglePane(MonitorPane pane)
     {
+        var before = _layout.Maximized;
         _layout.Toggle(pane);
         var m = _layout.Maximized;
 
@@ -362,7 +367,39 @@ public partial class FullscreenVisualizationWindow : Window
         };
 
         UpdateCollapseBar();
+        FadeInNewlyVisible(before, m);
     }
+
+    /// <summary>Off until an in-app accessibility switch exists for the user to turn it on;
+    /// WPF exposes no standard reduce-motion signal and reading a registry key to guess one
+    /// is not something this app does on its own.</summary>
+    private bool _reduceMotion;
+
+    /// <summary>
+    /// Eases in the panels a layout change just revealed, so switching is not a hard cut that
+    /// reads as a glitch on a captured stream. Only panels that actually became visible are
+    /// touched - fading one that was already showing would make the picture blink - and the
+    /// animation moves Opacity alone, never geometry, so it cannot fight ApplyPaneGeometry.
+    /// </summary>
+    private void FadeInNewlyVisible(MonitorPane? before, MonitorPane? after)
+    {
+        int ms = MonitorTransition.DurationMs(_reduceMotion);
+        if (ms == 0) return;
+
+        var ease = new System.Windows.Media.Animation.DoubleAnimation(
+            0, 1, TimeSpan.FromMilliseconds(ms))
+        { EasingFunction = new System.Windows.Media.Animation.CubicEase { EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut } };
+
+        foreach (MonitorPane pane in MonitorTransition.PanesToFade(before, after))
+            PaneOf(pane).BeginAnimation(UIElement.OpacityProperty, ease);
+    }
+
+    private FrameworkElement PaneOf(MonitorPane pane) => pane switch
+    {
+        MonitorPane.Waterfall => WaterfallPanel,
+        MonitorPane.Loudness => LoudnessPanel,
+        _ => (FrameworkElement)WaveformPanel,
+    };
 
     /// <summary>
     /// Keeps the way out of a filled panel visible: every panel the layout hid gets a

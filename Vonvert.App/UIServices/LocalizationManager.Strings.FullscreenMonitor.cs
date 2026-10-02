@@ -245,6 +245,50 @@ public partial class LocalizationManager
 
     private string LabelOf(MonitorLabelSlot slot) => GetUiString(MonitorLabels.KeyFor(slot));
 
+    // ── capture colour profiles ──
+    public string FsColorScheme       => G();   // carries {0}
+    public string FsColorBrand        => G();
+    public string FsColorHighContrast => G();
+    public string FsColorChroma       => G();
+    public string FsColorNeutral      => G();
+
+    /// <summary>
+    /// Which surface set the monitor is painting. Owned here like the other monitor choices
+    /// so the button, the about surface and any future page ask the same object; also makes
+    /// the label a binding, which refreshes with the UI language on its own.
+    /// </summary>
+    public MonitorVisualProfile MonitorProfile { get; private set; } = MonitorVisualProfile.Brand;
+
+    public string MonitorProfileName => GetUiString(MonitorVisualPalettes.NameKeyFor(MonitorProfile));
+
+    /// <summary>Button text: the offer and the current answer together, so a glance says what
+    /// will happen and what is on screen now.</summary>
+    public string MonitorProfileButton => string.Format(FsColorScheme, MonitorProfileName);
+
+    /// <summary>Applies a profile read back from disk.</summary>
+    public void SetMonitorProfile(MonitorVisualProfile profile)
+    {
+        if (MonitorProfile == profile) return;
+        MonitorProfile = profile;
+        NotifyMonitorProfileChanged();
+    }
+
+    /// <summary>Advance to the next profile and report what it is, for the caller that has to
+    /// repaint straight away.</summary>
+    public MonitorVisualProfile CycleMonitorProfile()
+    {
+        var next = MonitorVisualPalettes.Next(MonitorProfile);
+        MonitorProfile = next;
+        NotifyMonitorProfileChanged();
+        return next;
+    }
+
+    public void NotifyMonitorProfileChanged()
+    {
+        foreach (var name in new[] { nameof(MonitorProfileName), nameof(MonitorProfileButton) })
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
     // An absent sub-label binds as empty text, never as the literal key name.
     private string SubOf(MonitorLabelSlot slot)
         => MonitorLabels.SubKeyFor(slot) is { } key ? GetUiString(key) : string.Empty;

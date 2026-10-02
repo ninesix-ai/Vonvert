@@ -156,4 +156,22 @@ public sealed class MonitorReadabilityTests
         Assert.True(drag.Value.Contains("SelectableTextBlock"),
             "a press on a reading the user means to copy must not move the window");
     }
+
+    [Fact(DisplayName = "RD-009: the capture palettes are consumed, not just computed")]
+    public void RD009_PaletteIsActuallyBound()
+    {
+        // A palette nobody reads is worse than no palette at all: the profile button would
+        // appear to work, report a new name, and leave the picture untouched. Both ends are
+        // pinned - the window must publish each key and the XAML must bind it.
+        foreach (string key in new[] { "FsPaneBrush", "FsPanelBorderBrush", "FsLabelBrush", "FsSubBrush" })
+        {
+            Assert.True(MonitorCode.Contains($"Resources[\"{key}\"]"),
+                $"{key} is never published by the window");
+            Assert.True(Regex.Matches(MonitorXaml, @"\{DynamicResource " + key + @"\}").Count >= 1,
+                $"{key} is published but bound nowhere in the XAML");
+        }
+
+        Assert.True(Regex.Matches(MonitorXaml, @"\{DynamicResource FsPaneBrush\}").Count >= 3,
+            "all three panes should follow the palette, not just one");
+    }
 }

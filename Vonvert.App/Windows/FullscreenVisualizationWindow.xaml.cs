@@ -630,6 +630,8 @@ public partial class FullscreenVisualizationWindow : Window
         Topmost = _prefs.Topmost;
         LocalizationManager.Instance.SetMonitorLufsTarget(_prefs.Target);
         LocalizationManager.Instance.SetMonitorLabelMode(_prefs.LabelMode);
+        LocalizationManager.Instance.SetMonitorProfile(_prefs.VisualProfile);
+        ApplyVisualProfile();
 
         if (!_prefs.HasBounds) return;
         WindowStartupLocation = WindowStartupLocation.Manual;
@@ -671,7 +673,40 @@ public partial class FullscreenVisualizationWindow : Window
         _prefs.Topmost = _chrome.Topmost;
         _prefs.Target = LocalizationManager.Instance.LufsTarget.Preset;
         _prefs.LabelMode = LocalizationManager.Instance.MonitorLabels.Mode;
+        _prefs.VisualProfile = LocalizationManager.Instance.MonitorProfile;
         MonitorStore.Save(_prefs);
+    }
+
+    private void ProfileBtn_Click(object s, RoutedEventArgs e)
+    {
+        LocalizationManager.Instance.CycleMonitorProfile();
+        ApplyVisualProfile();
+        SavePreferences();
+    }
+
+    /// <summary>
+    /// Push the active capture palette into the window's own resources. The surfaces and inks
+    /// bind to these keys, so changing profile repaints everything that matters without walking
+    /// the visual tree, and stays declarative - the same reason the wording is bound rather than
+    /// assigned. Called on open and on the one button that changes it, never per frame.
+    /// </summary>
+    private void ApplyVisualProfile()
+    {
+        var ink = MonitorVisualPalettes.For(LocalizationManager.Instance.MonitorProfile);
+        Resources["FsPaneBrush"] = BrushOf(ink.Pane);
+        Resources["FsPanelBorderBrush"] = BrushOf(ink.PanelBorder);
+        Resources["FsLabelBrush"] = BrushOf(ink.Label);
+        Resources["FsSubBrush"] = BrushOf(ink.Sub);
+    }
+
+    /// <summary>Frozen because the same brush is shared by every element that binds it; a
+    /// mutable brush on a shared resource would be a surprise waiting for a future edit.</summary>
+    private static System.Windows.Media.SolidColorBrush BrushOf(string hex)
+    {
+        var brush = new System.Windows.Media.SolidColorBrush(
+            (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(hex)!);
+        brush.Freeze();
+        return brush;
     }
 
     // ── renderers (pull from lock-free engine snapshots) ────────────────

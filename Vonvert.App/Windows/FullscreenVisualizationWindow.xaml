@@ -40,7 +40,7 @@
         </Grid.ColumnDefinitions>
 
         <!-- ══ Waterfall pane (main view, pitch overlay) ══ -->
-        <Border x:Name="WaterfallPanel" Grid.Row="0" Grid.Column="0" Background="Black"
+        <Border x:Name="WaterfallPanel" Grid.Row="0" Grid.Column="0" Background="{DynamicResource FsPaneBrush}"
                 AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsWaterfall, Mode=OneWay}"
                 PreviewMouseLeftButtonDown="WaterfallPanel_DoubleClick">
             <Grid>
@@ -53,9 +53,9 @@
                 <Canvas x:Name="AxisCanvas" IsHitTestVisible="False" ClipToBounds="True"/>
                 <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,8,0,0">
                     <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSpectrogramLabel, Mode=OneWay}"
-                           FontSize="13" Foreground="#CCFFFFFF"/>
+                           FontSize="13" Foreground="{DynamicResource FsLabelBrush}"/>
                     <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSpectrogramSub, Mode=OneWay}"
-                           FontSize="10" Foreground="#99FFFFFF" Margin="0,1,0,0"/>
+                           FontSize="10" Foreground="{DynamicResource FsSubBrush}" Margin="0,1,0,0"/>
                 </StackPanel>
                 <!-- pitch badges: solid dark plates with a colored rim. The note color is
                      set per deviation (green/amber/red), so the plate has to stay dark and
@@ -71,7 +71,7 @@
                     </Border>
                     <vc:SelectableTextBlock x:Name="FsPitchFreqText" Text="" FontSize="16" Foreground="#99FFFFFF" VerticalAlignment="Center"/>
                     <!-- what the badge colour means, in words rather than in hue -->
-                    <TextBlock x:Name="FsPitchLegendText" Text="" FontSize="12" Foreground="#CCFFFFFF"
+                    <TextBlock x:Name="FsPitchLegendText" Text="" FontSize="12" Foreground="{DynamicResource FsLabelBrush}"
                            VerticalAlignment="Center" Margin="8,0,0,0"/>
                 </StackPanel>
                 <!-- pitch curve + cents meter (bottom overlay inside the pane) -->
@@ -86,17 +86,17 @@
         </Border>
 
         <!-- ══ Loudness pane (vertical LUFS meter) ══ -->
-        <Border x:Name="LoudnessPanel" Grid.Row="0" Grid.Column="1" Background="#0A0C12"
+        <Border x:Name="LoudnessPanel" Grid.Row="0" Grid.Column="1" Background="{DynamicResource FsPaneBrush}"
                 AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsLoudness, Mode=OneWay}"
-                BorderBrush="#22FFFFFF" BorderThickness="1,0,0,0"
+                BorderBrush="{DynamicResource FsPanelBorderBrush}" BorderThickness="1,0,0,0"
                 PreviewMouseLeftButtonDown="LoudnessPanel_DoubleClick">
             <Grid Margin="10,8">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0">
-                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessLabel, Mode=OneWay}" FontSize="12" FontWeight="Bold" Foreground="#CCFFFFFF"/>
-                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessSub, Mode=OneWay}" FontSize="10" Foreground="#99FFFFFF" Margin="0,1,0,0"/>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessLabel, Mode=OneWay}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource FsLabelBrush}"/>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessSub, Mode=OneWay}" FontSize="10" Foreground="{DynamicResource FsSubBrush}" Margin="0,1,0,0"/>
                 </StackPanel>
                 <Canvas x:Name="LufsCanvas" Grid.Row="1" ClipToBounds="True"
                         ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsScaleTip, Mode=OneWay}"/>
@@ -138,17 +138,17 @@
         </Border>
 
         <!-- ══ Waveform pane (dry/wet) ══ -->
-        <Border x:Name="WaveformPanel" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Background="#0A0C12"
+        <Border x:Name="WaveformPanel" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Background="{DynamicResource FsPaneBrush}"
                 AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsWaveform, Mode=OneWay}"
-                BorderBrush="#22FFFFFF" BorderThickness="0,1,0,0"
+                BorderBrush="{DynamicResource FsPanelBorderBrush}" BorderThickness="0,1,0,0"
                 PreviewMouseLeftButtonDown="WaveformPanel_DoubleClick">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Margin="12,8,0,8" VerticalAlignment="Top">
-                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformLabel, Mode=OneWay}" FontSize="12" FontWeight="Bold" Foreground="#CCFFFFFF"/>
-                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformSub, Mode=OneWay}" FontSize="10" Foreground="#99FFFFFF" Margin="0,1,0,0"/>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformLabel, Mode=OneWay}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource FsLabelBrush}"/>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformSub, Mode=OneWay}" FontSize="10" Foreground="{DynamicResource FsSubBrush}" Margin="0,1,0,0"/>
                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                         <Button x:Name="DryBtn" Style="{StaticResource SegmentButton}" Padding="10,3" Margin="0,0,6,0"
                                 AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsDry, Mode=OneWay}"
@@ -160,7 +160,7 @@
                     <!-- which signal this really is, in words: the two taps are small and
                          their tint difference is invisible once the window is downscaled -->
                     <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorSourceLabel, Mode=OneWay}"
-                           FontSize="10" Foreground="#99FFFFFF" Margin="0,6,0,0"/>
+                           FontSize="10" Foreground="{DynamicResource FsSubBrush}" Margin="0,6,0,0"/>
                     <Button x:Name="WaveformHintChip" Style="{StaticResource HintChip}" HorizontalAlignment="Left" Margin="0,8,0,0"
                             Click="WaveformHint_Click"
                             Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformHint, Mode=OneWay}"/>
@@ -184,7 +184,7 @@
                 VerticalAlignment="Bottom" HorizontalAlignment="Left"
                 Margin="10,0,0,10"
                 Background="#99000000" CornerRadius="0,12,0,0" Padding="16,8" Opacity="0">
-            <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=EscToClose, Mode=OneWay}" FontSize="12" Foreground="#CCFFFFFF"/>
+            <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=EscToClose, Mode=OneWay}" FontSize="12" Foreground="{DynamicResource FsLabelBrush}"/>
         </Border>
 
         <!-- ══ guidance band: the one sentence that stops a frozen or black picture being
@@ -228,7 +228,7 @@
                 Background="#B30A0C12" BorderBrush="#33FFFFFF" BorderThickness="1"
                 CornerRadius="10" Padding="10,4" IsHitTestVisible="False">
             <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsGestureHint, Mode=OneWay}"
-                       FontSize="10" Foreground="#CCFFFFFF" TextAlignment="Center" MaxWidth="720" TextWrapping="Wrap"/>
+                       FontSize="10" Foreground="{DynamicResource FsLabelBrush}" TextAlignment="Center" MaxWidth="720" TextWrapping="Wrap"/>
         </Border>
 
         <!-- ══ chrome toolbar: revealed with the cursor on mouse move, hidden after the same
@@ -256,6 +256,12 @@
                         AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsResetView, Mode=OneWay}"
                         Click="ResetViewBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsRestoreLayout, Mode=OneWay}"/>
+                <!-- capture palette: named by what it is for, so "Green screen" says more than
+                     "Theme 3" would. Reads as offer + current value. -->
+                <Button x:Name="ProfileBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                        AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorProfileButton, Mode=OneWay}"
+                        Click="ProfileBtn_Click"
+                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorProfileButton, Mode=OneWay}"/>
                 <Button x:Name="LabelModeBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
                         AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsLabelMode, Mode=OneWay}"
                         Click="LabelModeBtn_Click"

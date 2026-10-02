@@ -62,6 +62,7 @@ public sealed class MonitorPreferencesTests : IDisposable
         prefs.Target = LufsTargetPreset.Podcast;
         prefs.LabelMode = MonitorLabelMode.Technical;
         prefs.ReduceMotion = true;         // differs from the default, so the read cannot pass by accident
+        prefs.VisualProfile = MonitorVisualProfile.Chroma;
         MonitorStore.Save(prefs);
 
         var again = MonitorStore.Load();
@@ -74,6 +75,7 @@ public sealed class MonitorPreferencesTests : IDisposable
         Assert.Equal(LufsTargetPreset.Podcast, again.Target);
         Assert.Equal(MonitorLabelMode.Technical, again.LabelMode);
         Assert.True(again.ReduceMotion);
+        Assert.Equal(MonitorVisualProfile.Chroma, again.VisualProfile);
     }
 
     [Fact(DisplayName = "PR-003: a half-written file falls back to defaults instead of throwing at startup")]
@@ -88,7 +90,7 @@ public sealed class MonitorPreferencesTests : IDisposable
     [Fact(DisplayName = "PR-004: an unknown enum value from an older or newer file is replaced by its default")]
     public void PR004_UnknownEnumValues()
     {
-        // Seed with a real save, then corrupt only the two enum fields. topmost=false is the
+        // Seed with a real save, then corrupt only the enum fields. topmost=false is the
         // sentinel: it differs from the default, so the assertions below cannot pass just
         // because the file was ignored and everything came back at its default.
         var seed = MonitorStore.Load();
@@ -99,9 +101,11 @@ public sealed class MonitorPreferencesTests : IDisposable
 
         var text = File.ReadAllText(MonitorStore.FilePath)
             .Replace("\"Target\":0", "\"Target\":99")
-            .Replace("\"LabelMode\":0", "\"LabelMode\":42");
+            .Replace("\"LabelMode\":0", "\"LabelMode\":42")
+            .Replace("\"VisualProfile\":0", "\"VisualProfile\":77");
         Assert.Contains("\"Target\":99", text);      // the corruption actually applied
         Assert.Contains("\"LabelMode\":42", text);
+        Assert.Contains("\"VisualProfile\":77", text);
         File.WriteAllText(MonitorStore.FilePath, text);
 
         var prefs = MonitorStore.Load();
@@ -110,6 +114,7 @@ public sealed class MonitorPreferencesTests : IDisposable
         Assert.Equal(800, prefs.Width);
         Assert.Equal(LufsTargetPreset.Broadcast, prefs.Target);
         Assert.Equal(MonitorLabelMode.Plain, prefs.LabelMode);
+        Assert.Equal(MonitorVisualProfile.Brand, prefs.VisualProfile);   // unknown number, not a crash
     }
 
     [Fact(DisplayName = "RB-001: a saved position on a monitor that is gone comes back on the primary screen")]

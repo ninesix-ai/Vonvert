@@ -24,6 +24,10 @@ public sealed class SoundboardManager
     // Hotkey bindings: soundId -> SoundHotkeyBinding
     private readonly Dictionary<string, SoundHotkeyBinding> _hotkeyBindings = new();
 
+    // Pinned sound ids (ordered by pin time) shown by the floating mini-player.
+    private readonly List<string> _pinnedIds = new();
+    private readonly object _pinnedLock = new();
+
     /// <summary>All available sounds (built-in + user-imported). Returns a thread-safe snapshot.</summary>
     public IReadOnlyList<SoundDefinition> Sounds { get { lock (_soundsLock) { return _sounds.ToList(); } } }
 
@@ -44,11 +48,38 @@ public sealed class SoundboardManager
     /// <summary>Current hotkey bindings (read-only view).</summary>
     public IReadOnlyDictionary<string, SoundHotkeyBinding> HotkeyBindings => _hotkeyBindings;
 
+    /// <summary>Pinned sound ids in pin order (thread-safe snapshot), shown by the floating mini-player.</summary>
+    public IReadOnlyList<string> PinnedSoundIds { get { lock (_pinnedLock) { return _pinnedIds.ToArray(); } } }
+
+    /// <summary>Whether a sound is pinned to the floating mini-player.</summary>
+    public bool IsPinned(string soundId)
+    {
+        lock (_pinnedLock) { return _pinnedIds.Contains(soundId); }
+    }
+
+    /// <summary>Add/remove a pin; persists to disk and raises <see cref="FavoritesChanged"/>.</summary>
+    public void TogglePin(string soundId)
+    {
+        ArgumentNullException.ThrowIfNull(soundId);
+        bool removed;
+        lock (_pinnedLock)
+        {
+            if (_pinnedIds.Contains(soundId)) { _pinnedIds.Remove(soundId); removed = true; }
+            else { _pinnedIds.Add(soundId); removed = false; }
+        }
+        SaveFavorites();
+        AppLog.Information("[Soundboard] {Action}: {Id}", removed ? "Unpinned" : "Pinned", soundId);
+        FavoritesChanged?.Invoke();
+    }
+
     /// <summary>Raised when the sound list changes (import / delete).</summary>
     public event Action? SoundsChanged;
 
     /// <summary>Raised when hotkey bindings change.</summary>
     public event Action? HotkeysChanged;
+
+    /// <summary>Raised when the pinned-sound set changes (pin / unpin / prune-on-remove).</summary>
+    public event Action? FavoritesChanged;
 
     /// <summary>
     /// Creates a new SoundboardManager and loads the built-in procedural catalogue
@@ -63,6 +94,7 @@ public sealed class SoundboardManager
 
         LoadUserSounds();
         LoadHotkeyConfig();
+        LoadFavorites();
         AppLog.Information("[Soundboard] Initialized. {Count} sounds, {Hotkeys} hotkey bindings, folder: {Folder}",
             _sounds.Count, _hotkeyBindings.Count, _userFolder);
     }
@@ -208,6 +240,10 @@ public sealed class SoundboardManager
         }
         catch { /* best effort */ }
 
+        // Prune any pin for the removed sound so the floating mini-player never references a dead id.
+        lock (_pinnedLock) { _pinnedIds.Remove(soundId); }
+        SaveFavorites();
+
         SoundsChanged?.Invoke();
         AppLog.Information("[Soundboard] Removed: {Name} ({Id})", def.Name, soundId);
         return true;
@@ -296,6 +332,37 @@ public sealed class SoundboardManager
             }
         }
         catch { /* hotkey config load is best-effort */ }
+    }
+
+    // ════ Favorites (pinned ids) Persistence ════
+
+    private static string FavoritesConfigPath => Path.Combine(AppPaths.Root, "soundboard-favorites.json");
+
+    private void SaveFavorites()
+    {
+        string[] snapshot;
+        lock (_pinnedLock) { snapshot = _pinnedIds.ToArray(); }
+        SafeFileHelper.WriteAllTextSafe(FavoritesConfigPath,
+            JsonSerializer.Serialize(snapshot, new JsonSerializerOptions { WriteIndented = true }));
+    }
+
+    private void LoadFavorites()
+    {
+        var json = SafeFileHelper.ReadAllTextSafe(FavoritesConfigPath);
+        if (json == null) return;
+        try
+        {
+            var ids = JsonSerializer.Deserialize<string[]>(json);
+            if (ids == null) return;
+            lock (_pinnedLock)
+            {
+                _pinnedIds.Clear();
+                foreach (var id in ids)
+                    if (!string.IsNullOrEmpty(id) && !_pinnedIds.Contains(id))
+                        _pinnedIds.Add(id);
+            }
+        }
+        catch { /* favorites load is best-effort */ }
     }
 
     // ════ Private helpers ════

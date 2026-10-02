@@ -119,4 +119,48 @@ public sealed class SoundboardManagerTests : IDisposable
         }
         Assert.Null(sb.GetSoundDurationSeconds("no_such_sound"));
     }
+
+    [Fact(DisplayName = "SBMgr-007: TogglePin persists and reloads in insertion order")]
+    public void SBMgr007_PinPersistenceRoundTrip()
+    {
+        var a = new SoundboardManager();
+        a.TogglePin("kick");
+        a.TogglePin("airhorn");
+        Assert.Equal(new[] { "kick", "airhorn" }, a.PinnedSoundIds);
+        Assert.True(File.Exists(Path.Combine(_tempDir, "soundboard-favorites.json")));
+
+        var b = new SoundboardManager(); // fresh instance, same redirected root
+        Assert.Equal(new[] { "kick", "airhorn" }, b.PinnedSoundIds);
+    }
+
+    [Fact(DisplayName = "SBMgr-008: TogglePin twice removes; FavoritesChanged fires on change")]
+    public void SBMgr008_ToggleOffAndEvent()
+    {
+        var sb = new SoundboardManager();
+        int raised = 0;
+        sb.FavoritesChanged += () => raised++;
+
+        sb.TogglePin("snare");
+        Assert.True(sb.IsPinned("snare"));
+        sb.TogglePin("snare");
+        Assert.False(sb.IsPinned("snare"));
+        Assert.Equal(2, raised);
+    }
+
+    [Fact(DisplayName = "SBMgr-009: removing a user sound prunes its pin id")]
+    public void SBMgr009_RemoveUserSoundPrunesPin()
+    {
+        var sb = new SoundboardManager();
+        var src = Path.Combine(_tempDir, "p.wav");
+        File.WriteAllBytes(src, new byte[] { 0, 1, 2, 3 });
+        var def = sb.ImportFile(src);
+        sb.TogglePin(def.Id);
+        Assert.Contains(def.Id, sb.PinnedSoundIds);
+
+        sb.RemoveUserSound(def.Id);
+        Assert.DoesNotContain(def.Id, sb.PinnedSoundIds);
+
+        var reload = new SoundboardManager();
+        Assert.DoesNotContain(def.Id, reload.PinnedSoundIds);
+    }
 }

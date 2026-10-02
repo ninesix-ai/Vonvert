@@ -39,11 +39,13 @@ public static class MonitorPaneGeometry
     public const int MinGuidanceWidth = 240;
     public const int MaxGuidanceWidth = 620;
 
-    public static int WaveformHeight(double height)
-        => ClampRound(height * WaveformRatio, MinWaveformHeight, MaxWaveformHeight);
+    public static int WaveformHeight(double height, double fontFactor = 1.0)
+        => ClampRound(height * WaveformRatio * fontFactor,
+                      Scaled(MinWaveformHeight, fontFactor), Scaled(MaxWaveformHeight, fontFactor));
 
-    public static int LoudnessWidth(double width)
-        => ClampRound(width * LoudnessRatio, MinLoudnessWidth, MaxLoudnessWidth);
+    public static int LoudnessWidth(double width, double fontFactor = 1.0)
+        => ClampRound(width * LoudnessRatio * fontFactor,
+                      Scaled(MinLoudnessWidth, fontFactor), Scaled(MaxLoudnessWidth, fontFactor));
 
     /// <summary>
     /// Width the guidance banner may claim. It is centred at the top, between the panel
@@ -53,10 +55,17 @@ public static class MonitorPaneGeometry
     public static int GuidanceMaxWidth(double width)
         => ClampRound(width * GuidanceRatio, MinGuidanceWidth, MaxGuidanceWidth);
 
-    public static MonitorPaneSizes Compute(double width, double height)
+    /// <summary>
+    /// Strips sized for one window at one text size. fontFactor comes from
+    /// MonitorFontSizes.Factor: bigger text needs a wider column and a taller strip, or the
+    /// labels clip - the 1280x720 capture at the large size showed "Target -23 LUFS (Broadcast)"
+    /// cut off mid-word. At factor 1.0 the arithmetic is exactly the shipped one, so the default
+    /// look is untouched (GM-001).
+    /// </summary>
+    public static MonitorPaneSizes Compute(double width, double height, double fontFactor = 1.0)
     {
-        int wave = WaveformHeight(height);
-        int lufs = LoudnessWidth(width);
+        int wave = WaveformHeight(height, fontFactor);
+        int lufs = LoudnessWidth(width, fontFactor);
 
         // A non-positive window means the layout pass ran before the screen was known;
         // report the floors instead of a zero or negative region that GridLength rejects.
@@ -66,6 +75,9 @@ public static class MonitorPaneGeometry
                                 : Math.Max((int)Math.Round(height) - wave, MinMainHeight);
         return new MonitorPaneSizes(wave, lufs, mainW, mainH);
     }
+
+    private static int Scaled(int pixels, double fontFactor) =>
+        (int)Math.Round(pixels * Math.Max(0.5, fontFactor), MidpointRounding.AwayFromZero);
 
     private static int ClampRound(double value, int min, int max)
     {

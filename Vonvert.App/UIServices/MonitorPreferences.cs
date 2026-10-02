@@ -79,6 +79,9 @@ public sealed class MonitorPreferences
     /// outranks it forever - otherwise the button would be undone on the next open.</summary>
     public bool ProfileChosen { get; set; }
 
+    /// <summary>Text size. Default Standard, which is the size the window shipped with.</summary>
+    public MonitorFontScale FontScale { get; set; } = MonitorFontScale.Standard;
+
     /// <summary>Turns the layout fade-off into an explicit choice instead of a guess. WPF has
     /// no standard reduce-motion signal and reading a registry key to invent one is not this
     /// app's business, so it stays a stored preference until the accessibility toggle lands.
@@ -103,6 +106,7 @@ public static class MonitorStore
         public int LabelMode { get; set; }
         public int VisualProfile { get; set; }
         public bool ProfileChosen { get; set; }
+        public int FontScale { get; set; } = (int)MonitorFontScale.Standard;
         public bool ReduceMotion { get; set; }
     }
 
@@ -138,6 +142,8 @@ public static class MonitorStore
                 VisualProfile = Enum.IsDefined(typeof(MonitorVisualProfile), dto.VisualProfile)
                     ? (MonitorVisualProfile)dto.VisualProfile : MonitorVisualProfile.Brand,
                 ProfileChosen = dto.ProfileChosen,
+                FontScale = Enum.IsDefined(typeof(MonitorFontScale), dto.FontScale)
+                    ? (MonitorFontScale)dto.FontScale : MonitorFontScale.Standard,
                 ReduceMotion = dto.ReduceMotion,
             };
         }
@@ -162,6 +168,7 @@ public static class MonitorStore
                 Target = (int)prefs.Target, LabelMode = (int)prefs.LabelMode,
                 VisualProfile = (int)prefs.VisualProfile,
                 ProfileChosen = prefs.ProfileChosen,
+                FontScale = (int)prefs.FontScale,
                 ReduceMotion = prefs.ReduceMotion,
             };
             // Write-then-move so a crash mid-save cannot leave a truncated file behind.

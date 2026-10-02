@@ -17,7 +17,7 @@
         <!-- The double-click gesture, turned into a control you can see and press. Dim
              until hovered so it stays out of a captured picture. -->
         <Style TargetType="Button" x:Key="HintChip" BasedOn="{StaticResource SegmentButton}">
-            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontSize" Value="{DynamicResource FsFontBody}"/>
             <Setter Property="Padding" Value="8,2"/>
             <Setter Property="Opacity" Value="0.6"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
@@ -53,9 +53,9 @@
                 <Canvas x:Name="AxisCanvas" IsHitTestVisible="False" ClipToBounds="True"/>
                 <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,8,0,0">
                     <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSpectrogramLabel, Mode=OneWay}"
-                           FontSize="13" Foreground="{DynamicResource FsLabelBrush}"/>
+                           FontSize="{DynamicResource FsFontMainTitle}" Foreground="{DynamicResource FsLabelBrush}"/>
                     <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSpectrogramSub, Mode=OneWay}"
-                           FontSize="10" Foreground="{DynamicResource FsSubBrush}" Margin="0,1,0,0"/>
+                           FontSize="{DynamicResource FsFontBody}" Foreground="{DynamicResource FsSubBrush}" Margin="0,1,0,0"/>
                 </StackPanel>
                 <!-- pitch badges: solid dark plates with a colored rim. The note color is
                      set per deviation (green/amber/red), so the plate has to stay dark and
@@ -63,15 +63,15 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,14,20,0">
                     <Border x:Name="FsPitchNoteBadge" CornerRadius="8" Padding="14,6" Background="#E61B1631"
                             BorderBrush="#808B5CF6" BorderThickness="1" Margin="0,0,10,0" Visibility="Collapsed">
-                        <vc:SelectableTextBlock x:Name="FsPitchNoteText" Text="—" FontSize="36" FontWeight="Bold" Foreground="#DDFFFFFF"/>
+                        <vc:SelectableTextBlock x:Name="FsPitchNoteText" Text="—" FontSize="{DynamicResource FsFontPitchNote}" FontWeight="Bold" Foreground="#DDFFFFFF"/>
                     </Border>
                     <Border x:Name="FsPitchCentsBadge" CornerRadius="8" Padding="10,6" Background="#E6101A24"
                             BorderBrush="#803EC6FF" BorderThickness="1" Margin="0,0,10,0" Visibility="Collapsed">
-                        <vc:SelectableTextBlock x:Name="FsPitchCentsText" Text="0 cents" FontSize="20" Foreground="#BB3EC6FF" VerticalAlignment="Center"/>
+                        <vc:SelectableTextBlock x:Name="FsPitchCentsText" Text="0 cents" FontSize="{DynamicResource FsFontPitchCents}" Foreground="#BB3EC6FF" VerticalAlignment="Center"/>
                     </Border>
-                    <vc:SelectableTextBlock x:Name="FsPitchFreqText" Text="" FontSize="16" Foreground="#99FFFFFF" VerticalAlignment="Center"/>
+                    <vc:SelectableTextBlock x:Name="FsPitchFreqText" Text="" FontSize="{DynamicResource FsFontPitchFreq}" Foreground="#99FFFFFF" VerticalAlignment="Center"/>
                     <!-- what the badge colour means, in words rather than in hue -->
-                    <TextBlock x:Name="FsPitchLegendText" Text="" FontSize="12" Foreground="{DynamicResource FsLabelBrush}"
+                    <TextBlock x:Name="FsPitchLegendText" Text="" FontSize="{DynamicResource FsFontReadout}" Foreground="{DynamicResource FsLabelBrush}"
                            VerticalAlignment="Center" Margin="8,0,0,0"/>
                 </StackPanel>
                 <!-- pitch curve + cents meter (bottom overlay inside the pane) -->
@@ -95,14 +95,14 @@
                     <RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0">
-                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessLabel, Mode=OneWay}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource FsLabelBrush}"/>
-                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessSub, Mode=OneWay}" FontSize="10" Foreground="{DynamicResource FsSubBrush}" Margin="0,1,0,0"/>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessLabel, Mode=OneWay}" FontSize="{DynamicResource FsFontPaneTitle}" FontWeight="Bold" Foreground="{DynamicResource FsLabelBrush}"/>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessSub, Mode=OneWay}" FontSize="{DynamicResource FsFontBody}" Foreground="{DynamicResource FsSubBrush}" Margin="0,1,0,0"/>
                 </StackPanel>
                 <Canvas x:Name="LufsCanvas" Grid.Row="1" ClipToBounds="True"
                         ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsScaleTip, Mode=OneWay}"/>
                 <StackPanel Grid.Row="2">
-                    <vc:SelectableTextBlock x:Name="LufsTruePeakText" Text="TP -∞" FontSize="12" Foreground="#CCFFFFFF" Margin="0,6,0,0"/>
-                    <vc:SelectableTextBlock x:Name="LufsIntegratedText" Text="I -∞" FontSize="12" Foreground="#BB3EC6FF" Margin="0,2,0,0">
+                    <vc:SelectableTextBlock x:Name="LufsTruePeakText" Text="TP -∞" FontSize="{DynamicResource FsFontReadout}" Foreground="#CCFFFFFF" Margin="0,6,0,0"/>
+                    <vc:SelectableTextBlock x:Name="LufsIntegratedText" Text="I -∞" FontSize="{DynamicResource FsFontReadout}" Foreground="#BB3EC6FF" Margin="0,2,0,0">
                         <vc:SelectableTextBlock.ContextMenu>
                             <ContextMenu>
                                 <MenuItem x:Name="ResetIntegratedItem" Header="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsResetIntegrated, Mode=OneWay}" Click="ResetIntegrated_Click"/>
@@ -110,29 +110,43 @@
                         </vc:SelectableTextBlock.ContextMenu>
                     </vc:SelectableTextBlock>
                     <!-- The integrated reading restarts from a right-click on the text above, which
-                         nobody discovers. Same action, visible button (keeps the menu for muscle memory). -->
-                    <Button x:Name="ResetIntegratedBtn" Style="{StaticResource SegmentButton}" FontSize="10" Padding="8,2"
+                         nobody discovers. Same action, visible button (keeps the menu for muscle memory).
+                         The label wraps: this column is 150 px at the standard text size and the same
+                         sentence is far longer in German or Russian, so a fixed row would clip. -->
+                    <Button x:Name="ResetIntegratedBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontBody}" Padding="8,2"
                             AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsResetIntegrated, Mode=OneWay}"
-                            HorizontalAlignment="Left" Margin="0,4,0,0" Click="ResetIntegrated_Click"
-                            Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsResetIntegrated, Mode=OneWay}"/>
+                            HorizontalAlignment="Left" Margin="0,4,0,0" Click="ResetIntegrated_Click">
+                        <Button.Content>
+                            <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsResetIntegrated, Mode=OneWay}"
+                                       TextWrapping="Wrap" TextAlignment="Center"/>
+                        </Button.Content>
+                    </Button>
                     <!-- which platform the reference line aims at; click to change it -->
-                    <Button x:Name="TargetBtn" Style="{StaticResource SegmentButton}" FontSize="10" Padding="8,2"
+                    <Button x:Name="TargetBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontBody}" Padding="8,2"
                             AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsTarget, Mode=OneWay}"
-                            HorizontalAlignment="Left" Margin="0,4,0,0" Click="TargetBtn_Click"
-                            Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorTargetLabel, Mode=OneWay}"/>
+                            HorizontalAlignment="Left" Margin="0,4,0,0" Click="TargetBtn_Click">
+                        <Button.Content>
+                            <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorTargetLabel, Mode=OneWay}"
+                                       TextWrapping="Wrap" TextAlignment="Center"/>
+                        </Button.Content>
+                    </Button>
                     <!-- the three pointers mean nothing without names; colours match the marks -->
                     <StackPanel Margin="0,6,0,0">
                         <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLegendMomentary, Mode=OneWay}"
-                                   FontSize="9" Foreground="#3EC6FF"/>
+                                   FontSize="{DynamicResource FsFontFine}" Foreground="#3EC6FF"/>
                         <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLegendShort, Mode=OneWay}"
-                                   FontSize="9" Foreground="#A98BFF"/>
+                                   FontSize="{DynamicResource FsFontFine}" Foreground="#A98BFF"/>
                         <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLegendIntegrated, Mode=OneWay}"
-                                   FontSize="9" Foreground="#FFD700"/>
+                                   FontSize="{DynamicResource FsFontFine}" Foreground="#FFD700"/>
                     </StackPanel>
                     <Button x:Name="LoudnessHintChip" Style="{StaticResource HintChip}" Margin="0,6,0,0"
                             HorizontalAlignment="Stretch"
-                            Click="LoudnessHint_Click"
-                            Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessHint, Mode=OneWay}"/>
+                            Click="LoudnessHint_Click">
+                        <Button.Content>
+                            <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessHint, Mode=OneWay}"
+                                       TextWrapping="Wrap" TextAlignment="Center"/>
+                        </Button.Content>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
@@ -147,8 +161,8 @@
                     <ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Margin="12,8,0,8" VerticalAlignment="Top">
-                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformLabel, Mode=OneWay}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource FsLabelBrush}"/>
-                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformSub, Mode=OneWay}" FontSize="10" Foreground="{DynamicResource FsSubBrush}" Margin="0,1,0,0"/>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformLabel, Mode=OneWay}" FontSize="{DynamicResource FsFontPaneTitle}" FontWeight="Bold" Foreground="{DynamicResource FsLabelBrush}"/>
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformSub, Mode=OneWay}" FontSize="{DynamicResource FsFontBody}" Foreground="{DynamicResource FsSubBrush}" Margin="0,1,0,0"/>
                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                         <Button x:Name="DryBtn" Style="{StaticResource SegmentButton}" Padding="10,3" Margin="0,0,6,0"
                                 AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsDry, Mode=OneWay}"
@@ -160,7 +174,7 @@
                     <!-- which signal this really is, in words: the two taps are small and
                          their tint difference is invisible once the window is downscaled -->
                     <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorSourceLabel, Mode=OneWay}"
-                           FontSize="10" Foreground="{DynamicResource FsSubBrush}" Margin="0,6,0,0"/>
+                           FontSize="{DynamicResource FsFontBody}" Foreground="{DynamicResource FsSubBrush}" Margin="0,6,0,0"/>
                     <Button x:Name="WaveformHintChip" Style="{StaticResource HintChip}" HorizontalAlignment="Left" Margin="0,8,0,0"
                             Click="WaveformHint_Click"
                             Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformHint, Mode=OneWay}"/>
@@ -171,7 +185,7 @@
 
         <!-- preset-name fade overlay (spans both rows so it survives any maximize state) -->
         <TextBlock x:Name="PresetNameOverlay" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2"
-               FontSize="48" FontWeight="Bold"
+               FontSize="{DynamicResource FsFontOverlay}" FontWeight="Bold"
                Foreground="#AA8B5CF6" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0" IsHitTestVisible="False">
             <TextBlock.Effect><DropShadowEffect Color="#8B5CF6" BlurRadius="30" ShadowDepth="0" Opacity="0.8"/></TextBlock.Effect>
         </TextBlock>
@@ -184,7 +198,7 @@
                 VerticalAlignment="Bottom" HorizontalAlignment="Left"
                 Margin="10,0,0,10"
                 Background="#99000000" CornerRadius="0,12,0,0" Padding="16,8" Opacity="0">
-            <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=EscToClose, Mode=OneWay}" FontSize="12" Foreground="{DynamicResource FsLabelBrush}"/>
+            <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=EscToClose, Mode=OneWay}" FontSize="{DynamicResource FsFontReadout}" Foreground="{DynamicResource FsLabelBrush}"/>
         </Border>
 
         <!-- ══ guidance band: the one sentence that stops a frozen or black picture being
@@ -195,7 +209,7 @@
                 CornerRadius="10" Padding="14,8" MaxWidth="620"
                 Visibility="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorGuidanceVisible, Mode=OneWay, Converter={StaticResource B2V}}">
             <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorGuidanceText, Mode=OneWay}"
-                       FontSize="13" Foreground="#F4E3C4" TextWrapping="Wrap" TextAlignment="Center"/>
+                       FontSize="{DynamicResource FsFontMainTitle}" Foreground="#F4E3C4" TextWrapping="Wrap" TextAlignment="Center"/>
         </Border>
 
         <!-- ══ way back from a filled panel: the hidden gesture gets a visible control, so nobody
@@ -206,16 +220,16 @@
                 Background="#B30A0C12" BorderBrush="#33FFFFFF" BorderThickness="1"
                 CornerRadius="10" Padding="5,3" Visibility="Collapsed">
             <StackPanel Orientation="Horizontal">
-                <Button x:Name="CollapseWaterfall" Style="{StaticResource SegmentButton}" FontSize="10" Padding="8,2"
+                <Button x:Name="CollapseWaterfall" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontBody}" Padding="8,2"
                         Click="CollapseWaterfall_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSpectrogramLabel, Mode=OneWay}"/>
-                <Button x:Name="CollapseWaveform" Style="{StaticResource SegmentButton}" FontSize="10" Padding="8,2"
+                <Button x:Name="CollapseWaveform" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontBody}" Padding="8,2"
                         Click="CollapseWaveform_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsWaveformLabel, Mode=OneWay}"/>
-                <Button x:Name="CollapseLoudness" Style="{StaticResource SegmentButton}" FontSize="10" Padding="8,2"
+                <Button x:Name="CollapseLoudness" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontBody}" Padding="8,2"
                         Click="CollapseLoudness_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessLabel, Mode=OneWay}"/>
-                <Button x:Name="ExpandAll" Style="{StaticResource SegmentButtonActive}" FontSize="10" Padding="8,2"
+                <Button x:Name="ExpandAll" Style="{StaticResource SegmentButtonActive}" FontSize="{DynamicResource FsFontBody}" Padding="8,2"
                         Click="ExpandAll_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsExpandHint, Mode=OneWay}"/>
             </StackPanel>
@@ -228,7 +242,7 @@
                 Background="#B30A0C12" BorderBrush="#33FFFFFF" BorderThickness="1"
                 CornerRadius="10" Padding="10,4" IsHitTestVisible="False">
             <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsGestureHint, Mode=OneWay}"
-                       FontSize="10" Foreground="{DynamicResource FsLabelBrush}" TextAlignment="Center" MaxWidth="720" TextWrapping="Wrap"/>
+                       FontSize="{DynamicResource FsFontBody}" Foreground="{DynamicResource FsLabelBrush}" TextAlignment="Center" MaxWidth="720" TextWrapping="Wrap"/>
         </Border>
 
         <!-- ══ chrome toolbar: revealed with the cursor on mouse move, hidden after the same
@@ -239,38 +253,44 @@
                 VerticalAlignment="Bottom" HorizontalAlignment="Right"
                 Background="#CC0A0C12" BorderBrush="#33FFFFFF" BorderThickness="1,1,0,0"
                 CornerRadius="12,0,0,0" Padding="8,6" Opacity="0" IsHitTestVisible="False">
-            <StackPanel Orientation="Horizontal">
-                <Button x:Name="CloseBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+            <!-- Wrap, not a single row: at 640 wide the buttons would otherwise run past the
+                 corner they are docked in and the last ones become unclickable. -->
+            <WrapPanel Orientation="Horizontal" MaxWidth="620">
+                <Button x:Name="CloseBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"
                         AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsClose, Mode=OneWay}"
                         Click="CloseBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsClose, Mode=OneWay}"/>
-                <Button x:Name="TopmostBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                <Button x:Name="TopmostBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"
                         AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsTopmost, Mode=OneWay}"
                         Click="TopmostBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsTopmost, Mode=OneWay}"/>
-                <Button x:Name="SizeBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                <Button x:Name="SizeBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"
                         AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsSize, Mode=OneWay}"
                         Click="SizeBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSize, Mode=OneWay}"/>
-                <Button x:Name="ResetViewBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                <Button x:Name="ResetViewBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"
                         AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsResetView, Mode=OneWay}"
                         Click="ResetViewBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsRestoreLayout, Mode=OneWay}"/>
                 <!-- capture palette: named by what it is for, so "Green screen" says more than
                      "Theme 3" would. Reads as offer + current value. -->
-                <Button x:Name="ProfileBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                <Button x:Name="ProfileBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"
                         AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorProfileButton, Mode=OneWay}"
                         Click="ProfileBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorProfileButton, Mode=OneWay}"/>
-                <Button x:Name="LabelModeBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                <Button x:Name="LabelModeBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"
                         AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsLabelMode, Mode=OneWay}"
                         Click="LabelModeBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLabelModeLabel, Mode=OneWay}"/>
-                <Button x:Name="HelpBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                <Button x:Name="FontBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"
+                        AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorFontButton, Mode=OneWay}"
+                        Click="FontBtn_Click"
+                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorFontButton, Mode=OneWay}"/>
+                <Button x:Name="HelpBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"
                         AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsHelp, Mode=OneWay}"
                         Click="HelpBtn_Click"
                         Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpBtn, Mode=OneWay}"/>
-            </StackPanel>
+            </WrapPanel>
         </Border>
 
         <!-- ══ help card: the gestures that used to be invisible, written down ══ -->
@@ -279,23 +299,23 @@
             <Border Background="#F20A0C12" BorderBrush="#44FFFFFF" BorderThickness="1"
                     CornerRadius="12" Padding="16,12" MaxWidth="420">
                 <StackPanel>
-                    <TextBlock FontSize="14" FontWeight="Bold" Foreground="#EEFFFFFF" Margin="0,0,0,8"
+                    <TextBlock FontSize="{DynamicResource FsFontHeading}" FontWeight="Bold" Foreground="#EEFFFFFF" Margin="0,0,0,8"
                                TextWrapping="Wrap"
                                Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpTitle, Mode=OneWay}"/>
-                    <TextBlock FontSize="12" Foreground="#EE3EC6FF" Margin="0,0,0,8" TextWrapping="Wrap"
+                    <TextBlock FontSize="{DynamicResource FsFontReadout}" Foreground="#EE3EC6FF" Margin="0,0,0,8" TextWrapping="Wrap"
                                Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpFocus, Mode=OneWay}"/>
-                    <TextBlock FontSize="12" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
+                    <TextBlock FontSize="{DynamicResource FsFontReadout}" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
                                Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpDrag, Mode=OneWay}"/>
-                    <TextBlock FontSize="12" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
+                    <TextBlock FontSize="{DynamicResource FsFontReadout}" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
                                Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpDblClick, Mode=OneWay}"/>
-                    <TextBlock FontSize="12" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
+                    <TextBlock FontSize="{DynamicResource FsFontReadout}" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
                                Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpRightClick, Mode=OneWay}"/>
-                    <TextBlock FontSize="12" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
+                    <TextBlock FontSize="{DynamicResource FsFontReadout}" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
                                Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpKeys, Mode=OneWay}"/>
-                    <TextBlock FontSize="12" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
+                    <TextBlock FontSize="{DynamicResource FsFontReadout}" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
                                Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=EscToClose, Mode=OneWay}"/>
                     <!-- full guide, published on the web so it renders as a page -->
-                    <TextBlock FontSize="12" Margin="0,10,0,0" TextWrapping="Wrap">
+                    <TextBlock FontSize="{DynamicResource FsFontReadout}" Margin="0,10,0,0" TextWrapping="Wrap">
                         <Hyperlink x:Name="GuideLink" Click="GuideLink_Click" Foreground="{DynamicResource Accent}"><Run Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsGuideLink, Mode=OneWay}"/></Hyperlink>
                     </TextBlock>
                 </StackPanel>

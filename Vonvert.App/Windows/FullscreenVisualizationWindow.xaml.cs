@@ -118,7 +118,7 @@ public partial class FullscreenVisualizationWindow : Window
     private void ApplyPaneGeometry()
     {
         if (ActualWidth <= 0 || ActualHeight <= 0) return;
-        var sizes = MonitorPaneGeometry.Compute(ActualWidth, ActualHeight);
+        var sizes = MonitorPaneGeometry.Compute(ActualWidth, ActualHeight, FontFactor);
         if (_layout.Maximized is null)
         {
             WaveRow.Height = new GridLength(sizes.WaveformRowHeight);
@@ -198,7 +198,7 @@ public partial class FullscreenVisualizationWindow : Window
             var label = new TextBlock
             {
                 Text = FormatHz(hz),
-                FontSize = 10,
+                FontSize = MonitorFontSizes.For(FontSetting, MonitorFontSizes.Body),
                 Foreground = ink,
                 Background = plate,
                 Padding = new Thickness(3, 0, 3, 0),
@@ -217,11 +217,11 @@ public partial class FullscreenVisualizationWindow : Window
     }
 
     /// <summary>A small overlay label whose text is a bound, localizable string.</summary>
-    private static TextBlock BoundLabel(string propertyName, Brush foreground)
+    private TextBlock BoundLabel(string propertyName, Brush foreground)
     {
         var label = new TextBlock
         {
-            FontSize = 10,
+            FontSize = MonitorFontSizes.For(FontSetting, MonitorFontSizes.Body),
             Foreground = foreground,
             Background = new SolidColorBrush(Color.FromArgb(0x99, 0, 0, 0)),
             Padding = new Thickness(4, 1, 4, 1),
@@ -355,7 +355,7 @@ public partial class FullscreenVisualizationWindow : Window
         MainRow.Height = m == MonitorPane.Waveform ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
         // Restoring the grid re-derives the strips from the current size (GM rules);
         // the 140 / 150 literals this replaced are what made a corner capture unreadable.
-        var sizes = MonitorPaneGeometry.Compute(ActualWidth, ActualHeight);
+        var sizes = MonitorPaneGeometry.Compute(ActualWidth, ActualHeight, FontFactor);
         WaveRow.Height = m switch
         {
             MonitorPane.Waveform => new GridLength(1, GridUnitType.Star),
@@ -637,6 +637,8 @@ public partial class FullscreenVisualizationWindow : Window
         LocalizationManager.Instance.SetMonitorProfile(MonitorAccessibilityPolicy.InitialProfile(
             SystemParameters.HighContrast, _prefs.VisualProfile, _prefs.ProfileChosen));
         ApplyVisualProfile();
+        LocalizationManager.Instance.SetMonitorFontScale(_prefs.FontScale);
+        ApplyFontScale();
 
         if (!_prefs.HasBounds) return;
         WindowStartupLocation = WindowStartupLocation.Manual;
@@ -679,6 +681,7 @@ public partial class FullscreenVisualizationWindow : Window
         _prefs.Target = LocalizationManager.Instance.LufsTarget.Preset;
         _prefs.LabelMode = LocalizationManager.Instance.MonitorLabels.Mode;
         _prefs.VisualProfile = LocalizationManager.Instance.MonitorProfile;
+        _prefs.FontScale = LocalizationManager.Instance.MonitorFont;
         MonitorStore.Save(_prefs);
     }
 
@@ -687,6 +690,39 @@ public partial class FullscreenVisualizationWindow : Window
         LocalizationManager.Instance.CycleMonitorProfile();
         _prefs.ProfileChosen = true;   // an explicit pick outranks the system signal next time
         ApplyVisualProfile();
+        SavePreferences();
+    }
+
+    /// <summary>The text size the window is drawing with, read from the shared monitor state so
+    /// every surface asks the same object.</summary>
+    private MonitorFontScale FontSetting => LocalizationManager.Instance.MonitorFont;
+
+    /// <summary>The same size as the multiplier the strips need: bigger text needs a wider
+    /// column, or the labels clip (the large capture showed the target label cut mid-word).</summary>
+    private double FontFactor => MonitorFontSizes.Factor(FontSetting);
+
+    /// <summary>
+    /// Publish the active type sizes as the resources the XAML binds. One table owns the
+    /// numbers, so a role cannot be updated in the layout and missed on screen; the standard
+    /// setting reproduces the shipped sizes exactly (FS-001), so nobody's window changes until
+    /// they ask for it.
+    /// </summary>
+    private void ApplyFontScale()
+    {
+        foreach (var pair in MonitorFontSizes.ResourcesFor(FontSetting))
+            Resources[pair.Key] = pair.Value;
+    }
+
+    private void FontBtn_Click(object s, RoutedEventArgs e)
+    {
+        LocalizationManager.Instance.CycleMonitorFontScale();
+        ApplyFontScale();
+        ApplyPaneGeometry();   // the strips are sized for the text they carry
+        // The axis labels and the meter numbers are drawn onto canvases instead of being laid
+        // out by XAML, so they only pick up a new size when they are rebuilt. Do that now
+        // rather than making the user wait for the next animation tick.
+        UpdateAxis();
+        RenderLufs();
         SavePreferences();
     }
 
@@ -796,7 +832,7 @@ public partial class FullscreenVisualizationWindow : Window
                 // Drawn on a canvas, so it is not covered by the XAML alpha guard: the target
                 // line is the one number a podcast user is supposed to aim at, it has to
                 // survive an OBS downscale.
-                Text = targetLufs.ToString("F0"), FontSize = 11,
+                Text = targetLufs.ToString("F0"), FontSize = MonitorFontSizes.For(FontSetting, MonitorFontSizes.Chrome),
                 Foreground = new SolidColorBrush(Color.FromArgb(210, 0x39, 0xE8, 0x8A))
             };
             Canvas.SetLeft(targetLabel, 40); Canvas.SetTop(targetLabel, ty - 7);
@@ -810,7 +846,7 @@ public partial class FullscreenVisualizationWindow : Window
             double my = LufsScale.MapToPixel(mark, h);
             var num = new TextBlock
             {
-                Text = mark.ToString("F0"), FontSize = 9,
+                Text = mark.ToString("F0"), FontSize = MonitorFontSizes.For(FontSetting, MonitorFontSizes.Fine),
                 Foreground = new SolidColorBrush(Color.FromArgb(160, 0xFF, 0xFF, 0xFF)),
             };
             Canvas.SetRight(num, 2);
@@ -848,7 +884,7 @@ public partial class FullscreenVisualizationWindow : Window
         // colours alone also exclude anyone who cannot tell them apart.
         var label = new TextBlock
         {
-            Text = letter, FontSize = 10, FontWeight = FontWeights.Bold,
+            Text = letter, FontSize = MonitorFontSizes.For(FontSetting, MonitorFontSizes.Body), FontWeight = FontWeights.Bold,
             Foreground = new SolidColorBrush(Color.FromRgb(0xF0, 0xF0, 0xF0)),
         };
         Canvas.SetLeft(label, 36); Canvas.SetTop(label, Math.Clamp(y - 7, 0, Math.Max(0, h - 13)));

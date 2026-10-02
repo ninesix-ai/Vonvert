@@ -64,6 +64,7 @@ public sealed class MonitorPreferencesTests : IDisposable
         prefs.ReduceMotion = true;         // differs from the default, so the read cannot pass by accident
         prefs.VisualProfile = MonitorVisualProfile.Chroma;
         prefs.ProfileChosen = true;          // the flag that makes an explicit pick outrank the system
+        prefs.FontScale = MonitorFontScale.Large;
         MonitorStore.Save(prefs);
 
         var again = MonitorStore.Load();
@@ -78,6 +79,7 @@ public sealed class MonitorPreferencesTests : IDisposable
         Assert.True(again.ReduceMotion);
         Assert.Equal(MonitorVisualProfile.Chroma, again.VisualProfile);
         Assert.True(again.ProfileChosen);
+        Assert.Equal(MonitorFontScale.Large, again.FontScale);
     }
 
     [Fact(DisplayName = "PR-003: a half-written file falls back to defaults instead of throwing at startup")]
@@ -104,10 +106,14 @@ public sealed class MonitorPreferencesTests : IDisposable
         var text = File.ReadAllText(MonitorStore.FilePath)
             .Replace("\"Target\":0", "\"Target\":99")
             .Replace("\"LabelMode\":0", "\"LabelMode\":42")
-            .Replace("\"VisualProfile\":0", "\"VisualProfile\":77");
+            .Replace("\"VisualProfile\":0", "\"VisualProfile\":77")
+            // Standard is the middle enum value (1), not zero - hence the assert below that
+            // the corruption actually applied, which is what caught my wrong guess here.
+            .Replace("\"FontScale\":1", "\"FontScale\":77");
         Assert.Contains("\"Target\":99", text);      // the corruption actually applied
         Assert.Contains("\"LabelMode\":42", text);
         Assert.Contains("\"VisualProfile\":77", text);
+        Assert.Contains("\"FontScale\":77", text);
         File.WriteAllText(MonitorStore.FilePath, text);
 
         var prefs = MonitorStore.Load();
@@ -117,6 +123,7 @@ public sealed class MonitorPreferencesTests : IDisposable
         Assert.Equal(LufsTargetPreset.Broadcast, prefs.Target);
         Assert.Equal(MonitorLabelMode.Plain, prefs.LabelMode);
         Assert.Equal(MonitorVisualProfile.Brand, prefs.VisualProfile);   // unknown number, not a crash
+        Assert.Equal(MonitorFontScale.Standard, prefs.FontScale);
     }
 
     [Fact(DisplayName = "RB-001: a saved position on a monitor that is gone comes back on the primary screen")]

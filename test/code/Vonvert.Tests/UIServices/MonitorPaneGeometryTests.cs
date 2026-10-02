@@ -93,4 +93,41 @@ public sealed class MonitorPaneGeometryTests
         Assert.True(MonitorPaneGeometry.GuidanceMaxWidth(640) <= 400);      // floor of the squeeze
         Assert.True(MonitorPaneGeometry.GuidanceMaxWidth(640) >= 240);
     }
+
+    // GM-009 ~ GM-011: the strips have to follow the text size. Found by rendering: at the
+    // large size the loudness column stayed 150 px and "Target -23 LUFS (Broadcast)" was cut
+    // off mid-word, which no assertion about constants could see.
+    [Fact(DisplayName = "GM-009: a factor of 1.0 reproduces the shipped geometry exactly")]
+    public void GM009_DefaultFactorIsTheShippedGeometry()
+    {
+        foreach (var (w, h) in new[] { (1280.0, 720.0), (640.0, 360.0), (1920.0, 1080.0), (1080.0, 1920.0) })
+            Assert.Equal(MonitorPaneGeometry.Compute(w, h), MonitorPaneGeometry.Compute(w, h, 1.0));
+    }
+
+    [Fact(DisplayName = "GM-010: bigger text widens the loudness column and tallens the waveform strip")]
+    public void GM010_StripsGrowWithText()
+    {
+        int compactLufs = MonitorPaneGeometry.LoudnessWidth(1280, MonitorFontSizes.Factor(MonitorFontScale.Compact));
+        int standardLufs = MonitorPaneGeometry.LoudnessWidth(1280, MonitorFontSizes.Factor(MonitorFontScale.Standard));
+        int largeLufs = MonitorPaneGeometry.LoudnessWidth(1280, MonitorFontSizes.Factor(MonitorFontScale.Large));
+        Assert.True(compactLufs < standardLufs && standardLufs < largeLufs,
+            $"loudness column was {compactLufs}/{standardLufs}/{largeLufs} px for compact/standard/large");
+
+        int compactWave = MonitorPaneGeometry.WaveformHeight(720, MonitorFontSizes.Factor(MonitorFontScale.Compact));
+        int largeWave = MonitorPaneGeometry.WaveformHeight(720, MonitorFontSizes.Factor(MonitorFontScale.Large));
+        Assert.True(largeWave > compactWave, $"waveform strip did not grow: {compactWave} -> {largeWave}");
+    }
+
+    [Fact(DisplayName = "GM-011: at the large size the column is wide enough for its longest label")]
+    public void GM011_LargeSizeFitsTheTargetLabel()
+    {
+        // Measured in the rendered capture: the target button needs about 200 px at the large
+        // size. Below this it clips, which is the bug this test exists to keep fixed.
+        int lufs = MonitorPaneGeometry.LoudnessWidth(1280, MonitorFontSizes.Factor(MonitorFontScale.Large));
+        Assert.True(lufs >= 195, $"loudness column is {lufs} px at the large size; the target label clips");
+
+        // And the main view must still keep the bulk of the window.
+        var sizes = MonitorPaneGeometry.Compute(1280, 720, MonitorFontSizes.Factor(MonitorFontScale.Large));
+        Assert.True(sizes.MainWidth >= 1000, $"main view squeezed to {sizes.MainWidth} px by the strips");
+    }
 }

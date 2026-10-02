@@ -174,4 +174,19 @@ public sealed class MonitorReadabilityTests
         Assert.True(Regex.Matches(MonitorXaml, @"\{DynamicResource FsPaneBrush\}").Count >= 3,
             "all three panes should follow the palette, not just one");
     }
+
+    [Fact(DisplayName = "RD-010: the loudness column's labels wrap instead of clipping")]
+    public void RD010_NarrowColumnLabelsWrap()
+    {
+        // Seen in the rendered capture at the large text size: "Target -23 LUFS (Broadcast)"
+        // was cut mid-word. Widening the column cannot save the languages whose sentences are
+        // longer than English, so the text itself has to break.
+        foreach (string name in new[] { "TargetBtn", "ResetIntegratedBtn", "LoudnessHintChip" })
+        {
+            var button = Regex.Match(MonitorXaml, @"<Button x:Name=""" + name + @"""[\s\S]*?</Button>");
+            Assert.True(button.Success, $"{name} no longer carries its own content element");
+            Assert.True(button.Value.Contains("TextWrapping=\"Wrap\""),
+                $"{name} can be clipped by a long translation");
+        }
+    }
 }

@@ -289,6 +289,44 @@ public partial class LocalizationManager
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
+    // ── text size ──
+    public string FsFontScale        => G();   // carries {0}
+    public string FsFontCompact      => G();
+    public string FsFontStandard     => G();
+    public string FsFontLarge        => G();
+
+    /// <summary>How big the monitor draws its text. Standard is the shipped size, so the
+    /// default setting is indistinguishable from the window before this existed.</summary>
+    public MonitorFontScale MonitorFont { get; private set; } = MonitorFontScale.Standard;
+
+    public string MonitorFontName => GetUiString(MonitorFontSizes.NameKeyFor(MonitorFont));
+
+    public string MonitorFontButton => string.Format(FsFontScale, MonitorFontName);
+
+    /// <summary>Applies a text size read back from disk.</summary>
+    public void SetMonitorFontScale(MonitorFontScale scale)
+    {
+        if (MonitorFont == scale) return;
+        MonitorFont = scale;
+        NotifyMonitorFontChanged();
+    }
+
+    /// <summary>Advance to the next text size and return it, for the caller that has to
+    /// republish the sizes straight away.</summary>
+    public MonitorFontScale CycleMonitorFontScale()
+    {
+        var next = MonitorFontSizes.Next(MonitorFont);
+        MonitorFont = next;
+        NotifyMonitorFontChanged();
+        return next;
+    }
+
+    public void NotifyMonitorFontChanged()
+    {
+        foreach (var name in new[] { nameof(MonitorFontName), nameof(MonitorFontButton) })
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
     // An absent sub-label binds as empty text, never as the literal key name.
     private string SubOf(MonitorLabelSlot slot)
         => MonitorLabels.SubKeyFor(slot) is { } key ? GetUiString(key) : string.Empty;

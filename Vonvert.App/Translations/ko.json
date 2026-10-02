@@ -52,6 +52,8 @@
     "AboutGuides": "도움말 및 가이드",
     "AboutUserGuideLink": "사용자 가이드",
     "AboutMonitorGuideLink": "전체 화면 모니터 가이드",
+    "FsBandVoice": "목소리 주파수 영역",
+    "FsAxisTimeHint": "약 4초 전 → 현재",
     "VoiceChanger": "보이스 체인저",
     "VoiceToggle": "음성 변경",
     "VuIn": "입력",

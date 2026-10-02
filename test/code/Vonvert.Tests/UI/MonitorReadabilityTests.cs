@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Vonvert.Tests.UI;
 
-// RD-001 ~ RD-004: source-level readability guards for the fullscreen monitor.
+// RD-001 ~ RD-005: source-level readability guards for the fullscreen monitor.
 //
 // This window is built to be captured: OBS downscales it, a second screen is viewed
 // from a distance, and a bright room washes out thin text. Every label used to sit at
@@ -91,5 +91,16 @@ public sealed class MonitorReadabilityTests
         var literals = Regex.Matches(MonitorCode, @"new GridLength\((140|150)\)");
         Assert.True(literals.Count == 0,
             $"{literals.Count} hardcoded strip size(s) in the monitor; use MonitorPaneGeometry.Compute instead");
+    }
+
+    [Fact(DisplayName = "RD-005: the overlay axis cannot swallow the drag and double-click gestures")]
+    public void RD005_AxisOverlayIsTransparentToHitTesting()
+    {
+        // The axis covers the whole waterfall pane. If it took mouse input, dragging the
+        // window and double-clicking to maximize would silently stop working on most of
+        // the pane - the two gestures that used to be hard enough to find anyway.
+        var axis = Regex.Match(MonitorXaml, @"<Canvas x:Name=""AxisCanvas""[^>]*?/?>");
+        Assert.True(axis.Success, "AxisCanvas not found in the monitor XAML - update this guard");
+        Assert.Contains("IsHitTestVisible=\"False\"", axis.Value);
     }
 }

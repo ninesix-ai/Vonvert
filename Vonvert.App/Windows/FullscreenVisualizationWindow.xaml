@@ -32,6 +32,11 @@
             <Grid>
                 <Image x:Name="WaterfallImage" Stretch="Fill"
                        RenderOptions.BitmapScalingMode="Linear"/>
+                <!-- frequency / time labels drawn over the picture in view space, so they
+                     stay crisp and scale with the window instead of being baked into the
+                     200x128 bitmap. IsHitTestVisible=False keeps drag and double-click on
+                     the panel itself. -->
+                <Canvas x:Name="AxisCanvas" IsHitTestVisible="False" ClipToBounds="True"/>
                 <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,8,0,0">
                     <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSpectrogramLabel, Mode=OneWay}"
                            FontSize="13" Foreground="#CCFFFFFF"/>

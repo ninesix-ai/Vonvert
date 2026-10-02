@@ -8,6 +8,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -41,6 +42,8 @@ public partial class FullscreenVisualizationWindow : Window
     private readonly PaneLayoutModel _layout = new();
     private readonly MonitorChromeModel _chrome = new();
     private readonly MonitorGuidanceModel _guidance = new();
+    // Size the overlay axis was last built for; positions only move with the panel.
+    private double _axisWidth = -1, _axisHeight = -1;
     // When the pipeline last saw anything above silence; drives the "no input" hint.
     private DateTime _lastPeakUtc = DateTime.MinValue;
     private readonly DispatcherTimer _idleTimer = new() { Interval = TimeSpan.FromSeconds(3) };
@@ -114,7 +117,116 @@ public partial class FullscreenVisualizationWindow : Window
         // The banner is top-centre, between the panel title and the pitch badges; on a
         // narrow window it has to give way instead of overlapping both.
         GuidanceBand.MaxWidth = MonitorPaneGeometry.GuidanceMaxWidth(ActualWidth);
+        UpdateAxis();
     }
+
+    /// <summary>Height the bottom of the waterfall gives up to the pitch curve and cents
+    /// meter, so a label there would sit on top of them.</summary>
+    private const double CurveStripHeight = 88;
+
+    /// <summary>
+    /// Build the overlay axis: hertz labels taken from the engine's own bin mapping, the
+    /// band the voice actually lives in, and the time direction. Rebuilt only when the
+    /// panel changes size; the two sentences are bound, so they follow the UI language
+    /// without a rebuild and without anyone assigning Text.
+    /// </summary>
+    private void UpdateAxis()
+    {
+        var pipe = App.Engine?.Pipeline;
+        if (pipe == null) return;
+        double h = WaterfallPanel.ActualHeight, w = WaterfallPanel.ActualWidth;
+        if (h <= 0 || w <= 0) return;
+        if (Math.Abs(h - _axisHeight) < 0.5 && Math.Abs(w - _axisWidth) < 0.5) return;
+        _axisHeight = h;
+        _axisWidth = w;
+
+        var spectro = pipe.Spectrogram;
+        int bins = spectro.FrequencyBins;
+        AxisCanvas.Children.Clear();
+
+        var plate = new SolidColorBrush(Color.FromArgb(0x99, 0, 0, 0));
+        var ink = new SolidColorBrush(Color.FromRgb(0xE6, 0xE6, 0xE6));
+
+        if (WaterfallAxis.BandRect(bins, spectro.GetBinFrequencyHz, h) is (double bandTop, double bandH))
+        {
+            var band = new Rectangle
+            {
+                Width = w,
+                Height = bandH,
+                Fill = new SolidColorBrush(Color.FromArgb(0x14, 0x8B, 0x5C, 0xF6)),
+            };
+            Canvas.SetLeft(band, 0);
+            Canvas.SetTop(band, bandTop);
+            AxisCanvas.Children.Add(band);
+
+            var bandLabel = BoundLabel(nameof(LocalizationManager.FsBandVoice),
+                new SolidColorBrush(Color.FromArgb(0xCC, 0x3E, 0xC6, 0xFF)));
+            Canvas.SetLeft(bandLabel, 4);
+            Canvas.SetTop(bandLabel, bandTop + 2);
+            AxisCanvas.Children.Add(bandLabel);
+        }
+
+        foreach (double hz in WaterfallAxis.LabelHz)
+        {
+            int bin = WaterfallAxis.NearestBinFor(hz, bins, spectro.GetBinFrequencyHz);
+            double y = WaterfallAxis.YForBin(bin, bins, h);
+
+            // Low frequencies land inside the pitch-curve strip; move those labels to the
+            // right edge rather than dropping them or sliding them off their own row.
+            bool rightSide = y > h - CurveStripHeight;
+
+            var tick = new Rectangle
+            {
+                Width = 14,
+                Height = 1,
+                Fill = new SolidColorBrush(Color.FromArgb(0x80, 0xFF, 0xFF, 0xFF)),
+            };
+            Canvas.SetTop(tick, y);
+            Canvas.SetLeft(tick, rightSide ? Math.Max(0, w - 14) : 0);
+            AxisCanvas.Children.Add(tick);
+
+            var label = new TextBlock
+            {
+                Text = FormatHz(hz),
+                FontSize = 10,
+                Foreground = ink,
+                Background = plate,
+                Padding = new Thickness(3, 0, 3, 0),
+            };
+            label.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+            Canvas.SetTop(label, Math.Clamp(y - 7, 0, Math.Max(0, h - 14)));
+            Canvas.SetLeft(label, rightSide ? Math.Max(0, w - 14 - label.DesiredSize.Width - 2) : 16);
+            AxisCanvas.Children.Add(label);
+        }
+
+        // The axis runs the wrong way for anyone used to a scrolling timeline: state it.
+        var timeHint = BoundLabel(nameof(LocalizationManager.FsAxisTimeHint), ink);
+        Canvas.SetRight(timeHint, 6);
+        Canvas.SetBottom(timeHint, CurveStripHeight + 6);
+        AxisCanvas.Children.Add(timeHint);
+    }
+
+    /// <summary>A small overlay label whose text is a bound, localizable string.</summary>
+    private static TextBlock BoundLabel(string propertyName, Brush foreground)
+    {
+        var label = new TextBlock
+        {
+            FontSize = 10,
+            Foreground = foreground,
+            Background = new SolidColorBrush(Color.FromArgb(0x99, 0, 0, 0)),
+            Padding = new Thickness(4, 1, 4, 1),
+        };
+        label.SetBinding(TextBlock.TextProperty, new Binding(propertyName)
+        {
+            Source = LocalizationManager.Instance,
+            Mode = BindingMode.OneWay,
+        });
+        return label;
+    }
+
+    /// <summary>"100 Hz" / "3 kHz" - the unit is an international symbol, so no copy here.</summary>
+    private static string FormatHz(double hz)
+        => hz >= 1000 ? $"{hz / 1000:0.#} kHz" : $"{hz:0} Hz";
 
     /// <summary>
     /// One-time walkthrough on a fresh install. Reuses the main window's spotlight control

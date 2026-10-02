@@ -52,6 +52,8 @@
     "AboutGuides": "ヘルプとガイド",
     "AboutUserGuideLink": "ユーザーガイド",
     "AboutMonitorGuideLink": "フルスクリーンモニターガイド",
+    "FsBandVoice": "声の主成分はここ",
+    "FsAxisTimeHint": "約4秒前 → 現在",
     "VoiceChanger": "ボイスチェンジャー",
     "VoiceToggle": "声の変更",
     "VuIn": "IN",

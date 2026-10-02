@@ -50,6 +50,13 @@ public partial class LocalizationManager
     /// <summary>Link line at the bottom of the help card.</summary>
     public string FsGuideLink        => G();
 
+    // ── Overlay axis on the waterfall (hertz itself needs no copy; it is a symbol) ──
+    /// <summary>Sits on the shaded band where voice fundamentals and clarity live.</summary>
+    public string FsBandVoice        => G();
+
+    /// <summary>Says which way time runs, because the newest frame is at the right edge.</summary>
+    public string FsAxisTimeHint     => G();
+
     // Which waveform the monitor is drawing. Bound instead of assigned so the strip
     // under the taps re-labels itself on a language change, like every other string.
     private bool _monitorShowsDry;

@@ -56,6 +56,9 @@
                         <vc:SelectableTextBlock x:Name="FsPitchCentsText" Text="0 cents" FontSize="20" Foreground="#BB3EC6FF" VerticalAlignment="Center"/>
                     </Border>
                     <vc:SelectableTextBlock x:Name="FsPitchFreqText" Text="" FontSize="16" Foreground="#99FFFFFF" VerticalAlignment="Center"/>
+                    <!-- what the badge colour means, in words rather than in hue -->
+                    <vc:SelectableTextBlock x:Name="FsPitchLegendText" Text="" FontSize="12" Foreground="#CCFFFFFF"
+                           VerticalAlignment="Center" Margin="8,0,0,0"/>
                 </StackPanel>
                 <!-- pitch curve + cents meter (bottom overlay inside the pane) -->
                 <Canvas x:Name="PitchCurveCanvas" Height="80" VerticalAlignment="Bottom" Background="#08080E" ClipToBounds="True"/>
@@ -76,7 +79,7 @@
                     <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLoudnessSub, Mode=OneWay}" FontSize="10" Foreground="#99FFFFFF" Margin="0,1,0,0"/>
                 </StackPanel>
                 <Canvas x:Name="LufsCanvas" Grid.Row="1" ClipToBounds="True"
-                        ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsTargetLufs, Mode=OneWay}"/>
+                        ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsScaleTip, Mode=OneWay}"/>
                 <StackPanel Grid.Row="2">
                     <vc:SelectableTextBlock x:Name="LufsTruePeakText" Text="TP -∞" FontSize="12" Foreground="#CCFFFFFF" Margin="0,6,0,0"/>
                     <vc:SelectableTextBlock x:Name="LufsIntegratedText" Text="I -∞" FontSize="12" Foreground="#BB3EC6FF" Margin="0,2,0,0">
@@ -91,6 +94,19 @@
                     <Button x:Name="ResetIntegratedBtn" Style="{StaticResource SegmentButton}" FontSize="10" Padding="8,2"
                             HorizontalAlignment="Left" Margin="0,4,0,0" Click="ResetIntegrated_Click"
                             Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsResetIntegrated, Mode=OneWay}"/>
+                    <!-- which platform the reference line aims at; click to change it -->
+                    <Button x:Name="TargetBtn" Style="{StaticResource SegmentButton}" FontSize="10" Padding="8,2"
+                            HorizontalAlignment="Left" Margin="0,4,0,0" Click="TargetBtn_Click"
+                            Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorTargetLabel, Mode=OneWay}"/>
+                    <!-- the three pointers mean nothing without names; colours match the marks -->
+                    <StackPanel Margin="0,6,0,0">
+                        <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLegendMomentary, Mode=OneWay}"
+                                   FontSize="9" Foreground="#3EC6FF"/>
+                        <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLegendShort, Mode=OneWay}"
+                                   FontSize="9" Foreground="#A98BFF"/>
+                        <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsLegendIntegrated, Mode=OneWay}"
+                                   FontSize="9" Foreground="#FFD700"/>
+                    </StackPanel>
                 </StackPanel>
             </Grid>
         </Border>

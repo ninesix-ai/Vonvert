@@ -57,6 +57,40 @@ public partial class LocalizationManager
     /// <summary>Says which way time runs, because the newest frame is at the right edge.</summary>
     public string FsAxisTimeHint     => G();
 
+    // ── Loudness meter legend, switchable target, peak alert ──
+    public string FsLegendMomentary  => G();
+    public string FsLegendShort      => G();
+    public string FsLegendIntegrated => G();
+    public string FsScaleTip         => G();
+    public string FsTargetBroadcast  => G();
+    public string FsTargetStreaming  => G();
+    public string FsTargetPodcast    => G();
+    public string FsTargetNone       => G();
+    public string FsTpWarning        => G();
+    public string FsTpClip           => G();
+    public string FsPitchOn          => G();
+    public string FsPitchNear        => G();
+    public string FsPitchOff         => G();
+
+    /// <summary>
+    /// Which delivery target the meter draws its line for. Owned here for the same reason
+    /// the guidance banner is: the button label is then a bound string that follows the UI
+    /// language, instead of text someone remembers to refresh.
+    /// </summary>
+    public LufsTargetModel LufsTarget { get; } = new();
+
+    /// <summary>Name of the current target, also the label of the button that changes it.</summary>
+    public string MonitorTargetLabel => GetUiString(LufsTarget.LabelKey);
+
+    public void CycleMonitorLufsTarget()
+    {
+        LufsTarget.Cycle();
+        NotifyMonitorTargetChanged();
+    }
+
+    public void NotifyMonitorTargetChanged() =>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MonitorTargetLabel)));
+
     // Which waveform the monitor is drawing. Bound instead of assigned so the strip
     // under the taps re-labels itself on a language change, like every other string.
     private bool _monitorShowsDry;

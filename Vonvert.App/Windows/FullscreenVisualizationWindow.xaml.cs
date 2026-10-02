@@ -407,6 +407,14 @@ public partial class FullscreenVisualizationWindow : Window
 
     private void HelpBtn_Click(object s, RoutedEventArgs e) => HelpPopup.IsOpen = !HelpPopup.IsOpen;
 
+    /// <summary>Broadcast / streaming / podcast / hidden. The meter line used to be welded
+    /// to the broadcast number, which told a podcaster to sit about 7 LUFS too quiet.</summary>
+    private void TargetBtn_Click(object s, RoutedEventArgs e)
+    {
+        LocalizationManager.Instance.CycleMonitorLufsTarget();
+        RenderLufs();      // reflect the new line at once instead of after the next tick
+    }
+
     /// <summary>Opens the published guide for this window, in the UI language the user
     /// picked (Chinese gets the translated page, every other language the English one).</summary>
     private void GuideLink_Click(object s, RoutedEventArgs e)
@@ -537,35 +545,75 @@ public partial class FullscreenVisualizationWindow : Window
             Fill = new SolidColorBrush(Color.FromArgb(40, 112, 112, 138))
         });
 
-        double ty = LufsScale.MapToPixel(LufsScale.TargetLufs, h);
-        var tick = new Rectangle { Width = w, Height = 2, Fill = new SolidColorBrush(Color.FromArgb(170, 0x39, 0xE8, 0x8A)) };
-        Canvas.SetLeft(tick, 0); Canvas.SetTop(tick, ty);
-        LufsCanvas.Children.Add(tick);
-        var targetLabel = new TextBlock
+        var target = LocalizationManager.Instance.LufsTarget;
+        if (target.LUFS is double targetLufs)
         {
-            // Drawn on a canvas, so it is not covered by the XAML alpha guard: the target
-            // line is the one number a podcast user is supposed to aim at, it has to survive
-            // an OBS downscale.
-            Text = "-23", FontSize = 11,
-            Foreground = new SolidColorBrush(Color.FromArgb(210, 0x39, 0xE8, 0x8A))
-        };
-        Canvas.SetLeft(targetLabel, 18); Canvas.SetTop(targetLabel, ty - 7);
-        LufsCanvas.Children.Add(targetLabel);
+            double ty = LufsScale.MapToPixel((float)targetLufs, h);
+            var tick = new Rectangle { Width = w, Height = 2, Fill = new SolidColorBrush(Color.FromArgb(170, 0x39, 0xE8, 0x8A)) };
+            Canvas.SetLeft(tick, 0); Canvas.SetTop(tick, ty);
+            LufsCanvas.Children.Add(tick);
+            var targetLabel = new TextBlock
+            {
+                // Drawn on a canvas, so it is not covered by the XAML alpha guard: the target
+                // line is the one number a podcast user is supposed to aim at, it has to
+                // survive an OBS downscale.
+                Text = targetLufs.ToString("F0"), FontSize = 11,
+                Foreground = new SolidColorBrush(Color.FromArgb(210, 0x39, 0xE8, 0x8A))
+            };
+            Canvas.SetLeft(targetLabel, 40); Canvas.SetTop(targetLabel, ty - 7);
+            LufsCanvas.Children.Add(targetLabel);
+        }
 
-        AddLufsPointer(m.MomentaryLufs, h, Color.FromRgb(0x3E, 0xC6, 0xFF));
-        AddLufsPointer(m.ShortTermLufs, h, Color.FromRgb(0x8B, 0x5C, 0xF6));
-        AddLufsPointer(m.IntegratedLufs, h, Color.FromRgb(0xFF, 0xD7, 0x00));
+        // Numbers, not colours, are the legend nobody has to learn: the meter is a scale
+        // that reads upside-down to beginners (louder is higher, and every figure is negative).
+        foreach (float mark in new[] { 0f, -20f, -40f, LufsScale.FloorDb })
+        {
+            double my = LufsScale.MapToPixel(mark, h);
+            var num = new TextBlock
+            {
+                Text = mark.ToString("F0"), FontSize = 9,
+                Foreground = new SolidColorBrush(Color.FromArgb(160, 0xFF, 0xFF, 0xFF)),
+            };
+            Canvas.SetRight(num, 2);
+            Canvas.SetTop(num, Math.Clamp(my - 6, 0, Math.Max(0, h - 12)));
+            LufsCanvas.Children.Add(num);
+        }
 
-        LufsTruePeakText.Text = $"TP {m.TruePeakDb:F1} dBTP";
+        AddLufsPointer(m.MomentaryLufs, h, Color.FromRgb(0x3E, 0xC6, 0xFF), "M");
+        AddLufsPointer(m.ShortTermLufs, h, Color.FromRgb(0x8B, 0x5C, 0xF6), "S");
+        AddLufsPointer(m.IntegratedLufs, h, Color.FromRgb(0xFF, 0xD7, 0x00), "I");
+
+        // True peak is the one fault that cannot be fixed afterwards, so say what the number
+        // means instead of leaving the user to convert dBTP in their head.
+        var alert = LufsPeakAlert.LevelFor(m.TruePeakDb);
+        LufsTruePeakText.Text = alert == PeakAlert.Ok
+            ? $"TP {m.TruePeakDb:F1} dBTP"
+            : $"TP {m.TruePeakDb:F1} dBTP · {LocalizationManager.Instance.GetUiString(LufsPeakAlert.KeyFor(alert)!)}";
+        LufsTruePeakText.Foreground = new SolidColorBrush(alert switch
+        {
+            PeakAlert.Clip => Color.FromRgb(0xFF, 0x6B, 0x6B),
+            PeakAlert.Warning => Color.FromRgb(0xFB, 0xBF, 0x24),
+            _ => Color.FromRgb(0xCC, 0xCC, 0xCC),
+        });
         LufsIntegratedText.Text = $"{LocalizationManager.Instance.FsIntegrated} {m.IntegratedLufs:F1} LUFS";
     }
 
-    private void AddLufsPointer(float lufs, double h, Color color)
+    private void AddLufsPointer(float lufs, double h, Color color, string letter)
     {
         double y = LufsScale.MapToPixel(lufs, h);
         var p = new Rectangle { Width = 34, Height = 3, RadiusX = 1.5, RadiusY = 1.5, Fill = new SolidColorBrush(color) };
         Canvas.SetLeft(p, 0); Canvas.SetTop(p, y - 1.5);
         LufsCanvas.Children.Add(p);
+
+        // A letter per pointer: without one, three coloured bars are a puzzle, and the
+        // colours alone also exclude anyone who cannot tell them apart.
+        var label = new TextBlock
+        {
+            Text = letter, FontSize = 10, FontWeight = FontWeights.Bold,
+            Foreground = new SolidColorBrush(Color.FromRgb(0xF0, 0xF0, 0xF0)),
+        };
+        Canvas.SetLeft(label, 36); Canvas.SetTop(label, Math.Clamp(y - 7, 0, Math.Max(0, h - 13)));
+        LufsCanvas.Children.Add(label);
     }
 
     private void ResetIntegrated_Click(object s, RoutedEventArgs e)
@@ -593,8 +641,13 @@ public partial class FullscreenVisualizationWindow : Window
             FsPitchCentsText.Text = $"{snap.DisplayCents} {LocalizationManager.Instance.CentsUnit}";
             FsPitchCentsText.Foreground = new SolidColorBrush(Color.FromArgb(187, noteColor.R, noteColor.G, noteColor.B));
             FsPitchFreqText.Text = $"{snap.Frequency:F0} Hz";
+            // Spell out what the colour means: three hues are not a legend, and colour is
+            // the one channel a colour-blind or distant-viewing user cannot rely on.
+            FsPitchLegendText.Text = abs < 10f ? LocalizationManager.Instance.FsPitchOn
+                                  : abs < 25f ? LocalizationManager.Instance.FsPitchNear
+                                  : LocalizationManager.Instance.FsPitchOff;
         }
-        else FsPitchFreqText.Text = "";
+        else { FsPitchFreqText.Text = ""; FsPitchLegendText.Text = ""; }
 
         if (voiced) RenderCentsMeter(snap.CentsDeviation);
         FsCentsMeterCanvas.Visibility = voiced ? Visibility.Visible : Visibility.Collapsed;

@@ -10,19 +10,27 @@ using Vonvert.Engine.Services;
 namespace Vonvert.App;
 
 /// <summary>
-/// Floating soundboard lifecycle: idempotent open/close owned by the main window so WPF
-/// tears it down with the app (mirrors MainWindow.Fullscreen.cs — no dispatcher tricks).
-/// Also hosts the settings-card handlers that persist the window state.
+/// Floating soundboard lifecycle + settings/header toggle sync. The window's existence is the
+/// single source of truth; both the settings "Show" toggle and the Soundboard-tab header toggle
+/// are projections that reflect and command it. Closing the window deliberately also cancels
+/// auto-open, so "auto-open" only means "open when the app cold-starts" until the user opts back in.
 /// </summary>
 public partial class MainWindow
 {
     private FloatingSoundboardWindow? _floatingSoundboard;
 
-    /// <summary>Toggle action used by the Soundboard-tab header button and the settings card.</summary>
-    internal void ToggleFloatingSoundboard()
+    /// <summary>Raised whenever the floating window opens (true) or closes (false), so any bound
+    /// toggle (settings card, Soundboard-tab header) mirrors the real window state.</summary>
+    internal event Action<bool>? FloatingVisibilityChanged;
+
+    /// <summary>Whether the floating mini-player is currently shown.</summary>
+    internal bool IsFloatingOpen => _floatingSoundboard is { IsLoaded: true };
+
+    /// <summary>Show or hide the floating window (idempotent per target state).</summary>
+    internal void SetFloatingVisible(bool visible)
     {
-        if (_floatingSoundboard is { IsLoaded: true }) { _floatingSoundboard.Close(); return; }
-        ShowFloatingSoundboard();
+        if (visible) { if (!IsFloatingOpen) ShowFloatingSoundboard(); }
+        else if (_floatingSoundboard != null) _floatingSoundboard.Close();
     }
 
     private void ShowFloatingSoundboard()
@@ -30,9 +38,11 @@ public partial class MainWindow
         try
         {
             var w = new FloatingSoundboardWindow { Owner = this };
-            w.Closed += (_, _) => { if (ReferenceEquals(_floatingSoundboard, w)) _floatingSoundboard = null; };
+            w.Closed += (_, _) => OnFloatingClosed(w);
             _floatingSoundboard = w;
             w.Show();
+            FloatingVisibilityChanged?.Invoke(true);
+            SyncFloatingShowToggle(true);
         }
         catch (Exception ex)
         {
@@ -44,33 +54,61 @@ public partial class MainWindow
         }
     }
 
-    /// <summary>Auto-open on startup when the user opted in and at least one pad is pinned.</summary>
+    /// <summary>Window closed (its own ✕ or a toggle): mirror state, and — being a deliberate
+    /// user action — cancel auto-open so it will not silently reappear on the next launch.</summary>
+    private void OnFloatingClosed(FloatingSoundboardWindow w)
+    {
+        if (ReferenceEquals(_floatingSoundboard, w)) _floatingSoundboard = null;
+        FloatingVisibilityChanged?.Invoke(false);
+        SyncFloatingShowToggle(false);
+
+        AppConfig.Instance.Audio.FloatAutoOpen = false;
+        AppConfig.Instance.Save();
+        SyncFloatingAutoOpenToggle(false);
+    }
+
+    /// <summary>Auto-open when the app cold-starts, only if opted in and at least one pad is pinned.</summary>
     internal void MaybeAutoOpenFloatingSoundboard()
     {
         if (!AppConfig.Instance.Audio.FloatAutoOpen) return;
         if (App.Soundboard is null || App.Soundboard.PinnedSoundIds.Count == 0) return;
-        if (_floatingSoundboard is { IsLoaded: true }) return;
+        if (IsFloatingOpen) return;
         ShowFloatingSoundboard();
     }
 
-    // ── Settings-card handlers (wired from MainWindow.xaml) ──
-    // Suppress persistence while we sync the toggles to saved config on tab load, so a
-    // visit to Settings never re-triggers auto-open or rewrites the same value.
+    // ── Settings-card + header toggle wiring ──
+    // This guard suppresses handlers while we programmatically mirror state into a toggle, so
+    // reflecting (never commanding) a toggle cannot recurse or rewrite config.
     private bool _syncingFloatToggles;
 
-    /// <summary>Set the two settings toggles from persisted config without firing their handlers.</summary>
+    /// <summary>Sync the three settings toggles to persisted config / live window state on tab load.</summary>
     private void InitFloatingSoundboardToggles()
     {
+        SyncFloatingAutoOpenToggle(AppConfig.Instance.Audio.FloatAutoOpen);
+        SyncFloatingTopmostToggle(AppConfig.Instance.Audio.FloatTopmost);
+        SyncFloatingShowToggle(IsFloatingOpen);
+    }
+
+    private void SyncFloatingShowToggle(bool open)
+        => SetToggle(FloatingShowToggle, open);
+    private void SyncFloatingAutoOpenToggle(bool on)
+        => SetToggle(FloatingAutoOpenToggle, on);
+    private void SyncFloatingTopmostToggle(bool on)
+        => SetToggle(FloatingTopmostToggle, on);
+
+    private void SetToggle(ToggleButton? toggle, bool value)
+    {
+        if (toggle == null) return;   // Settings tab is lazily realized; may not exist yet.
         _syncingFloatToggles = true;
-        try
-        {
-            FloatingAutoOpenToggle.IsChecked = AppConfig.Instance.Audio.FloatAutoOpen;
-            FloatingTopmostToggle.IsChecked  = AppConfig.Instance.Audio.FloatTopmost;
-        }
+        try { toggle.IsChecked = value; }
         finally { _syncingFloatToggles = false; }
     }
 
-    private void FloatingOpen_Click(object sender, RoutedEventArgs e) => ToggleFloatingSoundboard();
+    private void FloatingShow_Changed(object sender, RoutedEventArgs e)
+    {
+        if (_syncingFloatToggles) return;
+        SetFloatingVisible((sender as ToggleButton)?.IsChecked == true);
+    }
 
     private void FloatingAutoOpen_Changed(object sender, RoutedEventArgs e)
     {

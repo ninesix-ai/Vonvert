@@ -45,6 +45,11 @@ public partial class SoundboardViewControl : UserControl
         Unloaded += OnUnloaded;
     }
 
+    // Header "floating board" toggle mirrors the main window's floating window state; the guard
+    // prevents a programmatic IsChecked update from echoing back as a command.
+    private MainWindow? _mainWinForFloat;
+    private bool _syncingFloatToggle;
+
     private void OnLoaded(object s, RoutedEventArgs e)
     {
         VolumeSlider.Value = Board?.Volume ?? 0.35f;
@@ -54,6 +59,15 @@ public partial class SoundboardViewControl : UserControl
         if (Board != null) Board.FavoritesChanged += OnFavoritesChanged;
         if (App.Engine != null) App.Engine.StatusChanged += OnEngineStatusChanged;
         L.PropertyChanged += OnLanguageChanged;
+
+        if (Window.GetWindow(this) is MainWindow mw)
+        {
+            _mainWinForFloat = mw;
+            mw.FloatingVisibilityChanged += OnFloatVisibilityChanged;
+            _syncingFloatToggle = true;
+            try { FloatToggle.IsChecked = mw.IsFloatingOpen; }
+            finally { _syncingFloatToggle = false; }
+        }
 
         RebuildPads();
         UpdateModeChips();
@@ -66,6 +80,7 @@ public partial class SoundboardViewControl : UserControl
         if (Board != null) Board.FavoritesChanged -= OnFavoritesChanged;
         if (App.Engine != null) App.Engine.StatusChanged -= OnEngineStatusChanged;
         L.PropertyChanged -= OnLanguageChanged;
+        if (_mainWinForFloat != null) { _mainWinForFloat.FloatingVisibilityChanged -= OnFloatVisibilityChanged; _mainWinForFloat = null; }
     }
 
     private void OnSoundsChanged() => Dispatcher.BeginInvoke(new Action(RebuildPads));
@@ -79,9 +94,25 @@ public partial class SoundboardViewControl : UserControl
         e.Handled = true;
     }
 
-    /// <summary>Header button: opens/closes the floating mini-player owned by the main window.</summary>
-    private void Float_Click(object sender, RoutedEventArgs e)
-        => (Window.GetWindow(this) as MainWindow)?.ToggleFloatingSoundboard();
+    /// <summary>Header toggle: commands the main window to show/hide the floating mini-player.</summary>
+    private void OnFloatChecked(object s, RoutedEventArgs e)
+    {
+        if (_syncingFloatToggle) return;
+        _mainWinForFloat?.SetFloatingVisible(true);
+    }
+
+    private void OnFloatUnchecked(object s, RoutedEventArgs e)
+    {
+        if (_syncingFloatToggle) return;
+        _mainWinForFloat?.SetFloatingVisible(false);
+    }
+
+    private void OnFloatVisibilityChanged(bool open) => Dispatcher.BeginInvoke(new Action(() =>
+    {
+        _syncingFloatToggle = true;
+        try { FloatToggle.IsChecked = open; }
+        finally { _syncingFloatToggle = false; }
+    }));
     private void OnEngineStatusChanged(EngineStatus status) => Dispatcher.Invoke(UpdateStatusBar);
 
     private void OnLanguageChanged(object? sender, PropertyChangedEventArgs e)

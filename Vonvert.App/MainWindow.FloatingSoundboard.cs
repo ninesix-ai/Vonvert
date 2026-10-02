@@ -54,10 +54,27 @@ public partial class MainWindow
     }
 
     // ── Settings-card handlers (wired from MainWindow.xaml) ──
+    // Suppress persistence while we sync the toggles to saved config on tab load, so a
+    // visit to Settings never re-triggers auto-open or rewrites the same value.
+    private bool _syncingFloatToggles;
+
+    /// <summary>Set the two settings toggles from persisted config without firing their handlers.</summary>
+    private void InitFloatingSoundboardToggles()
+    {
+        _syncingFloatToggles = true;
+        try
+        {
+            FloatingAutoOpenToggle.IsChecked = AppConfig.Instance.Audio.FloatAutoOpen;
+            FloatingTopmostToggle.IsChecked  = AppConfig.Instance.Audio.FloatTopmost;
+        }
+        finally { _syncingFloatToggles = false; }
+    }
+
     private void FloatingOpen_Click(object sender, RoutedEventArgs e) => ToggleFloatingSoundboard();
 
     private void FloatingAutoOpen_Changed(object sender, RoutedEventArgs e)
     {
+        if (_syncingFloatToggles) return;
         bool on = (sender as ToggleButton)?.IsChecked == true;
         AppConfig.Instance.Audio.FloatAutoOpen = on;
         AppConfig.Instance.Save();
@@ -66,6 +83,7 @@ public partial class MainWindow
 
     private void FloatingTopmost_Changed(object sender, RoutedEventArgs e)
     {
+        if (_syncingFloatToggles) return;
         bool top = (sender as ToggleButton)?.IsChecked == true;
         AppConfig.Instance.Audio.FloatTopmost = top;
         AppConfig.Instance.Save();

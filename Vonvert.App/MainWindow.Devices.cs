@@ -19,6 +19,7 @@ public partial class MainWindow
     {
         try { InitLanguageSelector(); } catch (Exception ex) { AppLog.Warning(ex, "InitLanguageSelector failed"); }
         try { InitDataLocationView(); } catch (Exception ex) { AppLog.Warning(ex, "InitDataLocationView failed"); }
+        try { InitFloatingSoundboardToggles(); } catch (Exception ex) { AppLog.Warning(ex, "InitFloatingSoundboardToggles failed"); }
         try { PopulateDevices(); } catch (Exception ex) { AppLog.Warning(ex, "TabSettings_Loaded: PopulateDevices failed"); }
         try { CheckVBCable(); } catch { /* VB-Cable check is non-critical */ }
     }

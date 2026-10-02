@@ -240,6 +240,11 @@ public partial class App : Application
                 Soundboard.LiveMode = AppConfig.Instance.Audio.SoundboardLiveMode;
                 AppLog.Information("SoundboardManager initialized (liveMode={Live})", Soundboard.LiveMode);
 
+                // Surface the pinned-pad mini-player if the user opted into auto-open (needs
+                // the Soundboard above). Failures degrade to "just doesn't auto-open".
+                try { window.MaybeAutoOpenFloatingSoundboard(); }
+                catch (Exception ex) { AppLog.Warning(ex, "Floating soundboard auto-open skipped"); }
+
                 // Restore the user's device selection (mic / VB-Cable) if the
                 // saved devices still exist on this machine.
                 var savedAudio = AppConfig.Instance.Audio;

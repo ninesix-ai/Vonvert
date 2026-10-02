@@ -67,6 +67,11 @@
                             </ContextMenu>
                         </vc:SelectableTextBlock.ContextMenu>
                     </vc:SelectableTextBlock>
+                    <!-- The integrated reading restarts from a right-click on the text above, which
+                         nobody discovers. Same action, visible button (keeps the menu for muscle memory). -->
+                    <Button x:Name="ResetIntegratedBtn" Style="{StaticResource SegmentButton}" FontSize="10" Padding="8,2"
+                            HorizontalAlignment="Left" Margin="0,4,0,0" Click="ResetIntegrated_Click"
+                            Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsResetIntegrated, Mode=OneWay}"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -97,13 +102,64 @@
             <vc:SelectableTextBlock.Effect><DropShadowEffect Color="#8B5CF6" BlurRadius="30" ShadowDepth="0" Opacity="0.8"/></vc:SelectableTextBlock.Effect>
         </vc:SelectableTextBlock>
 
-        <!-- close hint (revealed on mouse move; spans both rows, kept clear of
-             the 150px LUFS column header it would otherwise overlap) -->
+        <!-- close hint (revealed on mouse move). Moved to the top-left corner: it used to
+             sit 160px in from the right to dodge the LUFS column, which put it exactly where
+             the pitch badge row lands as soon as somebody speaks. -->
         <Border x:Name="CloseHint" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2"
-                VerticalAlignment="Top" HorizontalAlignment="Right"
-                Margin="0,0,160,0"
-                Background="#88000000" CornerRadius="0,0,0,12" Padding="16,8" Opacity="0">
+                VerticalAlignment="Top" HorizontalAlignment="Left"
+                Margin="10,28,0,0"
+                Background="#99000000" CornerRadius="0,0,12,0" Padding="16,8" Opacity="0">
             <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=EscToClose, Mode=OneWay}" FontSize="12" Foreground="#88FFFFFF"/>
         </Border>
+
+        <!-- ══ chrome toolbar: revealed with the cursor on mouse move, hidden after the same
+             3s idle beat. Words rather than glyphs: a first-time streamer must read "Close",
+             not guess an icon, and it costs no new icon assets. Bottom-right is the only corner
+             with no label of its own, so the strip never writes over a panel title. -->
+        <Border x:Name="ChromeBar" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2"
+                VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                Background="#CC0A0C12" BorderBrush="#33FFFFFF" BorderThickness="1,1,0,0"
+                CornerRadius="12,0,0,0" Padding="8,6" Opacity="0" IsHitTestVisible="False">
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="CloseBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                        Click="CloseBtn_Click"
+                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsClose, Mode=OneWay}"/>
+                <Button x:Name="TopmostBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                        Click="TopmostBtn_Click"
+                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsTopmost, Mode=OneWay}"/>
+                <Button x:Name="SizeBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                        Click="SizeBtn_Click"
+                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsSize, Mode=OneWay}"/>
+                <Button x:Name="ResetViewBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                        Click="ResetViewBtn_Click"
+                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsRestoreLayout, Mode=OneWay}"/>
+                <Button x:Name="HelpBtn" Style="{StaticResource SegmentButton}" FontSize="11" Padding="10,4"
+                        Click="HelpBtn_Click"
+                        Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpBtn, Mode=OneWay}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ══ help card: the gestures that used to be invisible, written down ══ -->
+        <Popup x:Name="HelpPopup" PlacementTarget="{Binding ElementName=HelpBtn}" Placement="Top"
+               StaysOpen="False" AllowsTransparency="True">
+            <Border Background="#F20A0C12" BorderBrush="#44FFFFFF" BorderThickness="1"
+                    CornerRadius="12" Padding="16,12" MaxWidth="420">
+                <StackPanel>
+                    <TextBlock FontSize="14" FontWeight="Bold" Foreground="#EEFFFFFF" Margin="0,0,0,8"
+                               TextWrapping="Wrap"
+                               Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpTitle, Mode=OneWay}"/>
+                    <TextBlock FontSize="12" Foreground="#EE3EC6FF" Margin="0,0,0,8" TextWrapping="Wrap"
+                               Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpFocus, Mode=OneWay}"/>
+                    <TextBlock FontSize="12" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
+                               Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpDrag, Mode=OneWay}"/>
+                    <TextBlock FontSize="12" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
+                               Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpDblClick, Mode=OneWay}"/>
+                    <TextBlock FontSize="12" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
+                               Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsHelpRightClick, Mode=OneWay}"/>
+                    <TextBlock FontSize="12" Foreground="#DDFFFFFF" Margin="0,2,0,0" TextWrapping="Wrap"
+                               Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=EscToClose, Mode=OneWay}"/>
+                </StackPanel>
+            </Border>
+        </Popup>
     </Grid>
 </Window>

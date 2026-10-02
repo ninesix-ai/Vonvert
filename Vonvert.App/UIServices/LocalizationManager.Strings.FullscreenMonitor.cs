@@ -20,4 +20,16 @@ public partial class LocalizationManager
     public string FsTargetLufs       => G();
     public string FsIntegrated       => G();
     public string FsResetIntegrated  => G();
+
+    // ── Chrome toolbar (hover-revealed) and the help card ──
+    public string FsClose            => G();
+    public string FsTopmost          => G();
+    public string FsSize             => G();
+    public string FsRestoreLayout    => G();
+    public string FsHelpBtn          => G();
+    public string FsHelpTitle        => G();
+    public string FsHelpDrag         => G();
+    public string FsHelpDblClick     => G();
+    public string FsHelpRightClick   => G();
+    public string FsHelpFocus        => G();
 }

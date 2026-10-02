@@ -4,6 +4,7 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -34,6 +35,7 @@ public partial class FullscreenVisualizationWindow : Window
     private readonly WriteableBitmap _waterfall = new(TimeCols, FreqBins, 96, 96, PixelFormats.Bgra32, null);
     private readonly int[] _pixels = new int[TimeCols * FreqBins];
     private readonly PaneLayoutModel _layout = new();
+    private readonly MonitorChromeModel _chrome = new();
     private readonly DispatcherTimer _idleTimer = new() { Interval = TimeSpan.FromSeconds(3) };
 
     private readonly Polyline _pitchCurveLine = new()
@@ -51,6 +53,7 @@ public partial class FullscreenVisualizationWindow : Window
         WaterfallImage.Source = _waterfall;
         WaveformCanvas.Children.Add(_waveLine);
         UpdateDryWetButtons();
+        UpdateChromeVisuals();
 
         _renderTimer.Tick += (_, _) =>
         {
@@ -62,7 +65,17 @@ public partial class FullscreenVisualizationWindow : Window
         };
         _renderTimer.Start();
 
-        _idleTimer.Tick += (_, _) => { Cursor = Cursors.None; CloseHint.Opacity = 0; _idleTimer.Stop(); };
+        _idleTimer.Tick += (_, _) =>
+        {
+            // The help card is meant to be read, so the idle beat must not wipe the
+            // cursor and toolbar out from under it; just re-arm and stay revealed.
+            if (HelpPopup.IsOpen) { _idleTimer.Stop(); _idleTimer.Start(); return; }
+            Cursor = Cursors.None;
+            CloseHint.Opacity = 0;
+            ChromeBar.Opacity = 0;
+            ChromeBar.IsHitTestVisible = false;
+            _idleTimer.Stop();
+        };
 
         KeyDown += (_, e) => { if (e.Key == Key.Escape) Close(); };
         // Anywhere-drag on the borderless window (handledEventsToo: the child
@@ -79,13 +92,34 @@ public partial class FullscreenVisualizationWindow : Window
         // handler is registered handledEventsToo, so it must opt out by itself
         // instead of relying on the toggle's e.Handled.
         if (e.ClickCount == 2) return;
+        // A press that starts on a real control belongs to that control. Without this
+        // the window-level handledEventsToo hook steals it from the chrome toolbar and
+        // every button click would also drag the window.
+        if (IsOnInteractiveElement(e.OriginalSource)) return;
         if (e.LeftButton == MouseButtonState.Pressed) DragMove();
+    }
+
+    /// <summary>True when the press landed on a clickable control (or on its content),
+    /// i.e. anywhere the user meant to click rather than to drag the window.</summary>
+    private static bool IsOnInteractiveElement(object? source)
+    {
+        var el = source as DependencyObject;
+        while (el is not null)
+        {
+            if (el is ButtonBase) return true;
+            el = (el is Visual || el is System.Windows.Media.Media3D.Visual3D)
+                ? VisualTreeHelper.GetParent(el)
+                : null;
+        }
+        return false;
     }
 
     private void ShowCursorAndHint()
     {
         Cursor = Cursors.Arrow;
         CloseHint.Opacity = 1;
+        ChromeBar.Opacity = 1;
+        ChromeBar.IsHitTestVisible = true;
         _idleTimer.Stop();
         _idleTimer.Start();
     }
@@ -143,6 +177,56 @@ public partial class FullscreenVisualizationWindow : Window
             _ => new GridLength(150),
         };
     }
+
+    // ── chrome toolbar: close / always-on-top / size cycle / reset view / help ──
+
+    private void CloseBtn_Click(object s, RoutedEventArgs e) => Close();
+
+    private void TopmostBtn_Click(object s, RoutedEventArgs e)
+    {
+        _chrome.ToggleTopmost();
+        Topmost = _chrome.Topmost;
+        UpdateChromeVisuals();
+    }
+
+    private void SizeBtn_Click(object s, RoutedEventArgs e)
+    {
+        _chrome.CycleSize();
+        ApplyChromeSize();
+    }
+
+    private void ResetViewBtn_Click(object s, RoutedEventArgs e)
+    {
+        // "I made a mess of the layout" must have one obvious answer.
+        if (_layout.Maximized is MonitorPane pane) TogglePane(pane);
+        _chrome.ResetToDefault();
+        Topmost = _chrome.Topmost;
+        ApplyChromeSize();
+        UpdateChromeVisuals();
+    }
+
+    private void HelpBtn_Click(object s, RoutedEventArgs e) => HelpPopup.IsOpen = !HelpPopup.IsOpen;
+
+    /// <summary>Resize to the selected chrome mode, clamped to the work area, then pull the
+    /// window back on screen. Deliberately not <c>WindowState.Maximized</c>: a borderless
+    /// WPF window maximized that way covers the taskbar, which is exactly how a user gets
+    /// stuck unable to reach anything else.</summary>
+    private void ApplyChromeSize()
+    {
+        var wa = SystemParameters.WorkArea;
+        var (w, h) = _chrome.Resolve((int)wa.Width, (int)wa.Height);
+        Width  = w;
+        Height = h;
+        Left = Math.Clamp(Left, wa.Left,  Math.Max(wa.Left,  wa.Right  - w));
+        Top  = Math.Clamp(Top,  wa.Top,   Math.Max(wa.Top,   wa.Bottom - h));
+    }
+
+    /// <summary>Active state by style switch, never by assigning <c>Foreground</c> here: a
+    /// local value outranks the template's own hover trigger and kills the feedback (the
+    /// bug the dry/wet taps still have).</summary>
+    private void UpdateChromeVisuals()
+        => TopmostBtn.SetResourceReference(StyleProperty,
+               _chrome.Topmost ? "SegmentButtonActive" : "SegmentButton");
 
     // ── waveform dry/wet source ─────────────────────────────────────────
 

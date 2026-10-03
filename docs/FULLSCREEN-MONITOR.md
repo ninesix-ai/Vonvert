@@ -277,6 +277,8 @@ in the Vonvert data folder (default
 | Change the look for capture | **Appearance → Look** - Default, High contrast, Green screen (for OBS chroma key), Neutral grey |
 | Make the text bigger or smaller | **Appearance → Text size** - Compact, Standard, Large |
 | Change plain words vs technical terms | **Appearance → Wording** |
+| Start from a layout that is already set up | **Appearance → Views** - All panels, On air, Volume meter, Pitch lesson |
+| Pick one of those views from the keyboard | `1` `2` `3` `4` |
 | Keep the picture clean | Stop moving the mouse for 3 seconds |
 | Help card | `H` or `F1` |
 | Always on top | `T` |
@@ -289,6 +291,21 @@ in the Vonvert data folder (default
 The window is driven by keyboard alone: every panel and every control is named for a
 screen reader, and `Tab` reaches the buttons. Keys are ignored while Ctrl, Alt or Shift is
 held, so nothing here takes a shortcut away from Windows.
+
+### The four views
+
+A view is a starting point, not a mode you have to stay in - you can still drag panels
+apart, fill the window with one panel, or change the size afterwards, and the moment you do,
+the highlighted view clears itself rather than pretending to still describe the screen.
+
+| View | Key | What you get |
+|---|---|---|
+| **All panels** | `1` | The three panels at once, the way the window opens by default. This is the one to pick when something looks wrong and you want to see everything. |
+| **On air** | `2` | The voice detail fills the window and your voice's name keeps fading in over it, which is the pair of things an audience actually reads. This is the view to capture in OBS. |
+| **Volume meter** | `3` | The loudness meter fills the window and nothing flashes over the numbers, because a name crossing the meter is exactly when you cannot read it. |
+| **Pitch lesson** | `4` | The voice detail fills the window with the pitch curve given real height, so a note drifting flat is visible from across the room. |
+
+The view you leave the window in is remembered, along with everything else you set here.
 
 ## 10. Messages you may see
 

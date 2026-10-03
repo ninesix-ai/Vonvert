@@ -353,6 +353,10 @@ pitch badge. It is made for OBS window capture and for a second screen.
   industry wording.
 - Each panel carries a labelled chip: click it (or double-click the panel) to fill the
   window, and the strip at the bottom brings the hidden panels back with one click.
+- **Appearance** in the corner strip holds the four one-click views (**All panels**, **On
+  air**, **Volume meter**, **Pitch lesson** - also keys `1` to `4`), the capture palettes
+  including **Green screen** for OBS chroma keying, the wording and the text size. Whatever
+  you leave it on is remembered for next time.
 - `Esc`, or the **Close** button, exits. The window carries **no audio** - route sound to
   OBS with **Audio Input Capture** as described in [Chapter 5](#chapter-5--audio-routing-getting-the-voice-into-other-apps).
 

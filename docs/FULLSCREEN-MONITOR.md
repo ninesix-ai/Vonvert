@@ -230,6 +230,26 @@ set the canvas to 720p.
 **If OBS shows a black or empty capture:** in the Window Capture properties, change
 **Method** to "Windows 10 (1903 or later)".
 
+### Vertical and square canvases
+
+Shorts, Reels and TikTok are 1080×1920, and some overlays are square. Choose
+**Appearance → Canvas** to put the window into one of those shapes instead of cropping a
+16:9 capture by hand in OBS:
+
+| Canvas | Window at native size | At the large size |
+|---|---|---|
+| **Widescreen (16:9)** | 1280×720 | 1920×1080 |
+| **Vertical (9:16)** | 720×1280 | 1080×1920 |
+| **Square (1:1)** | 900×900 | 1200×1200 |
+
+The panels keep their proportions in every shape, so the loudness column stays a column and
+the voice shape stays a strip - it just has less width to work with, which is what a phone
+canvas looks like. **On air** (keys `2`) is usually the view you want on a vertical canvas:
+one picture, filling it, with the voice name as the caption.
+
+Picking a canvas shape ends "fill the whole screen" if that was on, because filling the
+screen and keeping a ratio cannot both be true at once.
+
 ### Keying the window over your stream
 
 Choose **Appearance → Green screen** in the corner strip and the surfaces behind the pictures turn the
@@ -278,6 +298,7 @@ in the Vonvert data folder (default
 | Make the text bigger or smaller | **Appearance → Text size** - Compact, Standard, Large |
 | Change plain words vs technical terms | **Appearance → Wording** |
 | Start from a layout that is already set up | **Appearance → Views** - All panels, On air, Volume meter, Pitch lesson |
+| Match the window to a vertical or square canvas | **Appearance → Canvas** - Widescreen (16:9), Vertical (9:16), Square (1:1) |
 | Pick one of those views from the keyboard | `1` `2` `3` `4` |
 | Keep the picture clean | Stop moving the mouse for 3 seconds |
 | Help card | `H` or `F1` |

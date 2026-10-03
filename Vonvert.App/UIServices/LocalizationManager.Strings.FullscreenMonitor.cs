@@ -245,6 +245,28 @@ public partial class LocalizationManager
 
     private string LabelOf(MonitorLabelSlot slot) => GetUiString(MonitorLabels.KeyFor(slot));
 
+    // ── one-click views ──
+    /// <summary>Heading of the template group in the appearance popup; carries the 1-4 hint.</summary>
+    public string FsTemplates            => G();
+    public string FsTemplateDiagnose     => G();
+    public string FsTemplateStream       => G();
+    public string FsTemplateLoudness     => G();
+    public string FsTemplateTeaching     => G();
+
+    /// <summary>Screen-reader name for a view: which key picks it, and which view. Built from
+    /// the same table the buttons are listed in, so a re-ordering cannot leave the announced
+    /// digit pointing at a different view than the one being read.</summary>
+    public string AccFsTemplateDiagnose  => TemplateAcc(0);
+    public string AccFsTemplateStream    => TemplateAcc(1);
+    public string AccFsTemplateLoudness  => TemplateAcc(2);
+    public string AccFsTemplateTeaching  => TemplateAcc(3);
+
+    /// <summary>"view 2: On air". One translatable frame plus the name the button already
+    /// shows, rather than a second copy of every name to keep in step.</summary>
+    private string TemplateAcc(int slot)
+        => string.Format(GetUiString("FsTemplateHelp"), slot + 1,
+                         GetUiString(MonitorTemplates.NameKeyFor(MonitorTemplates.Order[slot])));
+
     // ── capture colour profiles ──
     /// <summary>Label of the corner button that opens the palette / wording / text-size popup.</summary>
     public string FsAppearance        => G();

@@ -293,6 +293,51 @@
             <Border Background="#F20A0C12" BorderBrush="#44FFFFFF" BorderThickness="1"
                     CornerRadius="12" Padding="10,8">
                 <StackPanel MinWidth="220">
+                    <!-- one-click views: the heading carries the digit hint because these four
+                         rows are also keys 1-4, and a shortcut nobody can see is a feature
+                         nobody finds. The active view is marked, so the popup reports what the
+                         screen is actually showing. -->
+                    <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsTemplates, Mode=OneWay}"
+                           FontSize="{DynamicResource FsFontBody}" Foreground="{DynamicResource FsSubBrush}" Margin="2,0,0,4"/>
+                    <UniformGrid Columns="2" Margin="0,0,0,6">
+                        <Button x:Name="TemplateDiagnoseBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}"
+                                Padding="8,4" Margin="0,0,3,3" HorizontalAlignment="Stretch"
+                                AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsTemplateDiagnose, Mode=OneWay}"
+                                Click="TemplateDiagnose_Click">
+                            <Button.Content>
+                                <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsTemplateDiagnose, Mode=OneWay}"
+                                       TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button.Content>
+                        </Button>
+                        <Button x:Name="TemplateStreamBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}"
+                                Padding="8,4" Margin="3,0,0,3" HorizontalAlignment="Stretch"
+                                AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsTemplateStream, Mode=OneWay}"
+                                Click="TemplateStream_Click">
+                            <Button.Content>
+                                <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsTemplateStream, Mode=OneWay}"
+                                       TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button.Content>
+                        </Button>
+                        <Button x:Name="TemplateLoudnessBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}"
+                                Padding="8,4" Margin="0,3,3,0" HorizontalAlignment="Stretch"
+                                AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsTemplateLoudness, Mode=OneWay}"
+                                Click="TemplateLoudness_Click">
+                            <Button.Content>
+                                <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsTemplateLoudness, Mode=OneWay}"
+                                       TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button.Content>
+                        </Button>
+                        <Button x:Name="TemplateTeachingBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}"
+                                Padding="8,4" Margin="3,3,0,0" HorizontalAlignment="Stretch"
+                                AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=AccFsTemplateTeaching, Mode=OneWay}"
+                                Click="TemplateTeaching_Click">
+                            <Button.Content>
+                                <TextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FsTemplateTeaching, Mode=OneWay}"
+                                       TextWrapping="Wrap" TextAlignment="Center"/>
+                            </Button.Content>
+                        </Button>
+                    </UniformGrid>
+
                     <!-- capture palette: named by what it is for, so "Green screen" says more
                          than "Theme 3" would. Reads as offer + current value. -->
                     <Button x:Name="ProfileBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"

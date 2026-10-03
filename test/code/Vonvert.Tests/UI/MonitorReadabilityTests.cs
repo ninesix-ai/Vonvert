@@ -181,7 +181,11 @@ public sealed class MonitorReadabilityTests
         // Seen in the rendered capture at the large text size: "Target -23 LUFS (Broadcast)"
         // was cut mid-word. Widening the column cannot save the languages whose sentences are
         // longer than English, so the text itself has to break.
-        foreach (string name in new[] { "TargetBtn", "ResetIntegratedBtn", "LoudnessHintChip" })
+        // The four view buttons join them: their labels are translated, they sit in a 2x2 grid
+        // inside a popup of fixed width, and a clipped one cannot be read back.
+        foreach (string name in new[] { "TargetBtn", "ResetIntegratedBtn", "LoudnessHintChip",
+                                        "TemplateDiagnoseBtn", "TemplateStreamBtn",
+                                        "TemplateLoudnessBtn", "TemplateTeachingBtn" })
         {
             var button = Regex.Match(MonitorXaml, @"<Button x:Name=""" + name + @"""[\s\S]*?</Button>");
             Assert.True(button.Success, $"{name} no longer carries its own content element");

@@ -23,6 +23,13 @@ public sealed class PaneLayoutModel
         => Maximized = Maximized == pane ? null : pane;
 
     /// <summary>
+    /// Move to a specific state rather than flipping out of the current one. Toggle is right
+    /// for a double-click on a panel and wrong for a template: choosing the same template
+    /// twice must leave the view alone, not undo it (TP-005).
+    /// </summary>
+    public void SetMaximized(MonitorPane? pane) => Maximized = pane;
+
+    /// <summary>
     /// Which panels are currently hidden because one fills the window. The UI shows a
     /// clickable strip per entry, so getting back does not require knowing that another
     /// double-click is the way out - the gesture stops being a secret the moment it has a

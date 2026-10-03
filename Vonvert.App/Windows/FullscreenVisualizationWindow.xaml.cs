@@ -58,6 +58,13 @@ public partial class FullscreenVisualizationWindow : Window
     { Stroke = new SolidColorBrush(Color.FromArgb(200, 0x3E, 0xC6, 0xFF)), StrokeThickness = 1.4 };
     private bool _showDry;
 
+    // Which one-click view the screen currently matches, or null when the user arranged the
+    // panels by hand. The marker is what the popup highlights, so it has to be dropped as soon
+    // as the picture stops being the one that view describes.
+    private MonitorTemplate? _template;
+    // Some views must not flash a name over the picture (a loudness meter a producer is reading).
+    private bool _showPresetOverlay = true;
+
     public FullscreenVisualizationWindow()
     {
         InitializeComponent();
@@ -147,8 +154,9 @@ public partial class FullscreenVisualizationWindow : Window
     }
 
     /// <summary>Height the bottom of the waterfall gives up to the pitch curve and cents
-    /// meter, so a label there would sit on top of them.</summary>
-    private const double CurveStripHeight = 88;
+    /// meter, so a label there would sit on top of them. The pitch-teaching view doubles the
+    /// curve, which is the only difference that makes it a different job than streaming.</summary>
+    private double _curveStrip = MonitorTemplates.DefaultCurveStrip + 8;
 
     /// <summary>
     /// Build the overlay axis: hertz labels taken from the engine's own bin mapping, the
@@ -199,7 +207,7 @@ public partial class FullscreenVisualizationWindow : Window
 
             // Low frequencies land inside the pitch-curve strip; move those labels to the
             // right edge rather than dropping them or sliding them off their own row.
-            bool rightSide = y > h - CurveStripHeight;
+            bool rightSide = y > h - _curveStrip;
 
             var tick = new Rectangle
             {
@@ -228,7 +236,7 @@ public partial class FullscreenVisualizationWindow : Window
         // The axis runs the wrong way for anyone used to a scrolling timeline: state it.
         var timeHint = BoundLabel(nameof(LocalizationManager.FsAxisTimeHint), ink);
         Canvas.SetRight(timeHint, 6);
-        Canvas.SetBottom(timeHint, CurveStripHeight + 6);
+        Canvas.SetBottom(timeHint, _curveStrip + 6);
         AxisCanvas.Children.Add(timeHint);
     }
 
@@ -329,9 +337,12 @@ public partial class FullscreenVisualizationWindow : Window
         _idleTimer.Start();
     }
 
-    /// <summary>Show the preset name overlay with a fade-in / hold / fade-out.</summary>
+    /// <summary>Show the preset name overlay with a fade-in / hold / fade-out. Suppressed by
+    /// the views that put a number on screen for somebody to read, where a name crossing it
+    /// mid-gesture is worse than no name at all.</summary>
     public void ShowPresetName(string name)
     {
+        if (!_showPresetOverlay) return;
         PresetNameOverlay.Text = name;
         PresetNameOverlay.BeginAnimation(OpacityProperty,
             new System.Windows.Media.Animation.DoubleAnimation(1, TimeSpan.FromSeconds(0.3))
@@ -362,6 +373,22 @@ public partial class FullscreenVisualizationWindow : Window
     {
         var before = _layout.Maximized;
         _layout.Toggle(pane);
+        // A hand-made layout is nobody's preset: leaving the old marker lit would have the
+        // popup claiming a view the screen no longer shows. The voice name comes back too, since
+        // the only reason to suppress it was a view that is no longer in effect.
+        _template = null;
+        _showPresetOverlay = true;
+        ApplyPaneLayout(before);
+        UpdateTemplateButtons();
+    }
+
+    /// <summary>
+    /// Put the grid into whatever state the layout model now holds. Shared by the double-click
+    /// path and the templates so the two can never disagree about which panel is filled, how
+    /// wide the strips are, or which ones need easing in.
+    /// </summary>
+    private void ApplyPaneLayout(MonitorPane? before)
+    {
         var m = _layout.Maximized;
 
         WaterfallPanel.Visibility = (m is null || m == MonitorPane.Waterfall) ? Visibility.Visible : Visibility.Collapsed;
@@ -389,6 +416,57 @@ public partial class FullscreenVisualizationWindow : Window
         UpdateCollapseBar();
         FadeInNewlyVisible(before, m);
     }
+
+    /// <summary>
+    /// Apply a one-click view. It sets which panel fills the window, how much room the pitch
+    /// curve gets, and whether the voice name may flash over the picture - and nothing else.
+    /// The capture palette and the text size stay the user's own choices, because a template
+    /// that overwrote them would leave the two controls in this popup reporting a state the
+    /// screen is not showing.
+    /// </summary>
+    private void ApplyTemplate(MonitorTemplate template, bool save = true)
+    {
+        _template = template;
+        var layout = MonitorTemplates.For(template);
+        var before = _layout.Maximized;
+
+        _layout.SetMaximized(layout.Maximized);
+        _showPresetOverlay = layout.ShowPresetOverlay;
+        _curveStrip = layout.CurveStripHeight + 8;
+        // The curve, the cents meter and the chip above them are positioned in XAML at the
+        // shipped height, so a template that changes it has to move all three.
+        PitchCurveCanvas.Height = layout.CurveStripHeight;
+        FsCentsMeterCanvas.Margin = new Thickness(30, 0, 30, layout.CurveStripHeight + 4);
+        WaterfallHintChip.Margin = new Thickness(0, 0, 0, layout.CurveStripHeight + 16);
+
+        ApplyPaneLayout(before);
+        UpdateAxis();          // the axis labels sit relative to the curve strip
+        UpdateTemplateButtons();
+        if (save) SavePreferences();
+    }
+
+    /// <summary>
+    /// Mark which template is active. The style is swapped rather than a colour assigned, so
+    /// these buttons keep the hover and focus behaviour every other control in this window has.
+    /// </summary>
+    private void UpdateTemplateButtons()
+    {
+        var pairs = new[]
+        {
+            (TemplateDiagnoseBtn, MonitorTemplate.Diagnose),
+            (TemplateStreamBtn, MonitorTemplate.Stream),
+            (TemplateLoudnessBtn, MonitorTemplate.Loudness),
+            (TemplateTeachingBtn, MonitorTemplate.Teaching),
+        };
+        foreach (var (button, template) in pairs)
+            button.SetResourceReference(StyleProperty,
+                template == _template ? "SegmentButtonActive" : "SegmentButton");
+    }
+
+    private void TemplateDiagnose_Click(object s, RoutedEventArgs e) => ApplyTemplate(MonitorTemplate.Diagnose);
+    private void TemplateStream_Click(object s, RoutedEventArgs e) => ApplyTemplate(MonitorTemplate.Stream);
+    private void TemplateLoudness_Click(object s, RoutedEventArgs e) => ApplyTemplate(MonitorTemplate.Loudness);
+    private void TemplateTeaching_Click(object s, RoutedEventArgs e) => ApplyTemplate(MonitorTemplate.Teaching);
 
     /// <summary>
     /// Eases in the panels a layout change just revealed, so switching is not a hard cut that
@@ -490,6 +568,11 @@ public partial class FullscreenVisualizationWindow : Window
             case MonitorKeyAction.ShowWet: WetBtn_Click(this, new RoutedEventArgs()); break;
             case MonitorKeyAction.ToggleTarget: TargetBtn_Click(this, new RoutedEventArgs()); break;
             case MonitorKeyAction.MaximizeNext: MaximizeNextPane(); break;
+            // The four views, on the digits the popup lists them under.
+            case MonitorKeyAction.TemplateDiagnose: ApplyTemplate(MonitorTemplate.Diagnose); break;
+            case MonitorKeyAction.TemplateStream: ApplyTemplate(MonitorTemplate.Stream); break;
+            case MonitorKeyAction.TemplateLoudness: ApplyTemplate(MonitorTemplate.Loudness); break;
+            case MonitorKeyAction.TemplateTeaching: ApplyTemplate(MonitorTemplate.Teaching); break;
             default: return;
         }
         e.Handled = true;
@@ -550,8 +633,9 @@ public partial class FullscreenVisualizationWindow : Window
 
     private void ResetViewBtn_Click(object s, RoutedEventArgs e)
     {
-        // "I made a mess of the layout" must have one obvious answer.
-        if (_layout.Maximized is MonitorPane pane) TogglePane(pane);
+        // "I made a mess of the layout" must have one obvious answer, and that answer is the
+        // default view: three panels, the shipped pitch strip, the voice name allowed again.
+        ApplyTemplate(MonitorTemplate.Diagnose);
         _chrome.ResetToDefault();
         Topmost = _chrome.Topmost;
         ApplyChromeSize();
@@ -662,6 +746,10 @@ public partial class FullscreenVisualizationWindow : Window
         ApplyVisualProfile();
         LocalizationManager.Instance.SetMonitorFontScale(_prefs.FontScale);
         ApplyFontScale();
+        // The stored view goes through the same path a click does, so the panel widths, the
+        // pitch strip, the overlay rule and the highlighted row can never disagree with each
+        // other on open the way they would if this were a second copy of that logic.
+        ApplyTemplate(_prefs.Template, save: false);
 
         if (!_prefs.HasBounds) return;
         WindowStartupLocation = WindowStartupLocation.Manual;
@@ -705,6 +793,9 @@ public partial class FullscreenVisualizationWindow : Window
         _prefs.LabelMode = LocalizationManager.Instance.MonitorLabels.Mode;
         _prefs.VisualProfile = LocalizationManager.Instance.MonitorProfile;
         _prefs.FontScale = LocalizationManager.Instance.MonitorFont;
+        // A hand-made layout is stored as the default view, which is what it looks like when the
+        // window opens with no preset chosen: three panels, nothing flashing over them.
+        _prefs.Template = _template ?? MonitorTemplate.Diagnose;
         MonitorStore.Save(_prefs);
     }
 

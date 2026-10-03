@@ -19,7 +19,8 @@ public sealed class MonitorKeysTests
     [Fact(DisplayName = "KB-001: every advertised key maps to its own action, none doubled up")]
     public void KB001_AllKeysDistinct()
     {
-        var keys = new[] { Key.Escape, Key.H, Key.T, Key.S, Key.R, Key.D, Key.W, Key.G };
+        var keys = new[] { Key.Escape, Key.H, Key.T, Key.S, Key.R, Key.D, Key.W, Key.G,
+                           Key.D1, Key.D2, Key.D3, Key.D4 };
         var actions = keys.Select(k => MonitorKeys.Map(k, ModifierKeys.None)).ToList();
 
         Assert.All(actions, a => Assert.NotNull(a));
@@ -48,16 +49,19 @@ public sealed class MonitorKeysTests
             Assert.Null(MonitorKeys.Map(key, ModifierKeys.None));
     }
 
-    [Fact(DisplayName = "KB-005: the help line lists every bound letter, so documentation cannot drift")]
+    [Fact(DisplayName = "KB-005: the help line lists every bound key, so documentation cannot drift")]
     public void KB005_ShortcutLineCoversTheMap()
     {
         var summary = MonitorKeys.ShortcutSummary;
         foreach (char letter in new[] { 'H', 'T', 'S', 'R', 'D', 'W', 'G' })
             Assert.Contains($"{letter} ", summary);
         Assert.Contains("Esc", summary);
+        // The digits are part of the map now; a summary that omits them is a key binding the
+        // user can only learn from a changelog.
+        Assert.Contains("1-4", summary);
     }
 
-    [Theory(DisplayName = "KB-006: every language keeps the shortcut letters and Esc when it translates the words")]
+    [Theory(DisplayName = "KB-006: every language keeps the shortcut letters, the digits and Esc when it translates the words")]
     [MemberData(nameof(Languages))]
     public void KB006_LocalizedShortcutLineKeepsTheKeys(string lang)
     {
@@ -67,6 +71,7 @@ public sealed class MonitorKeysTests
         foreach (char letter in new[] { 'H', 'T', 'S', 'R', 'D', 'W', 'G' })
             Assert.Contains($"{letter} ", value);
         Assert.Contains("Esc", value);
+        Assert.Contains("1-4", value);
     }
 
     public static System.Collections.Generic.IEnumerable<object[]> Languages()

@@ -10,6 +10,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -21,13 +23,21 @@ using Xunit;
 namespace Vonvert.Tests.UIAutomation;
 
 // ═══════════════════════════════════════════════════════════════════
-//  MF-001 ~ MF-003: proof that the three text sizes are actually three sizes.
+//  MF-001, MF-003 ~ MF-005: proof of what the monitor actually paints, starting from its three
+//  text sizes. There is no MF-002: "the three pictures must differ from each other" became an
+//  assertion inside MF-001 rather than a test of its own, and the ids were never renumbered
+//  because MF-004 is already published and cited by number in the plan document.
 //
 //  FS-001..008 check the numbers in the table; a table can be right while the screen is
 //  wrong (a binding that never resolves, a size that fits on one line and clips on the
 //  next). These tests host the real window on a WPF thread, let it lay out and paint, then
-//  write one PNG per size plus the measured heights that WPF settled on - so the difference
-//  is audited as rendered pixels and as layout facts, not as an assertion about a constant.
+//  write one PNG per case plus the measured boxes that WPF settled on - so the difference is
+//  audited as rendered pixels and as layout facts, not as an assertion about a constant.
+//
+//  It grew past text sizes because that is where it earned its keep: MF-004 found the corner
+//  toolbar wrapping over the line in the middle of the window, and MF-005 checks the view
+//  buttons added later, whose popup is a separate window that can end up off screen or clipping
+//  a long translation. Anything about this window whose correctness is geometric belongs here.
 //
 //  Deliberately excluded from the ordinary run (namespace filter UIAutomation): it opens a
 //  window. It redirects the data root to a temp folder and leaves a tour-seen marker there,
@@ -137,6 +147,147 @@ public sealed class MonitorFontScaleCaptureTests
         Assert.True(failure is null, "measurement failed: " + failure);
         File.WriteAllLines(Path.Combine(outputDir, "bottom-band.txt"), report, new UTF8Encoding(false));
         Assert.True(overlaps.Count == 0, string.Join("; ", overlaps));
+    }
+
+    /// <summary>
+    /// The appearance popup at the size where it is most likely to fail: big text, a small
+    /// window, and the four view buttons that were added later than the rest. Geometry is
+    /// measured rather than assumed because the popup is a separate HWND placed above a corner
+    /// button - it can run off the top of the screen, and a stretched label can be cut off in
+    /// the languages whose words are longer than English.
+    /// </summary>
+    [InteractiveDesktopFact(DisplayName = "MF-005: the views popup lays out, marks the active view and fits the screen")]
+    public void MF005_AppearancePopupLaysOut()
+    {
+        var outputDir = OutputDirectory();
+        var report = new List<string>();
+        var problems = new List<string>();
+        Exception? failure = null;
+
+        var worker = new Thread(() =>
+        {
+            try { MeasurePopup(outputDir, report, problems); }
+            catch (Exception ex) { failure = ex; }
+        });
+        worker.SetApartmentState(ApartmentState.STA);
+        worker.IsBackground = true;
+        worker.Start();
+        Assert.True(worker.Join(TimeSpan.FromMinutes(2)), "the WPF measurement thread did not finish");
+
+        Assert.True(failure is null, "measurement failed: " + failure);
+        File.WriteAllLines(Path.Combine(outputDir, "appearance-popup.txt"), report, new UTF8Encoding(false));
+        Assert.True(problems.Count == 0, string.Join("; ", problems));
+    }
+
+    private static void MeasurePopup(string outputDir, List<string> report, List<string> problems)
+    {
+        var root = Path.Combine(Path.GetTempPath(), "vonvert-popup-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        AppPaths.RootOverride = root;
+        AppPaths.Invalidate();
+        try { File.WriteAllText(MonitorFirstRunGuide.MarkerPath, "measured"); } catch { /* not fatal */ }
+
+        var app = HostedApplication();
+        // Saved, not assigned: the window restores its preferences on construction, which is the
+        // only reason this harness ever produced three identical pictures.
+        MonitorStore.Save(new MonitorPreferences
+        {
+            FontScale = MonitorFontScale.Large,
+            Template = MonitorTemplate.Stream,
+        });
+
+        var window = new FullscreenVisualizationWindow { Width = 900, Height = 500, Topmost = false };
+        window.Show();
+        Pump(40);
+        if (window.FindName("ChromeBar") is FrameworkElement chrome)
+        {
+            chrome.Opacity = 1;
+            chrome.IsHitTestVisible = true;
+        }
+        if (window.FindName("AppearancePopup") is not Popup popup)
+        {
+            problems.Add("900x500: there is no AppearancePopup to open");
+            window.Close();
+            AppPaths.RootOverride = null;
+            AppPaths.Invalidate();
+            Dispatcher.CurrentDispatcher.InvokeShutdown();
+            return;
+        }
+        popup.IsOpen = true;
+        Pump(10);
+
+        var names = new[] { "TemplateDiagnoseBtn", "TemplateStreamBtn", "TemplateLoudnessBtn", "TemplateTeachingBtn" };
+        var buttons = names.Select(n => window.FindName(n) as Button).ToList();
+        var boxes = new Dictionary<string, Rect>();
+        for (int i = 0; i < names.Length; i++)
+        {
+            if (buttons[i] is null) { problems.Add($"{names[i]} is missing from the window"); continue; }
+            boxes[names[i]] = OnScreen(buttons[i]);
+            report.Add($"{names[i]}: {buttons[i]!.ActualWidth:F0}x{buttons[i]!.ActualHeight:F0} DIP");
+
+            // Arranged smaller than measured is what a clipped label looks like in WPF numbers.
+            var text = VisualChildText(buttons[i]!);
+            if (text is not null && text.ActualHeight + 1 < text.DesiredSize.Height)
+                problems.Add($"{names[i]}: label clipped ({text.ActualHeight:F0} of {text.DesiredSize.Height:F0} DIP)");
+            if (buttons[i]!.ActualWidth < 60)
+                problems.Add($"{names[i]}: {buttons[i]!.ActualWidth:F0} DIP wide, too narrow to read");
+        }
+
+        foreach (var (a, boxA) in boxes)
+            foreach (var (b, boxB) in boxes)
+            {
+                if (string.CompareOrdinal(a, b) >= 0) continue;
+                if (boxA.IntersectsWith(boxB))
+                    problems.Add($"{a} overlaps {b}");
+            }
+
+        // The active view has to be the one the stored template selected, or the popup reports a
+        // state the screen is not showing - the failure a marker control is most likely to have.
+        // StyleToString only ever says "System.Windows.Style", so the styles themselves are
+        // compared against the two the window swaps between.
+        var activeStyle = window.TryFindResource("SegmentButtonActive");
+        for (int i = 0; i < names.Length; i++)
+        {
+            if (buttons[i] is null) continue;
+            bool isMarked = ReferenceEquals(buttons[i]!.Style, activeStyle);
+            bool expectActive = MonitorTemplates.Order[i] == MonitorTemplate.Stream;
+            if (isMarked != expectActive)
+                problems.Add($"{names[i]} marked={isMarked} while the stored view is Stream");
+        }
+
+        var popupBox = OnScreen(popup.Child as FrameworkElement);
+        report.Add($"popup: {popupBox.Width:F0}x{popupBox.Height:F0}@{popupBox.Left:F0},{popupBox.Top:F0}"
+                   + $"  window {window.ActualWidth:F0}x{window.ActualHeight:F0}");
+        var work = SystemParameters.WorkArea;
+        if (!popupBox.IsEmpty && (popupBox.Top < work.Top - 1 || popupBox.Bottom > work.Bottom + 1))
+            problems.Add("the popup does not fit the screen");
+
+        // The popup is its own HWND, so a picture of the window alone would not show it.
+        SavePng(window, Path.Combine(outputDir, "appearance-popup.png"));
+        if (popup.Child is Visual popupVisual)
+            SavePng(popupVisual, Path.Combine(outputDir, "appearance-popup-only.png"));
+        popup.IsOpen = false;
+        window.Close();
+        Pump(5);
+
+        AppPaths.RootOverride = null;
+        AppPaths.Invalidate();
+        Dispatcher.CurrentDispatcher.InvokeShutdown();
+        GC.KeepAlive(app);
+    }
+
+    /// <summary>The first text block inside an element, so its measured height can be compared
+    /// with the height it was actually given.</summary>
+    private static TextBlock? VisualChildText(DependencyObject parent)
+    {
+        int count = VisualTreeHelper.GetChildrenCount(parent);
+        for (int i = 0; i < count; i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+            if (child is TextBlock text) return text;
+            if (VisualChildText(child) is { } found) return found;
+        }
+        return null;
     }
 
     private static void MeasureBottomBand(string outputDir, List<string> report, List<string> overlaps)

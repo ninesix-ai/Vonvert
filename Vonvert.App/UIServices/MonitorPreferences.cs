@@ -82,6 +82,10 @@ public sealed class MonitorPreferences
     /// <summary>Text size. Default Standard, which is the size the window shipped with.</summary>
     public MonitorFontScale FontScale { get; set; } = MonitorFontScale.Standard;
 
+    /// <summary>Last one-click view chosen. Default Diagnose, the layout the window shipped
+    /// with, so installing this feature changes nobody's opening view.</summary>
+    public MonitorTemplate Template { get; set; } = MonitorTemplate.Diagnose;
+
     /// <summary>Turns the layout fade-off into an explicit choice instead of a guess. WPF has
     /// no standard reduce-motion signal and reading a registry key to invent one is not this
     /// app's business, so it stays a stored preference until the accessibility toggle lands.
@@ -107,6 +111,7 @@ public static class MonitorStore
         public int VisualProfile { get; set; }
         public bool ProfileChosen { get; set; }
         public int FontScale { get; set; } = (int)MonitorFontScale.Standard;
+        public int Template { get; set; }
         public bool ReduceMotion { get; set; }
     }
 
@@ -144,6 +149,8 @@ public static class MonitorStore
                 ProfileChosen = dto.ProfileChosen,
                 FontScale = Enum.IsDefined(typeof(MonitorFontScale), dto.FontScale)
                     ? (MonitorFontScale)dto.FontScale : MonitorFontScale.Standard,
+                Template = Enum.IsDefined(typeof(MonitorTemplate), dto.Template)
+                    ? (MonitorTemplate)dto.Template : MonitorTemplate.Diagnose,
                 ReduceMotion = dto.ReduceMotion,
             };
         }
@@ -169,6 +176,7 @@ public static class MonitorStore
                 VisualProfile = (int)prefs.VisualProfile,
                 ProfileChosen = prefs.ProfileChosen,
                 FontScale = (int)prefs.FontScale,
+                Template = (int)prefs.Template,
                 ReduceMotion = prefs.ReduceMotion,
             };
             // Write-then-move so a crash mid-save cannot leave a truncated file behind.

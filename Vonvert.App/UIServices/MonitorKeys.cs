@@ -13,6 +13,9 @@ public enum MonitorKeyAction
     /// <summary>Keyboard equivalent of double-clicking a pane: steps through
     /// none, voice detail, volume, voice shape.</summary>
     MaximizeNext,
+
+    /// <summary>The four one-click views, on the digits under them in the popup.</summary>
+    TemplateDiagnose, TemplateStream, TemplateLoudness, TemplateTeaching,
 }
 
 /// <summary>
@@ -44,6 +47,13 @@ public static class MonitorKeys
             Key.W => MonitorKeyAction.ShowWet,
             Key.G => MonitorKeyAction.ToggleTarget,
             Key.Enter => MonitorKeyAction.MaximizeNext,
+            // Bare digits, not Ctrl+1..4: the settings screen lets a user bind only a
+            // modifier combination or an F-key globally, so these can never collide with
+            // their own hotkey, and they match the bare letters above.
+            Key.D1 => MonitorKeyAction.TemplateDiagnose,
+            Key.D2 => MonitorKeyAction.TemplateStream,
+            Key.D3 => MonitorKeyAction.TemplateLoudness,
+            Key.D4 => MonitorKeyAction.TemplateTeaching,
             _ => null,
         };
     }
@@ -53,5 +63,5 @@ public static class MonitorKeys
     /// stay as-is in every language and nothing here is translatable prose.
     /// </summary>
     public static string ShortcutSummary =>
-        "H help · T topmost · S size · R reset · D raw · W changed · G target · Esc close";
+        "H help · T topmost · S size · R reset · D raw · W changed · G target · 1-4 views · Esc close";
 }

@@ -60,12 +60,20 @@ for bm in re.finditer(r'\{Binding\s+([^{}]*?)\}', xaml_src):
             used.add(tok)
 
 # C#: L.Xxx / LocalizationManager.Instance.Xxx / L["Xxx"]
+# Also collect every quoted CamelCase literal: several subsystems resolve keys at
+# runtime by string (SoundboardStatusPolicy.Presentation.TextKey, MonitorLabels' plain
+# vocabulary keys, MonitorFirstRunGuide.StepKeys, GetUiString(name)), so they have no
+# `public string X => G()` property. Counting those as orphans meant the report claimed
+# live UI strings were dead -- and a "clean up the orphans" pass would have deleted them.
+cs_literals = set()
 for p in cs_files:
     src = read(p)
     for m in cs_key_pattern.finditer(src):
         for g in m.groups():
             if g:
                 used.add(g)
+    for m in re.finditer(r'"([A-Za-z][A-Za-z0-9_]{2,})"', src):
+        cs_literals.add(m.group(1))
 
 # 3. Report defined-but-unused keys
 unused = {k: v for k, v in sorted(defined.items()) if k not in used}
@@ -98,11 +106,15 @@ for lang in SUPPORTED_LANGUAGES:
         data = json.load(f)
     ui = data.get("ui", {})
     json_keys = set(ui.keys())
-    # keys in JSON but not defined in C# strings
-    orphan = sorted(json_keys - set(defined.keys()))
+    # keys in JSON but not defined in C# strings, split by whether code still reaches them
+    orphan_all = sorted(json_keys - set(defined.keys()))
+    dynamic = [k for k in orphan_all if k in cs_literals]
+    dead = [k for k in orphan_all if k not in cs_literals]
     missing = sorted(set(defined.keys()) - json_keys)
-    print(f"\n=== {lang}.json: ui keys={len(json_keys)}, orphan(not in C#)={len(orphan)}, missing(from C#)={len(missing)} ===")
-    if orphan:
-        print("  orphan JSON keys:", ", ".join(orphan))
+    print(f"\n=== {lang}.json: ui keys={len(json_keys)}, orphan={len(orphan_all)} "
+          f"(resolved-by-string {len(dynamic)}, dead {len(dead)}), "
+          f"missing(from C#)={len(missing)} ===")
+    if dead:
+        print("  DEAD JSON keys:", ", ".join(dead))
     if missing:
         print("  missing JSON keys:", ", ".join(missing))

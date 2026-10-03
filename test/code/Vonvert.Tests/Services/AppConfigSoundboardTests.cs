@@ -46,13 +46,13 @@ public sealed class AppConfigSoundboardTests : IDisposable
         Assert.True(cfg.Audio.SoundboardLiveMode);
     }
 
-    [Fact(DisplayName = "CFG-SB-002: floating-window state fields round-trip and default correctly")]
+    [Fact(DisplayName = "CFG-SB-002: floating-window state fields round-trip through Save/Load")]
     public void FloatingState_RoundTrips()
     {
+        // Only the round-trip is asserted on the shared instance: AppConfig.Instance is a
+        // process-wide singleton and other parallel collections may already have touched it,
+        // so "what the defaults are" is answered on a fresh AudioSection below.
         var cfg = AppConfig.Instance;
-        Assert.True(cfg.Audio.FloatTopmost);   // default
-        Assert.False(cfg.Audio.FloatAutoOpen); // default
-        Assert.Null(cfg.Audio.FloatLeft);      // default
 
         cfg.Audio.FloatLeft = 240;
         cfg.Audio.FloatTop = 180;
@@ -68,5 +68,17 @@ public sealed class AppConfigSoundboardTests : IDisposable
         Assert.Equal(180, cfg.Audio.FloatTop!.Value);
         Assert.True(cfg.Audio.FloatAutoOpen);
         Assert.False(cfg.Audio.FloatTopmost);
+    }
+
+    [Fact(DisplayName = "CFG-SB-003: floating-window fields start at sensible defaults")]
+    public void FloatingState_Defaults()
+    {
+        // A detached section object: proves the shipped defaults (window starts unpositioned,
+        // topmost, no auto-open) without depending on any global/singleton state.
+        var fresh = new AppConfig.AudioSection();
+        Assert.True(fresh.FloatTopmost);
+        Assert.False(fresh.FloatAutoOpen);
+        Assert.Null(fresh.FloatLeft);
+        Assert.Null(fresh.FloatTop);
     }
 }

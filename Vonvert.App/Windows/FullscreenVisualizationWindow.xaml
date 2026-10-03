@@ -355,6 +355,14 @@
                             AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorFontButton, Mode=OneWay}"
                             Click="FontBtn_Click"
                             Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorFontButton, Mode=OneWay}"/>
+                    <!-- canvas shape: the other three choices in this popup change what the
+                         picture looks like, this one changes where it fits. Named by the ratio
+                         a creator already thinks in, because "Portrait" alone could be a theme. -->
+                    <Button x:Name="ShapeBtn" Style="{StaticResource SegmentButton}" FontSize="{DynamicResource FsFontChrome}" Padding="10,4"
+                            HorizontalAlignment="Stretch" Margin="0,6,0,0"
+                            AutomationProperties.Name="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorShapeButton, Mode=OneWay}"
+                            Click="ShapeBtn_Click"
+                            Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=MonitorShapeButton, Mode=OneWay}"/>
                 </StackPanel>
             </Border>
         </Popup>

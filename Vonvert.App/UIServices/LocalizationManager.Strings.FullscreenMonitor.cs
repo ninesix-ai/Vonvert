@@ -267,6 +267,44 @@ public partial class LocalizationManager
         => string.Format(GetUiString("FsTemplateHelp"), slot + 1,
                          GetUiString(MonitorTemplates.NameKeyFor(MonitorTemplates.Order[slot])));
 
+    // ── canvas shape ──
+    public string FsShape            => G();   // carries {0}
+    public string FsShapeWidescreen  => G();
+    public string FsShapeVertical    => G();
+    public string FsShapeSquare      => G();
+
+    /// <summary>
+    /// Mirror of the shape the window's own chrome model is sizing itself to. It lives here
+    /// rather than in a TextBlock assignment so the button re-translates when the UI language
+    /// changes; the window refreshes it wherever it refreshes the other chrome visuals, so
+    /// there is one place the two can disagree.
+    /// </summary>
+    public MonitorCanvasShape CanvasShape { get; private set; } = MonitorCanvasShape.Widescreen;
+
+    public string MonitorShapeName => GetUiString(ShapeKeyFor(CanvasShape));
+
+    public string MonitorShapeButton => string.Format(FsShape, MonitorShapeName);
+
+    public static string ShapeKeyFor(MonitorCanvasShape shape) => shape switch
+    {
+        MonitorCanvasShape.Vertical => "FsShapeVertical",
+        MonitorCanvasShape.Square   => "FsShapeSquare",
+        _                           => "FsShapeWidescreen",
+    };
+
+    public void SetMonitorCanvasShape(MonitorCanvasShape shape)
+    {
+        if (CanvasShape == shape) return;
+        CanvasShape = shape;
+        NotifyShapeLabelsChanged();
+    }
+
+    private void NotifyShapeLabelsChanged()
+    {
+        foreach (var name in new[] { nameof(MonitorShapeName), nameof(MonitorShapeButton) })
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
     // ── capture colour profiles ──
     /// <summary>Label of the corner button that opens the palette / wording / text-size popup.</summary>
     public string FsAppearance        => G();

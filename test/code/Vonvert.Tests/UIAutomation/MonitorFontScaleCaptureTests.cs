@@ -299,12 +299,23 @@ public sealed class MonitorFontScaleCaptureTests
         try { File.WriteAllText(MonitorFirstRunGuide.MarkerPath, "measured"); } catch { /* not fatal */ }
 
         var app = HostedApplication();
-        MonitorStore.Save(new MonitorPreferences());
 
         // The narrow case is where a wrapping toolbar runs out of room; the wide one is the
-        // report's own setup, so both are checked.
-        foreach (var (width, height) in new[] { (1280.0, 720.0), (900.0, 500.0), (640.0, 360.0) })
+        // report's own setup. Portrait and square are here because they are geometry this window
+        // has never been drawn in, and "it scales proportionally" is a claim about numbers, not
+        // about the picture.
+        var cases = new (MonitorCanvasShape Shape, double Width, double Height)[]
         {
+            (MonitorCanvasShape.Widescreen, 1280, 720),
+            (MonitorCanvasShape.Widescreen, 900, 500),
+            (MonitorCanvasShape.Widescreen, 640, 360),
+            (MonitorCanvasShape.Vertical, 720, 1280),
+            (MonitorCanvasShape.Square, 900, 900),
+        };
+
+        foreach (var (shape, width, height) in cases)
+        {
+            MonitorStore.Save(new MonitorPreferences { Shape = shape });
             var window = new FullscreenVisualizationWindow { Width = width, Height = height, Topmost = false };
             window.Show();
             Pump(40);
@@ -325,13 +336,37 @@ public sealed class MonitorFontScaleCaptureTests
                 ["collapse"] = OnScreen(window.FindName("CollapseBar") as FrameworkElement),
                 ["hint"] = OnScreen(window.FindName("CloseHint") as FrameworkElement),
             };
-            report.Add($"{width:F0}x{height:F0}: " + string.Join(
+            report.Add($"{shape} {width:F0}x{height:F0}: " + string.Join(
                 "  ", boxes.Select(b => $"{b.Key}={b.Value.Width:F0}x{b.Value.Height:F0}@{b.Value.Left:F0},{b.Value.Top:F0}")));
+
+            // The panels themselves, in DIP: the strip widths are derived from the window size,
+            // so this is where a shape that was asked for but not delivered shows up, and eyeball
+            // reading a scaled PNG is not a measurement.
+            report.Add("    " + string.Join("  ", new[]
+            {
+                ("window", window),
+                ("waterfall", window.FindName("WaterfallPanel") as FrameworkElement),
+                ("waveform", window.FindName("WaveformPanel") as FrameworkElement),
+                ("loudness", window.FindName("LoudnessPanel") as FrameworkElement),
+            }.Select(p => $"{p.Item1}={p.Item2?.ActualWidth ?? 0:F0}x{p.Item2?.ActualHeight ?? 0:F0}")));
+
+            // Proportional strips are the whole point of the geometry rules; if a strip wins the
+            // window at some shape, the picture the feature exists to show stops being readable.
+            if (window.FindName("WaterfallPanel") is FrameworkElement main && main.ActualWidth < width * 0.6)
+                overlaps.Add($"{shape} {width:F0}x{height:F0}: voice detail squeezed to {main.ActualWidth:F0} DIP by the strips");
+            if (window.FindName("WaveformPanel") is FrameworkElement wave && wave.ActualHeight < 60)
+                overlaps.Add($"{shape} {width:F0}x{height:F0}: voice shape row is only {wave.ActualHeight:F0} DIP tall");
 
             // The complaint was specifically that the corner strip had become two rows, so the
             // height is pinned at the size the report was made at, not only the overlap.
-            if (width >= 1280 && chrome is { ActualHeight: > 40 })
+            if (shape == MonitorCanvasShape.Widescreen && width >= 1280 && chrome is { ActualHeight: > 40 })
                 overlaps.Add($"{width:F0}x{height:F0}: the toolbar is {chrome.ActualHeight:F0} DIP tall, so it wrapped to a second row");
+
+            // A window that cannot keep its shape is not the shape that was asked for: this is
+            // where the shipped 640x360 floor used to quietly override a portrait canvas.
+            double ratio = width / height;
+            if (Math.Abs(OnScreen(window).Width / OnScreen(window).Height - ratio) > 0.02)
+                overlaps.Add($"{shape} {width:F0}x{height:F0}: drawn at {OnScreen(window).Width:F0}x{OnScreen(window).Height:F0}, not the requested shape");
 
             foreach (var (name, box) in boxes)
                 foreach (var (other, otherBox) in boxes)
@@ -339,10 +374,14 @@ public sealed class MonitorFontScaleCaptureTests
                     if (name.CompareTo(other) >= 0) continue;      // compare each pair once
                     if (!box.IntersectsWith(otherBox)) continue;
                     var clip = Rect.Intersect(box, otherBox);
-                    overlaps.Add($"{width:F0}x{height:F0}: {name} covers {other} by {clip.Width:F0}x{clip.Height:F0} px");
+                    overlaps.Add($"{shape} {width:F0}x{height:F0}: {name} covers {other} by {clip.Width:F0}x{clip.Height:F0} px");
                 }
 
-            SavePng(window, Path.Combine(outputDir, $"bottom-band-{width:F0}.png"));
+            var picture = SavePng(window, Path.Combine(outputDir, $"bottom-band-{shape}-{width:F0}x{height:F0}.png"));
+            // The picture is the artifact a human reviews, so it has to carry the shape too: a
+            // fixed-size canvas once made a 9:16 window look like a broken landscape one.
+            if (Math.Abs(picture.Width / (double)Math.Max(1, picture.Height) - width / height) > 0.02)
+                overlaps.Add($"{shape} {width:F0}x{height:F0}: the picture is {picture.Width}x{picture.Height}");
             window.Close();
             Pump(5);
         }
@@ -474,14 +513,30 @@ public sealed class MonitorFontScaleCaptureTests
         }
     }
 
-    private static void SavePng(Visual visual, string path)
+    /// <summary>
+    /// Render a visual into a PNG at its own size, and report the size used. The canvas used to
+    /// be a hard-coded 1280x720, which silently cropped every non-widescreen capture: the
+    /// portrait picture came out landscape with dead space on the right, so the one artifact
+    /// meant for human review was lying about the geometry the tests had measured correctly.
+    /// </summary>
+    private static (int Width, int Height) SavePng(Visual visual, string path)
     {
-        var target = new RenderTargetBitmap(1280, 720, 96, 96, PixelFormats.Pbgra32);
+        int width = visual is FrameworkElement { ActualWidth: > 1 } element
+            ? (int)Math.Round(element.ActualWidth)
+            : (int)Math.Ceiling(VisualTreeHelper.GetDescendantBounds(visual).Width);
+        int height = visual is FrameworkElement { ActualHeight: > 1 } sized
+            ? (int)Math.Round(sized.ActualHeight)
+            : (int)Math.Ceiling(VisualTreeHelper.GetDescendantBounds(visual).Height);
+        width = Math.Max(1, width);
+        height = Math.Max(1, height);
+
+        var target = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
         target.Render(visual);
         var encoder = new PngBitmapEncoder();
         encoder.Frames.Add(BitmapFrame.Create(target));
         using var stream = File.Create(path);
         encoder.Save(stream);
+        return (width, height);
     }
 
     /// <summary>Let the dispatcher work through a number of render passes.</summary>

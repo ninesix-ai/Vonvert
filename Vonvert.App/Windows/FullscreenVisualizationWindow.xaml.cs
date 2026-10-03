@@ -692,6 +692,12 @@ public partial class FullscreenVisualizationWindow : Window
     private void ApplyChromeSize()
     {
         var wa = SystemParameters.WorkArea;
+        // The floor has to move with the shape: the shipped 640x360 minimum is a statement
+        // about the landscape layout, and against a 9:16 window it would override the ratio the
+        // user just asked for.
+        var (minW, minH) = MonitorChromeModel.MinimumFor(_chrome.Shape);
+        MinWidth = minW;
+        MinHeight = minH;
         var (w, h) = _chrome.Resolve((int)wa.Width, (int)wa.Height);
         Width  = w;
         Height = h;
@@ -699,12 +705,25 @@ public partial class FullscreenVisualizationWindow : Window
         Top  = Math.Clamp(Top,  wa.Top,   Math.Max(wa.Top,   wa.Bottom - h));
     }
 
+    private void ShapeBtn_Click(object s, RoutedEventArgs e)
+    {
+        _chrome.CycleShape();
+        ApplyChromeSize();
+        UpdateChromeVisuals();
+        SavePreferences();
+    }
+
     /// <summary>Active state by style switch, never by assigning <c>Foreground</c> here: a
     /// local value outranks the template's own hover trigger and kills the feedback (the
     /// bug the dry/wet taps still have).</summary>
     private void UpdateChromeVisuals()
-        => TopmostBtn.SetResourceReference(StyleProperty,
-               _chrome.Topmost ? "SegmentButtonActive" : "SegmentButton");
+    {
+        TopmostBtn.SetResourceReference(StyleProperty,
+            _chrome.Topmost ? "SegmentButtonActive" : "SegmentButton");
+        // The shape button reads its label from the language side, so this is the one place the
+        // geometry owner and the text shown for it are brought back together.
+        LocalizationManager.Instance.SetMonitorCanvasShape(_chrome.Shape);
+    }
 
     // ── waveform dry/wet source ─────────────────────────────────────────
 
@@ -746,6 +765,13 @@ public partial class FullscreenVisualizationWindow : Window
         ApplyVisualProfile();
         LocalizationManager.Instance.SetMonitorFontScale(_prefs.FontScale);
         ApplyFontScale();
+        // Only the floor is applied here, not the size: the stored bounds are the user's own
+        // window, and a portrait one would otherwise be clamped back to the landscape minimum
+        // before it was ever read.
+        _chrome.SetShape(_prefs.Shape);
+        var (floorW, floorH) = MonitorChromeModel.MinimumFor(_prefs.Shape);
+        MinWidth = floorW;
+        MinHeight = floorH;
         // The stored view goes through the same path a click does, so the panel widths, the
         // pitch strip, the overlay rule and the highlighted row can never disagree with each
         // other on open the way they would if this were a second copy of that logic.
@@ -793,6 +819,7 @@ public partial class FullscreenVisualizationWindow : Window
         _prefs.LabelMode = LocalizationManager.Instance.MonitorLabels.Mode;
         _prefs.VisualProfile = LocalizationManager.Instance.MonitorProfile;
         _prefs.FontScale = LocalizationManager.Instance.MonitorFont;
+        _prefs.Shape = _chrome.Shape;
         // A hand-made layout is stored as the default view, which is what it looks like when the
         // window opens with no preset chosen: three panels, nothing flashing over them.
         _prefs.Template = _template ?? MonitorTemplate.Diagnose;

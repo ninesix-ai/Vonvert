@@ -86,6 +86,10 @@ public sealed class MonitorPreferences
     /// with, so installing this feature changes nobody's opening view.</summary>
     public MonitorTemplate Template { get; set; } = MonitorTemplate.Diagnose;
 
+    /// <summary>Canvas shape the capture is going into. Default Widescreen, the only shape the
+    /// window had before, so nobody's window changes shape on update.</summary>
+    public MonitorCanvasShape Shape { get; set; } = MonitorCanvasShape.Widescreen;
+
     /// <summary>Turns the layout fade-off into an explicit choice instead of a guess. WPF has
     /// no standard reduce-motion signal and reading a registry key to invent one is not this
     /// app's business, so it stays a stored preference until the accessibility toggle lands.
@@ -112,6 +116,7 @@ public static class MonitorStore
         public bool ProfileChosen { get; set; }
         public int FontScale { get; set; } = (int)MonitorFontScale.Standard;
         public int Template { get; set; }
+        public int Shape { get; set; }
         public bool ReduceMotion { get; set; }
     }
 
@@ -151,6 +156,8 @@ public static class MonitorStore
                     ? (MonitorFontScale)dto.FontScale : MonitorFontScale.Standard,
                 Template = Enum.IsDefined(typeof(MonitorTemplate), dto.Template)
                     ? (MonitorTemplate)dto.Template : MonitorTemplate.Diagnose,
+                Shape = Enum.IsDefined(typeof(MonitorCanvasShape), dto.Shape)
+                    ? (MonitorCanvasShape)dto.Shape : MonitorCanvasShape.Widescreen,
                 ReduceMotion = dto.ReduceMotion,
             };
         }
@@ -177,6 +184,7 @@ public static class MonitorStore
                 ProfileChosen = prefs.ProfileChosen,
                 FontScale = (int)prefs.FontScale,
                 Template = (int)prefs.Template,
+                Shape = (int)prefs.Shape,
                 ReduceMotion = prefs.ReduceMotion,
             };
             // Write-then-move so a crash mid-save cannot leave a truncated file behind.

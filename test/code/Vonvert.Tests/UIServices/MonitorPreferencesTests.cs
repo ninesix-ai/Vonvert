@@ -66,6 +66,7 @@ public sealed class MonitorPreferencesTests : IDisposable
         prefs.ProfileChosen = true;          // the flag that makes an explicit pick outrank the system
         prefs.FontScale = MonitorFontScale.Large;
         prefs.Template = MonitorTemplate.Teaching;
+        prefs.Shape = MonitorCanvasShape.Vertical;
         MonitorStore.Save(prefs);
 
         var again = MonitorStore.Load();
@@ -82,6 +83,7 @@ public sealed class MonitorPreferencesTests : IDisposable
         Assert.True(again.ProfileChosen);
         Assert.Equal(MonitorFontScale.Large, again.FontScale);
         Assert.Equal(MonitorTemplate.Teaching, again.Template);
+        Assert.Equal(MonitorCanvasShape.Vertical, again.Shape);
     }
 
     [Fact(DisplayName = "PR-003: a half-written file falls back to defaults instead of throwing at startup")]
@@ -114,11 +116,14 @@ public sealed class MonitorPreferencesTests : IDisposable
             .Replace("\"FontScale\":1", "\"FontScale\":77")
             // Diagnose is the first enum value, so zero is the string to corrupt here.
             .Replace("\"Template\":0", "\"Template\":88");
+        // Widescreen is the first enum value, so zero again is the string to corrupt.
+        text = text.Replace("\"Shape\":0", "\"Shape\":66");
         Assert.Contains("\"Target\":99", text);      // the corruption actually applied
         Assert.Contains("\"LabelMode\":42", text);
         Assert.Contains("\"VisualProfile\":77", text);
         Assert.Contains("\"FontScale\":77", text);
         Assert.Contains("\"Template\":88", text);
+        Assert.Contains("\"Shape\":66", text);
         File.WriteAllText(MonitorStore.FilePath, text);
 
         var prefs = MonitorStore.Load();
@@ -132,6 +137,7 @@ public sealed class MonitorPreferencesTests : IDisposable
         // Safe as a default-vs-default comparison only because topmost=false above proves the
         // file really was read; without that sentinel this assertion would prove nothing.
         Assert.Equal(MonitorTemplate.Diagnose, prefs.Template);
+        Assert.Equal(MonitorCanvasShape.Widescreen, prefs.Shape);
     }
 
     [Fact(DisplayName = "RB-001: a saved position on a monitor that is gone comes back on the primary screen")]

@@ -312,7 +312,7 @@
     "RecWarningTitle": "Vonvert — Recording Warning",
     "RecWarningBody": "Recorded voice-modified audio must NOT be used to impersonate others, commit fraud, or create deceptive content.\nSuch misuse may constitute a criminal offense.\n\nDo you accept these terms?",
     "ExportDialogTitle": "Esporta registrazione",
-    "ExportFormatLabel": "Format:",
+    "ExportFormatLabel": "Formato:",
     "ExportFormatWav": "WAV (Uncompressed)",
     "ExportFormatMp3": "MP3 (Compressed)",
     "ExportFormatFlac": "FLAC (Lossless)",

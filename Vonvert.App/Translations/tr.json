@@ -309,7 +309,7 @@
     "RecDur1to5": "1–5 dk",
     "RecDur5to15": "5–15 dk",
     "RecDurOver15": ">15 min",
-    "RecWarningTitle": "Vonvert — Kayıt Uyarısı",
+    "RecWarningTitle": "Kayıt Uyarısı",
     "RecWarningBody": "Kayıt, sesi bilgisayarınıza kaydeder. Yalnızca kaydetme hakkınız olan sesi kaydedin.\nDönüştürülmüş sesli kayıtlar, başkalarını taklit etmek, dolandırıcılık yapmak veya yanıltıcı içerik oluşturmak için KULLANILMAMALIDIR.\nBu kötü kullanımlar suç teşkil edebilir.\n\nDevam edilsin mi?",
     "ExportDialogTitle": "Kayıtı Dışa Aktar",
     "ExportFormatLabel": "Format:",

@@ -309,7 +309,7 @@
     "RecDur1to5": "1–5 min",
     "RecDur5to15": "5–15 min",
     "RecDurOver15": ">15 min",
-    "RecWarningTitle": "Vonvert — Aviso de Gravação",
+    "RecWarningTitle": "Aviso de Gravação",
     "RecWarningBody": "A gravação salva o áudio no seu computador. Grave apenas o áudio que você tem o direito de salvar.\nÁudio de voz modificado gravado NÃO deve ser usado para imitar outros, cometer fraude ou criar conteúdo enganoso.\nEssa má utilização pode constituir um crime.\n\nContinuar?",
     "ExportDialogTitle": "Exportar Gravação",
     "ExportFormatLabel": "Formato:",

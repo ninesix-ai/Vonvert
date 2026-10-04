@@ -309,7 +309,7 @@
     "RecDur1to5": "1–5 min",
     "RecDur5to15": "5–15 min",
     "RecDurOver15": ">15 min",
-    "RecWarningTitle": "Vonvert — Ostrzeżenie dotyczące nagrywania",
+    "RecWarningTitle": "Ostrzeżenie dotyczące nagrywania",
     "RecWarningBody": "Nagrywanie zapisuje dźwięk na Twoim komputerze. Nagrywaj tylko ten dźwięk, który masz prawo zapisywać.\nNagrań przekształconego głosu NIE wolno używać do podszywania się pod inne osoby, popełniania oszustw ani tworzenia treści wprowadzających w błąd.\nTakie nadużycie może stanowić przestępstwo.\n\nKontynuować?",
     "ExportDialogTitle": "Eksport nagrania",
     "ExportFormatLabel": "Format:",

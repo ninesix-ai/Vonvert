@@ -310,7 +310,7 @@
     "RecDur5to15": "5–15 min",
     "RecDurOver15": "> 15 min",
     "RecWarningTitle": "Recording notice",
-    "RecWarningBody": "Recording saves audio on your computer. Only record audio you have the right to save. Continue?",
+    "RecWarningBody": "Recording saves audio on your computer. Only record audio you have the right to save.\nRecorded voice-modified audio must NOT be used to impersonate others, commit fraud, or create deceptive content. Such misuse may constitute a criminal offense.\n\nContinue?",
     "ExportDialogTitle": "Export Recording",
     "ExportFormatLabel": "Format",
     "ExportFormatWav": "WAV",

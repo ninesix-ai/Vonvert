@@ -479,7 +479,11 @@ Press **● Start Recording**. The first time, Vonvert asks for confirmation:
 
 > **Recording notice**
 > Recording saves audio on your computer. Only record audio you have the right
-> to save. Continue?
+> to save. Recorded voice-modified audio must NOT be used to impersonate others,
+> commit fraud, or create deceptive content. Such misuse may constitute a criminal
+> offense.
+>
+> Continue?
 
 While recording, the button becomes **■ Stop** and **Cancel** discards the take
 in progress. Press **■ Stop** to finish; the take is saved and a

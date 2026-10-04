@@ -310,7 +310,7 @@
     "RecDur5to15": "5–15 min",
     "RecDurOver15": ">15 min",
     "RecWarningTitle": "Vonvert — Avertissement d'enregistrement",
-    "RecWarningBody": "L'audio modifié enregistré ne doit PAS être utilisé pour usurper l'identité d'autrui, commettre une fraude ou créer du contenu trompeur.\nUn tel usage abusif peut constituer une infraction pénale.\n\nAcceptez-vous ces conditions ?",
+    "RecWarningBody": "L'enregistrement sauvegarde l'audio sur votre ordinateur. N'enregistrez que l'audio que vous avez le droit de sauvegarder.\nL'audio modifié enregistré ne doit PAS être utilisé pour usurper l'identité d'autrui, commettre une fraude ou créer du contenu trompeur.\nUn tel usage abusif peut constituer une infraction pénale.\n\nContinuer ?",
     "ExportDialogTitle": "Exporter l'enregistrement",
     "ExportFormatLabel": "Format:",
     "ExportFormatWav": "WAV (Uncompressed)",

@@ -310,7 +310,7 @@
     "RecDur5to15": "5–15 min",
     "RecDurOver15": ">15 min",
     "RecWarningTitle": "Vonvert — Aufnahme-Warnung",
-    "RecWarningBody": "Aufgenommene Stimmveränderung darf NICHT zum Identitätsdiebstahl, Betrug oder zur Erstellung täuschender Inhalte verwendet werden.\nSolcher Missbrauch kann strafrechtlich verfolgt werden.\n\nStimmst du diesen Bedingungen zu?",
+    "RecWarningBody": "Aufnahmen werden auf deinem Computer gespeichert. Nimm nur Audio auf, das du speichern darfst.\nAufgenommene Stimmveränderung darf NICHT zum Identitätsdiebstahl, Betrug oder zur Erstellung täuschender Inhalte verwendet werden.\nSolcher Missbrauch kann strafrechtlich verfolgt werden.\n\nFortfahren?",
     "ExportDialogTitle": "Aufnahme exportieren",
     "ExportFormatLabel": "Format:",
     "ExportFormatWav": "WAV (Uncompressed)",

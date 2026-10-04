@@ -310,7 +310,7 @@
     "RecDur5to15": "5–15 分钟",
     "RecDurOver15": "> 15 分钟",
     "RecWarningTitle": "录音提示",
-    "RecWarningBody": "录音会在你的电脑上保存音频。请仅录制你有权保存的音频。是否继续？",
+    "RecWarningBody": "录音会在你的电脑上保存音频。请仅录制你有权保存的音频。\n录制的变声音频不得用于冒充他人、实施诈骗或制作欺诈性内容。\n此类滥用可能构成刑事犯罪。\n\n是否继续？",
     "ExportDialogTitle": "导出录音",
     "ExportFormatLabel": "格式",
     "ExportFormatWav": "WAV",

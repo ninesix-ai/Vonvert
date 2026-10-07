@@ -3,6 +3,7 @@
 
 using System.IO;
 using NAudio.Wave;
+using Vonvert.Engine;
 using Vonvert.Engine.AudioEngine;
 using Xunit;
 
@@ -12,7 +13,7 @@ namespace Vonvert.Tests.Audio;
 /// Tests for RecordingService export functionality and file I/O safety.
 /// Covers WAV/MP3 export, ReadAudioFile, WriteWavFile, and history persistence.
 /// </summary>
-[Collection("RecordingServiceFilesystem")]   // shared Recordings folder + history file → serialize (see RecordingServiceResultTests)
+[Collection("AppPathsSeam")]   // serializes with every test that redirects the process-wide AppPaths root
 public sealed class RecordingServiceExportTests : IDisposable
 {
     private readonly string _tempDir;
@@ -21,10 +22,17 @@ public sealed class RecordingServiceExportTests : IDisposable
     {
         _tempDir = Path.Combine(Path.GetTempPath(), "Vonvert_ExportTests_" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_tempDir);
+        // Reuse _tempDir as the AppPaths root so start/stop/delete cycles write under
+        // it, not under the real %APPDATA% recordings folder.
+        AppPaths.RootOverride = _tempDir;
+        AppPaths.Invalidate();
     }
 
     public void Dispose()
     {
+        AppPaths.RootOverride = null;
+        AppPaths.PointerDirOverride = null;
+        AppPaths.Invalidate();
         try { if (Directory.Exists(_tempDir)) Directory.Delete(_tempDir, recursive: true); }
         catch { }
     }

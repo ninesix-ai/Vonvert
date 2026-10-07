@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) 2026 ninesix-ai studio
 
+using System;
+using System.IO;
+using Vonvert.Engine;
 using Vonvert.Engine.AudioEngine;
 using Xunit;
 
@@ -9,13 +12,22 @@ namespace Vonvert.Tests.Audio;
 /// <summary>
 /// Tests for RecordingService — lifecycle, mode switching, events, and history.
 /// </summary>
-[Collection("RecordingServiceFilesystem")]   // shared Recordings folder + history file → serialize (see RecordingServiceResultTests)
+[Collection("AppPathsSeam")]   // serializes with every test that redirects the process-wide AppPaths root
 public sealed class RecordingServiceLifecycleTests : IDisposable
 {
+    private readonly string _root;
     private readonly RecordingService _service;
 
     public RecordingServiceLifecycleTests()
     {
+        // Redirect the process-wide AppPaths root BEFORE building the long-lived
+        // _service (one instance spans the whole class), so it points at a throwaway
+        // dir; the AppPathsSeam collection keeps it from racing another test that
+        // rewrites the same static root.
+        _root = Path.Combine(Path.GetTempPath(), "Vonvert_RecordingLifecycle_" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(_root);
+        AppPaths.RootOverride = _root;
+        AppPaths.Invalidate();
         _service = new RecordingService();
     }
 
@@ -24,6 +36,10 @@ public sealed class RecordingServiceLifecycleTests : IDisposable
         if (_service.IsRecording)
             _service.CancelRecording();
         _service.Dispose();
+        AppPaths.RootOverride = null;
+        AppPaths.PointerDirOverride = null;
+        AppPaths.Invalidate();
+        try { Directory.Delete(_root, recursive: true); } catch { }
     }
 
     // ── Initial state ────────────────────────────────────────────────

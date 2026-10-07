@@ -11,6 +11,7 @@ namespace Vonvert.Tests.Services;
 using System;
 using System.IO;
 using Vonvert.Engine;
+using Vonvert.Engine.AudioEngine;
 using Xunit;
 
 [Collection("AppPathsSeam")]
@@ -86,5 +87,19 @@ public sealed class AppPathsTests : IDisposable
         AppPaths.PointerDirOverride = _tempDir;
         Assert.False(AppPaths.TrySetRoot("relative-nope"));
         Assert.False(File.Exists(AppPaths.PointerFilePath));
+    }
+
+    [Fact(DisplayName = "APX-007: RecordingService derives its folder from AppPaths.Root, so RootOverride keeps it off the real user dir")]
+    public void APX007_RecordingService_HonoursRootOverride()
+    {
+        var root = Path.Combine(_tempDir, "Root");
+        Directory.CreateDirectory(root);
+        AppPaths.RootOverride = root;
+        AppPaths.Invalidate();
+
+        using var svc = new RecordingService();
+
+        Assert.Equal(Path.Combine(root, "Recordings"), svc.RecordingsFolder);
+        Assert.StartsWith(root, svc.RecordingsFolder);
     }
 }

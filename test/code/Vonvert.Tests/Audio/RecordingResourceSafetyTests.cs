@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) 2026 ninesix-ai studio
 
+using System;
 using System.IO;
+using Vonvert.Engine;
 using Vonvert.Engine.AudioEngine;
 using Xunit;
 
@@ -12,9 +14,29 @@ namespace Vonvert.Tests.Audio;
 /// must not allocate per call, must write correct data, and repeated recording
 /// sessions must clean up their files.
 /// </summary>
-[Collection("RecordingServiceFilesystem")]   // shared Recordings folder + history file → serialize (see RecordingServiceResultTests)
-public class RecordingResourceSafetyTests
+[Collection("AppPathsSeam")]   // serializes with every test that redirects the process-wide AppPaths root
+public class RecordingResourceSafetyTests : IDisposable
 {
+    private readonly string _root;
+
+    public RecordingResourceSafetyTests()
+    {
+        // Build each RecordingService against a throwaway AppPaths root instead of
+        // the real %APPDATA%\ninesix-ai\Vonvert\Recordings folder.
+        _root = Path.Combine(Path.GetTempPath(), "Vonvert_RecordingSafety_" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(_root);
+        AppPaths.RootOverride = _root;
+        AppPaths.Invalidate();
+    }
+
+    public void Dispose()
+    {
+        AppPaths.RootOverride = null;
+        AppPaths.PointerDirOverride = null;
+        AppPaths.Invalidate();
+        try { Directory.Delete(_root, recursive: true); } catch { }
+    }
+
     [Fact(DisplayName = "RS-003: RecordingService WriteSamples(Span) — no per-call allocation")]
     public void RS003_RecordingServiceSpanWrite_NoAllocation()
     {

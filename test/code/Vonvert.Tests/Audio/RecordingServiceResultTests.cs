@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) 2026 ninesix-ai studio
 
+using System;
+using System.IO;
 using Vonvert.Engine;
 using Vonvert.Engine.AudioEngine;
 using Xunit;
@@ -16,9 +18,29 @@ namespace Vonvert.Tests.Audio;
 // parallel, so all recording test classes must be serialized into one
 // collection to stop concurrent stop/save/delete races (null history, locked
 // files) that made these tests fail intermittently.
-[Collection("RecordingServiceFilesystem")]
-public sealed class RecordingServiceResultTests
+[Collection("AppPathsSeam")]   // serializes with every test that redirects the process-wide AppPaths root
+public sealed class RecordingServiceResultTests : IDisposable
 {
+    private readonly string _root;
+
+    public RecordingServiceResultTests()
+    {
+        // Redirect the whole AppPaths root at a throwaway directory before any
+        // RecordingService is built, so recordings never touch the real %APPDATA%.
+        _root = Path.Combine(Path.GetTempPath(), "Vonvert_RecordingResult_" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(_root);
+        AppPaths.RootOverride = _root;
+        AppPaths.Invalidate();
+    }
+
+    public void Dispose()
+    {
+        AppPaths.RootOverride = null;
+        AppPaths.PointerDirOverride = null;
+        AppPaths.Invalidate();
+        try { Directory.Delete(_root, recursive: true); } catch { }
+    }
+
     [Fact(DisplayName = "RSR-001: StartRecording — returns Ok on success")]
     public void RSR001_StartRecording_ReturnsOkOnSuccess()
     {

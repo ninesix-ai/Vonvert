@@ -8,6 +8,7 @@ Builds the Vonvert application (Engine + App).
 
 Usage:
     build.py              Build (publish self-contained EXE)
+    build.py --fd         Build + publish framework-dependent (launch-friendly)
     build.py --sign       Build + sign with code-signing certificate
     build.py --package    Build + create the NSIS installer
     build.py --clean      Clean then build
@@ -124,23 +125,28 @@ def build():
 
 
 # ── Publish ──────────────────────────────────────────────────
-def publish():
+def publish(self_contained: bool = True) -> tuple[bool, str]:
     header("Publish")
     version = _read_version()
-    publish_dir = os.path.join(ROOT, "Vonvert.App", "bin", "publish")
+    # Keep the two layouts in separate folders: a framework-dependent apphost is
+    # tiny, so mixing outputs in one dir would leave a stale large self-contained
+    # exe next to it and defeat the point of the launch-friendly build.
+    publish_dir = os.path.join(
+        ROOT, "Vonvert.App", "bin", "publish" if self_contained else "publish-fd")
 
-    cprint(f"  Publishing Vonvert v{version} (self-contained)...", GRAY)
+    mode = "self-contained" if self_contained else "framework-dependent"
+    cprint(f"  Publishing Vonvert v{version} ({mode})...", GRAY)
 
     if run([
         "dotnet", "publish",
         os.path.join(ROOT, "Vonvert.App", "Vonvert.App.csproj"),
         "-c", "Release",
         "-r", "win-x64",
-        "--self-contained", "true",
+        "--self-contained", "true" if self_contained else "false",
         "-o", publish_dir,
     ]) != 0:
         cprint("  FAILED: dotnet publish", RED)
-        return False
+        return False, publish_dir
 
     exe = os.path.join(publish_dir, "Vonvert.exe")
     if os.path.isfile(exe):
@@ -156,7 +162,7 @@ def publish():
             unblocked += _unblock(dll)
         if unblocked:
             cprint(f"  Unblocked {unblocked} file(s) (Zone.Identifier removed)", GRAY)
-    return True
+    return True, publish_dir
 
 
 # ── Unblock / launch smoke test ──────────────────────────────
@@ -403,6 +409,7 @@ def main():
         epilog="""
 Examples:
   build.py                  Build and publish
+  build.py --fd             Build + publish framework-dependent (launch-friendly)
   build.py --sign           Build + sign (requires VONVERT_PFX_PASSWORD)
   build.py --package        Build + create the NSIS installer
   build.py --clean          Clean then build
@@ -413,6 +420,11 @@ Examples:
                         help="Clean build artifacts before building")
     parser.add_argument("--clean-only", "-co", action="store_true",
                         help="Clean and exit (no build)")
+    parser.add_argument("--fd", "--framework-dependent", dest="fd",
+                        action="store_true",
+                        help="Publish framework-dependent (tiny apphost that avoids the "
+                             "Smart App Control verdict a just-written self-contained exe "
+                             "can hit; needs the .NET 10 desktop runtime installed)")
     parser.add_argument("--sign", "-s", action="store_true",
                         help="Sign Vonvert.exe with code-signing certificate")
     parser.add_argument("--package", "-p", action="store_true",
@@ -427,6 +439,8 @@ Examples:
 
     header("Vonvert Build")
     cprint(f"  Root:    {ROOT}", GRAY)
+    if args.fd:
+        cprint("  Mode:    framework-dependent (publish-fd, launch-friendly)", GRAY)
     if args.sign:
         cprint(f"  Sign:    enabled (auto Vonvert cert / PFX)", GRAY)
 
@@ -439,19 +453,22 @@ Examples:
     ok = restore() and ok
     if ok:
         ok = build() and ok
+    publish_dir = ""
+    published = False
     if ok:
-        ok = publish() and ok
-    publish_dir = os.path.join(ROOT, "Vonvert.App", "bin", "publish")
+        ok, publish_dir = publish(self_contained=not args.fd)
+        published = ok
     # The launch check is diagnostic, not a gate: a transient policy verdict on a
     # just-written unsigned binary must not stop us from producing the installer.
     # Its verdict is folded into the exit status after packaging has run.
-    published = ok
     if ok and args.sign:
         ok = sign(publish_dir)
     launch_ok = True
     if published and not args.no_verify:
         launch_ok = verify_launch(publish_dir)
-    if ok and args.package:
+    # A framework-dependent layout is not a distribution artifact (it needs the
+    # runtime on the target machine), so packaging is skipped in --fd mode.
+    if ok and args.package and not args.fd:
         ok = build_installer(publish_dir) and ok
     if not launch_ok:
         ok = False
@@ -461,6 +478,13 @@ Examples:
     if ok:
         header("BUILD COMPLETE")
         cprint(f"  Time: {elapsed:.1f}s", GREEN)
+        if args.fd:
+            cprint("  Run the framework-dependent build at:", CYAN)
+            cprint(f"    {os.path.relpath(publish_dir, ROOT)}\\Vonvert.exe", CYAN)
+            cprint("  Its tiny apphost is the one Smart App Control will not block on a", GRAY)
+            cprint("  fresh build; it needs the .NET 10 desktop runtime on this machine.", GRAY)
+            cprint("  For public distribution keep the default self-contained build and", GRAY)
+            cprint("  sign it, so downloaders are not warned either.", GRAY)
     else:
         header("BUILD FAILED")
         cprint(f"  Time: {elapsed:.1f}s", RED)

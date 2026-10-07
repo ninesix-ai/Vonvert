@@ -132,8 +132,12 @@ Section "Uninstall"
 
     ; Optional data purge: default No (keep data). Only on Yes do we invoke the
     ; app's purge command; Vonvert.exe still lives in $INSTDIR until the last line.
+    ; VONVERT_PURGE_ROOT scopes the erase to one sandbox directory (set by the E2E
+    ; tests); when unset it is empty, --purge-root is ignored, and the purge is a
+    ; normal full wipe of the current user's data — production behaviour is unchanged.
     MessageBox MB_YESNO|MB_ICONEXCLAMATION "$(UNWI_PURGE_PROMPT)" IDNO purgeSkip
-        nsExec::ExecToLog '"$INSTDIR\${APP_EXE}" --purge-user-data'
+        ReadEnvStr $R7 VONVERT_PURGE_ROOT
+        nsExec::ExecToLog '"$INSTDIR\${APP_EXE}" --purge-user-data --purge-root "$R7"'
     purgeSkip:
 
     DeleteRegKey HKCU "Software\${APP_NAME}"

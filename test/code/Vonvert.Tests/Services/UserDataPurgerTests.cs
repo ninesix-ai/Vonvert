@@ -170,6 +170,28 @@ public sealed class UserDataPurgerTests : IDisposable
         Assert.Contains(crash, r.DeletedPaths);
     }
 
+    // EX: explicit sandbox root (--purge-root) removes ONLY the sandbox; the default
+    // root stays and the registry cleaner is never invoked (cross-process E2E safety).
+    [Fact]
+    public void ExplicitRoot_PreservesDefaultRootAndRegistry()
+    {
+        var def = Dir("def"); WriteFile(def, "keep.json");
+        var sandbox = Dir("sandbox"); WriteFile(sandbox, "gone.json");
+        var reg = new FakeRegistry { KeyExists = true };
+
+        var r = new UserDataPurger(reg).Purge(new PurgeOptions
+        {
+            DefaultRoot = def,
+            ExplicitRoot = sandbox,
+        });
+
+        Assert.False(Directory.Exists(sandbox));
+        Assert.True(Directory.Exists(def));
+        Assert.Empty(reg.Deleted);
+        Assert.Contains(sandbox, r.DeletedPaths);
+        Assert.DoesNotContain(def, r.DeletedPaths);
+    }
+
     // E9: nothing exists -> idempotent, exit code 0, nothing deleted, some skipped.
     [Fact]
     public void MissingEverything_IsIdempotent()

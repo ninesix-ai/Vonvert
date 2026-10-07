@@ -26,4 +26,23 @@ public sealed class StartupArgsTests
         Assert.False(StartupArgs.IsPurgeMode(System.Array.Empty<string>()));
         Assert.False(StartupArgs.IsPurgeMode(new[] { "--minimized" }));
     }
+
+    // A3: --purge-root <dir> surfaces the explicit sandbox root.
+    [Fact]
+    public void DetectsPurgeRoot()
+    {
+        Assert.Equal(@"D:\vpurge-sandbox",
+            StartupArgs.GetPurgeRoot(new[] { "--purge-user-data", "--purge-root", @"D:\vpurge-sandbox" }));
+    }
+
+    // A4: absent / missing-value / next-token-is-a-flag / blank -> null (normal purge).
+    [Fact]
+    public void PurgeRootAbsentOrMalformed_ReturnsNull()
+    {
+        Assert.Null(StartupArgs.GetPurgeRoot(null));
+        Assert.Null(StartupArgs.GetPurgeRoot(new[] { "--purge-user-data" }));
+        Assert.Null(StartupArgs.GetPurgeRoot(new[] { "--purge-root" }));
+        Assert.Null(StartupArgs.GetPurgeRoot(new[] { "--purge-root", "--other" }));
+        Assert.Null(StartupArgs.GetPurgeRoot(new[] { "--purge-root", "  " }));
+    }
 }

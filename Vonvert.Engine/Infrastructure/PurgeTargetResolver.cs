@@ -22,8 +22,14 @@ public static class PurgeTargetResolver
         string? pointerContent,
         string defaultRoot,
         string? legacyBareRoot,
-        string? crashDumpPath)
+        string? crashDumpPath,
+        string? explicitRoot = null)
     {
+        // Explicit sandbox root (--purge-root): erase exactly this one directory and
+        // nothing else — no default/legacy roots, no crash file, no registry key.
+        if (!string.IsNullOrWhiteSpace(explicitRoot))
+            return new PurgeTargets(new[] { explicitRoot! }, Array.Empty<string>(), null);
+
         var dirs = new List<string>();
 
         // A redirected (custom) root only wins when the pointer resolves away from default.

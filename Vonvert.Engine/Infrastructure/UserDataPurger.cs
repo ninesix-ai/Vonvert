@@ -20,10 +20,15 @@ public sealed class PurgeOptions
     public string? PointerFilePath { get; init; }
     public string? LegacyBareRoot { get; init; }
     public string? CrashDumpPath { get; init; }
+    /// <summary>When set (the --purge-root argument), the purge erases ONLY this
+    /// directory and nothing else — it never removes the real default root, the
+    /// legacy root, the crash dump, or the registry key. Lets the uninstall
+    /// Yes-branch be exercised against a throwaway sandbox.</summary>
+    public string? ExplicitRoot { get; init; }
     public string RegistrySubKey { get; init; } = @"Software\Vonvert";
 
     /// <summary>Assembles production options from the real environment / AppPaths.</summary>
-    public static PurgeOptions FromEnvironment()
+    public static PurgeOptions FromEnvironment(string? explicitRoot = null)
     {
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         return new PurgeOptions
@@ -33,6 +38,7 @@ public sealed class PurgeOptions
             LegacyBareRoot = Path.Combine(appData, "Vonvert"),
             CrashDumpPath = Path.Combine(Path.GetTempPath(), "Vonvert_crash.txt"),
             RegistrySubKey = @"Software\Vonvert",
+            ExplicitRoot = explicitRoot,
         };
     }
 }
@@ -89,7 +95,8 @@ public sealed class UserDataPurger
         }
 
         var targets = PurgeTargetResolver.Resolve(
-            pointerContent, options.DefaultRoot, options.LegacyBareRoot, options.CrashDumpPath);
+            pointerContent, options.DefaultRoot, options.LegacyBareRoot, options.CrashDumpPath,
+            options.ExplicitRoot);
 
         foreach (var dir in targets.Directories)
         {

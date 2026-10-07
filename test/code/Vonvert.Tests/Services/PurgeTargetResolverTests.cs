@@ -90,4 +90,31 @@ public sealed class PurgeTargetResolverTests
         // Only the two known roots are ever in Directories.
         Assert.All(t.Directories, d => Assert.True(d == Default || d == Legacy));
     }
+
+    // P9: explicit sandbox root (--purge-root) erases ONLY that directory and
+    // nothing else — even a pointer value is ignored; no default/legacy/crash/registry.
+    [Fact]
+    public void ExplicitRoot_OnlyThatDir_NothingElse()
+    {
+        const string sandbox = @"D:\vpurge-sandbox";
+        var t = PurgeTargetResolver.Resolve(
+            pointerContent: sandbox,
+            defaultRoot: Default,
+            legacyBareRoot: Legacy,
+            crashDumpPath: Crash,
+            explicitRoot: sandbox);
+
+        Assert.Equal(new[] { sandbox }, t.Directories);
+        Assert.Empty(t.Files);
+        Assert.Null(t.RegistrySubKey);
+    }
+
+    // P10: blank explicit root is not treated as explicit -> normal resolution.
+    [Fact]
+    public void ExplicitRootBlank_FallsBackToNormalResolution()
+    {
+        var t = PurgeTargetResolver.Resolve(null, Default, null, null, explicitRoot: "   ");
+        Assert.Equal(new[] { Default }, t.Directories);
+        Assert.NotNull(t.RegistrySubKey);
+    }
 }

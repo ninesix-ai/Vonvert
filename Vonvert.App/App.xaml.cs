@@ -103,9 +103,13 @@ public partial class App : Application
         // cleanup can execute without launching the GUI or contending for the lock.
         if (StartupArgs.IsPurgeMode(e.Args))
         {
+            // --purge-root <dir> restricts the erase to that one sandbox directory and
+            // leaves the real default root, registry and crash dump untouched; when it
+            // is absent this is a normal full purge of the current user's data.
+            var explicitRoot = StartupArgs.GetPurgeRoot(e.Args);
             var purge = new Vonvert.Engine.UserDataPurger().Purge(
-                Vonvert.Engine.PurgeOptions.FromEnvironment());
-            AppLog.Information($"[Purge] deleted={purge.DeletedPaths.Count} " +
+                Vonvert.Engine.PurgeOptions.FromEnvironment(explicitRoot));
+            AppLog.Information($"[Purge] root={explicitRoot ?? "<default>"} deleted={purge.DeletedPaths.Count} " +
                 $"skipped={purge.SkippedPaths.Count} failed={purge.FailedPaths.Count}");
             Environment.Exit(purge.ExitCode);
             return;

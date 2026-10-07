@@ -23,7 +23,15 @@ if [ -n "${VONVERT_FULL_RULES:-}" ] && [ -f "$VONVERT_FULL_RULES" ]; then
   RULES="$VONVERT_FULL_RULES"
 fi
 
-count=$(printf '%s\n' "$staged" | grep -c .)
+# Count staged files in pure shell: grep may be unavailable when git is
+# launched from an IDE or a plain PowerShell/cmd window (Git's usr\bin is
+# not on PATH there), which used to kill this hook before it could scan.
+count=0
+while IFS= read -r f; do
+  [ -n "$f" ] && count=$((count + 1))
+done <<EOF
+$staged
+EOF
 echo "[pre-commit] release-compliance scan on ${count} staged file(s) ..."
 printf '%s\n' "$staged" | python script/verify/release_compliance_scan.py \
   --path . --rules "$RULES" --files-from -

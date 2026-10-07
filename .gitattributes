@@ -21,6 +21,8 @@
 *.txt    text eol=lf
 *.py     text eol=lf
 *.ps1    text eol=lf
+# Git hook scripts are parsed by sh — keep them LF on every platform.
+.githooks/* text eol=lf
 *.config text eol=lf
 *.manifest text eol=lf
 *.gitignore text eol=lf

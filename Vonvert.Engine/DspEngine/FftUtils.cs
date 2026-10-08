@@ -12,25 +12,27 @@ namespace Vonvert.Engine.DspEngine;
 public static class FftUtils
 {
     // Pre-computed twiddle factor tables — avoids repeated Cos/Sin per FFT call.
-    // Each entry stores (wRe, wIm) arrays for one FFT size.
-    private static readonly Dictionary<int, (float[] re, float[] im)> _twiddleCache = new();
+    // Thread-safe: FFT runs on the analyzer worker thread, the audio thread, and in
+    // parallel tests; a plain Dictionary raced on concurrent first-time fills here and
+    // corrupted the cache (root cause of the flaky RT-006 / PW-003, and a prod hazard).
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<int, (float[] re, float[] im)> _twiddleCache = new();
 
     private static (float[] re, float[] im) GetTwiddles(int halfSize)
     {
-        if (!_twiddleCache.TryGetValue(halfSize, out var entry))
+        // GetOrAdd atomically fills on first use and is a lock-free read once warm,
+        // so the steady-state FFT stays allocation-free under concurrent callers.
+        return _twiddleCache.GetOrAdd(halfSize, static half =>
         {
-            var tRe = new float[halfSize];
-            var tIm = new float[halfSize];
-            for (int j = 0; j < halfSize; j++)
+            var tRe = new float[half];
+            var tIm = new float[half];
+            for (int j = 0; j < half; j++)
             {
-                double angle = -MathF.Tau * j / (halfSize * 2);
+                double angle = -MathF.Tau * j / (half * 2);
                 tRe[j] = MathF.Cos((float)angle);
                 tIm[j] = MathF.Sin((float)angle);
             }
-            entry = (tRe, tIm);
-            _twiddleCache[halfSize] = entry;
-        }
-        return entry;
+            return (tRe, tIm);
+        });
     }
 
     /// <summary>Compute in-place radix-2 FFT using pre-computed twiddle factors.

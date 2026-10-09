@@ -43,4 +43,15 @@
   <ItemGroup>
     <EmbeddedResource Include="PresetLibrary\dsp-defaults.json" LogicalName="Vonvert.Engine.PresetLibrary.dsp-defaults.json" />
   </ItemGroup>
+  <!--
+    Built-in ambience clips (48 kHz / mono / 16-bit PCM WAV, seamless loops —
+    regenerate with tools/synth_ambience.py). Every clip is procedurally
+    synthesized in-repo under Apache-2.0: original material, no third-party
+    copyright, so nothing here belongs in a third-party notices file. They are
+    loaded at runtime by BuiltinAmbienceLibrary via GetManifestResourceStream and
+    extracted to %APPDATA%\Vonvert\BuiltinAmbience for the BGM background-music feature.
+  -->
+  <ItemGroup>
+    <EmbeddedResource Include="AudioEngine\BuiltinAmbience\*.wav" LogicalName="Vonvert.Engine.AudioEngine.BuiltinAmbience.%(Filename)%(Extension)" />
+  </ItemGroup>
 </Project>

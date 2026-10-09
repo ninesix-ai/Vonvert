@@ -13,4 +13,11 @@ public interface IDuckingProcessor
     float ThresholdDb { get; set; }
     float Ratio { get; set; }
     float Depth { get; set; }
+
+    /// <summary>Analyze the voice buffer and duck the music buffer in-place
+    /// (called on the DSP thread; no-op when <see cref="IsEnabled"/> is false).</summary>
+    void Process(ReadOnlySpan<float> micBuffer, Span<float> bgmBuffer);
+
+    /// <summary>Clear the envelope state.</summary>
+    void Reset();
 }

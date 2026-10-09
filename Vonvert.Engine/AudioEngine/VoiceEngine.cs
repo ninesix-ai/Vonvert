@@ -91,6 +91,10 @@ public sealed class VoiceEngine : IDisposable
     // --- Soundboard one-shot mixer (mixed post-DSP into the render/monitor feed) ---
     private readonly SoundboardMixer _sb = new();
 
+    // --- Background music (read on the DSP thread, mixed post-DSP like the soundboard) ---
+    private readonly BackgroundMusicPlayer _bgm = new();
+    private float[] _bgmScratch = Array.Empty<float>();
+
     // --- Public API ---
 
     public void Start(AudioDeviceHub devices)
@@ -211,6 +215,7 @@ public sealed class VoiceEngine : IDisposable
 
         _rxRing.Purge();
         _sb.Clear();
+        _bgm.Stop();
         _pipeline.OnStop();
         SetState(EngineStatus.Idle);
         AppLog.Information("VoiceEngine.Stop: engine stopped");
@@ -262,6 +267,16 @@ public sealed class VoiceEngine : IDisposable
 
     /// <summary>Test seam: number of broadcast soundboard clips currently queued.</summary>
     internal int SoundboardVoices => _sb.ActiveVoices;
+
+    /// <summary>
+    /// Background-music transport. BGM frames are read on the DSP thread and mixed
+    /// into the outgoing frame AFTER the voice DSP chain (so the music is un-pitched),
+    /// ducked under the voice when <see cref="IAudioProcessor.Ducking"/> is enabled.
+    /// The music reaches both the render and monitor feeds — i.e. a call/stream sees
+    /// it too. It is silent until the engine is running, since there is no output
+    /// graph to write into otherwise.
+    /// </summary>
+    public IBgmPlayer BGM => _bgm;
 
     // --- Graph init ---
 
@@ -493,6 +508,24 @@ public sealed class VoiceEngine : IDisposable
                 // chain, so clips are un-pitched and excluded from the analyzer feed.
                 _sb.MixInto(work);
 
+                // Mix background music into the same post-DSP frame: un-pitched, then
+                // optionally ducked under the processed voice, then summed and clamped.
+                if (_bgm.IsPlaying)
+                {
+                    if (_bgmScratch.Length < read) _bgmScratch = new float[read * 2];
+                    int bgmRead = _bgm.ReadSamples(_bgmScratch.AsSpan(0, read));
+                    if (bgmRead > 0)
+                    {
+                        var bgm = _bgmScratch.AsSpan(0, bgmRead);
+                        var duck = _pipeline.Ducking;
+                        if (duck.IsEnabled)
+                            duck.Process(work[..bgmRead], bgm);
+                        float v = _bgm.Volume;
+                        for (int i = 0; i < bgmRead; i++)
+                            work[i] = Math.Clamp(work[i] + bgm[i] * v, -1f, 1f);
+                    }
+                }
+
                 // Float span → byte array → BufferedWaveProvider
                 int outLen = work.Length * 4;
                 MemoryMarshal.AsBytes(work).CopyTo(_outBuf);
@@ -567,6 +600,7 @@ public sealed class VoiceEngine : IDisposable
 
         _rxRing.Purge();
         _sb.Clear();
+        try { _bgm.Dispose(); } catch { /* bgm dispose is best-effort */ }
         SetState(EngineStatus.Idle);
 
         _gate.Dispose();

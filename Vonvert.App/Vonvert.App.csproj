@@ -43,4 +43,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Translations\*.json" LogicalName="Vonvert.App.Translations.%(Filename)%(Extension)" />
   </ItemGroup>
+  <!-- Embedded built-in theme JSON files (one per theme); ThemeEngine reads them
+       back by the Vonvert.App.Themes.* resource-name prefix. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Themes\*.json" LogicalName="Vonvert.App.Themes.%(Filename)%(Extension)" />
+  </ItemGroup>
 </Project>

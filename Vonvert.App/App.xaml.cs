@@ -172,6 +172,12 @@ public partial class App : Application
         // ── Layout config (JSON-driven UI sizing) ──
         LayoutConfig.Instance.ApplyToResources();
 
+        // ── Theme: apply the saved palette BEFORE the window is built so the very
+        //    first render already reflects the user's choice; falls back to the
+        //    built-in "Dark" whose tokens equal the Theme.xaml fallback (no drift).
+        //    Runs after AppConfig loads so the stored theme name is available.
+        ThemeEngine.Instance.LoadSavedTheme();
+
         // ── Fix ShutdownMode bug: set OnExplicitShutdown before showing dialogs ──
         // This prevents the app from shutting down when the dialog closes
         // (which happens because MainWindow hasn't been created yet)

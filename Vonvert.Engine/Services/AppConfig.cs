@@ -28,6 +28,10 @@ public sealed class AppConfig
         public int    ResizeBorderWidth   { get; set; } = 8;
         public double VuMeterMaxWidth     { get; set; } = 156;
         public bool   RoleSystemEnabled   { get; set; } = true;
+        /// <summary>Active color theme name (see ThemeEngine). Defaults to the
+        /// built-in "Dark", whose tokens equal the Theme.xaml fallback so first
+        /// launch looks unchanged. Missing key on older configs keeps this default.</summary>
+        public string ThemeName           { get; set; } = "Dark";
     }
 
     /// <summary>Network behaviour parameters (HTTP, update checker, retry).</summary>

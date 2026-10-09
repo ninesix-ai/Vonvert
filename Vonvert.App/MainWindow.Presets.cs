@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright (c) 2026 ninesix-ai studio
 
+using Vonvert.Engine.Soundboard;
+
 namespace Vonvert.App;
 
 public partial class MainWindow
@@ -22,6 +24,10 @@ public partial class MainWindow
 
     /// <summary>Target width of the right parameter rail when expanded.</summary>
     private const double ParamRailWidth = 340;
+
+    /// <summary>Cancels the in-flight preset-preview render when a newer hover
+    /// arrives, so scrubbing across tiles never stacks overlapping previews.</summary>
+    private CancellationTokenSource? _previewCts;
 
     /// <summary>Event handler for MainPresetPicker.PresetChanged.</summary>
     private void MainPresetPicker_PresetChanged(VoiceProfile preset)
@@ -54,6 +60,36 @@ public partial class MainWindow
         // Slide the rail open — except on the silent startup auto-apply.
         if (_suppressParamExpand) _suppressParamExpand = false;
         else ExpandParamPanel();
+    }
+
+    // ════ Preset Hover Preview ════
+    // Dwelling on a preset tile for a beat renders that preset's DSP chain offline
+    // over a synthesized speech-like signal (VoiceProfile.CreateDSPChain — no engine
+    // start, no microphone) and plays it through the local-only audition channel, so
+    // the voice is heard before it is applied. The render runs on a background thread
+    // and each new hover cancels the previous in-flight one.
+
+    private void MainPresetPicker_HoverPreview(VoiceProfile preset)
+    {
+        if (preset == null) return;
+
+        // Hover events fire on the UI thread, so the field needs no extra locking;
+        // Cancel is the only cross-thread signal (consumed via the token below).
+        _previewCts?.Cancel();
+        _previewCts = new CancellationTokenSource();
+        var token = _previewCts.Token;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                var bytes = await Task.Run(() => PresetPreviewGenerator.GeneratePreviewBytes(preset), token);
+                if (token.IsCancellationRequested) return;
+                App.Audition?.Play(bytes, 0.4f);
+            }
+            catch (OperationCanceledException) { /* superseded by a newer hover */ }
+            catch (Exception ex) { AppLog.Debug(ex, "Preset hover preview failed"); }
+        }, token);
     }
 
     /// <summary>Slide the right parameter rail open (visible + width to <see cref="ParamRailWidth"/>).</summary>

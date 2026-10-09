@@ -152,6 +152,7 @@ public partial class MainWindow : Window, IAppServices
             if (MainPresetPicker != null)
             {
                 MainPresetPicker.PresetChanged += MainPresetPicker_PresetChanged;
+                MainPresetPicker.PresetHoverPreview += MainPresetPicker_HoverPreview;
                 MainPresetPicker.ImportRequested += OnImportPreset;
                 MainPresetPicker.ExportRequested += OnExportPreset;
                 MainPresetPicker.DeleteRequested += OnDeletePreset;

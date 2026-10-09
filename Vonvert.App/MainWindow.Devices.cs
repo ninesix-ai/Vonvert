@@ -18,6 +18,7 @@ public partial class MainWindow
     private void TabSettings_Loaded(object s, RoutedEventArgs e)
     {
         try { InitLanguageSelector(); } catch (Exception ex) { AppLog.Warning(ex, "InitLanguageSelector failed"); }
+        try { InitThemeSelector(); } catch (Exception ex) { AppLog.Warning(ex, "InitThemeSelector failed"); }
         try { InitDataLocationView(); } catch (Exception ex) { AppLog.Warning(ex, "InitDataLocationView failed"); }
         try { InitFloatingSoundboardToggles(); } catch (Exception ex) { AppLog.Warning(ex, "InitFloatingSoundboardToggles failed"); }
         try { PopulateDevices(); } catch (Exception ex) { AppLog.Warning(ex, "TabSettings_Loaded: PopulateDevices failed"); }
@@ -65,6 +66,47 @@ public partial class MainWindow
         if (_applyingLanguage) return;
         if (LanguageSelector?.SelectedItem is not ComboBoxItem item || item.Tag is not string code) return;
         LocalizationManager.Instance.Language = code;
+    }
+
+    // ── Theme selector ──
+    private bool _applyingTheme;
+
+    /// <summary>
+    /// Fill the combo from the loaded palettes (name -> display name) and reflect the
+    /// active theme without triggering a switch. Matched by theme name, and only rebuilt
+    /// when the item count changes, so the picker cannot drift from ThemeEngine.
+    /// </summary>
+    private void InitThemeSelector()
+    {
+        if (ThemeSelector == null) return;
+        _applyingTheme = true;
+        try
+        {
+            var themes = ThemeEngine.Instance.Themes;
+            if (ThemeSelector.Items.Count != themes.Count)
+            {
+                ThemeSelector.Items.Clear();
+                foreach (var kv in themes)
+                    ThemeSelector.Items.Add(new ComboBoxItem { Tag = kv.Key, Content = kv.Value.DisplayName });
+            }
+
+            string current = ThemeEngine.Instance.CurrentTheme?.Name ?? string.Empty;
+            int selected = ThemeSelector.Items.Count > 0 ? 0 : -1;
+            for (int i = 0; i < ThemeSelector.Items.Count; i++)
+                if (ThemeSelector.Items[i] is ComboBoxItem item
+                    && string.Equals((string?)item.Tag, current, StringComparison.Ordinal))
+                    selected = i;
+            ThemeSelector.SelectedIndex = selected;
+        }
+        finally { _applyingTheme = false; }
+    }
+
+    /// <summary>Switch the active palette; ThemeEngine persists the choice via AppConfig.</summary>
+    private void ThemeSelector_Changed(object s, SelectionChangedEventArgs e)
+    {
+        if (_applyingTheme) return;
+        if (ThemeSelector?.SelectedItem is not ComboBoxItem item || item.Tag is not string name) return;
+        ThemeEngine.Instance.ApplyTheme(name);
     }
 
     /// <summary>

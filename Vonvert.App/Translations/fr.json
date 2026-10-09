@@ -345,7 +345,8 @@
     "BgmVolume": "Volume",
     "BgmLoop": "Boucle",
     "BgmDucking": "Abaisser pendant la voix",
-    "BgmEngineHint": "Démarrez le moteur vocal pour entendre la musique de fond."
+    "BgmEngineHint": "Démarrez le moteur vocal pour entendre la musique de fond.",
+    "FontScale": "Taille du texte"
   },
   "persona": {
     "PersonaNone": "Aucun rôle (afficher tout)",

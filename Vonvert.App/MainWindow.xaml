@@ -339,6 +339,30 @@
                                                       SelectionChanged="ThemeSelector_Changed"/>
                                         </Grid>
                                     </Border>
+
+                                    <!-- ═══ FONT SCALE card (appearance / accessibility) ═══
+                         Global UI font size. FontScaler.Apply re-scales the whole
+                         window from each control's captured design-time size, so this
+                         is idempotent and small text gets a readability boost. -->
+                                    <Border Background="{DynamicResource Surface}"
+                                            BorderBrush="{DynamicResource Border}" BorderThickness="1"
+                                            CornerRadius="12" Padding="16,14" Margin="0,0,0,12">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=FontScale, Mode=OneWay}"
+                                                       FontSize="12" Foreground="{DynamicResource TextSub}" VerticalAlignment="Center" FontFamily="{StaticResource FontFallback}"/>
+                                            <Slider x:Name="FontScaleSlider" Grid.Column="1" Minimum="1.0" Maximum="1.40" Value="1.0"
+                                                    Margin="10,0" VerticalAlignment="Center" TickFrequency="0.05" IsSnapToTickEnabled="True"
+                                                    ValueChanged="OnFontScaleChanged"/>
+                                            <vc:SelectableTextBlock x:Name="FontScaleText" Grid.Column="2" Text="100%"
+                                                       FontSize="11" Foreground="{DynamicResource TextSub}" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+
                                     <controls:SettingsMyPersonaView x:Name="MyPersonaView"/>
                                     <Border Background="{DynamicResource Surface}"
                                             BorderBrush="{DynamicResource Border}" BorderThickness="1"

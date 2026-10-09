@@ -345,7 +345,8 @@
     "BgmVolume": "Volume",
     "BgmLoop": "Loop",
     "BgmDucking": "Duck under voice",
-    "BgmEngineHint": "Start the voice engine to hear background music."
+    "BgmEngineHint": "Start the voice engine to hear background music.",
+    "FontScale": "Font size"
   },
   "persona": {
     "PersonaNone": "No role (show everything)",

@@ -32,6 +32,18 @@ public sealed class AppConfig
         /// built-in "Dark", whose tokens equal the Theme.xaml fallback so first
         /// launch looks unchanged. Missing key on older configs keeps this default.</summary>
         public string ThemeName           { get; set; } = "Dark";
+
+        // ── Font scaling (accessibility). FontScaler walks the visual tree and
+        //    multiplies every design-time size by FontScale, with the three knobs
+        //    below tuning small-font readability. Defaults are no-op (scale 1.0).
+        /// <summary>Global UI font scale factor (clamped to FontScaler range).</summary>
+        public double FontScale           { get; set; } = 1.0;
+        /// <summary>Design sizes at or below this (px) get the small-font boost.</summary>
+        public double SmallFontThreshold  { get; set; } = 13.5;
+        /// <summary>Extra boost applied to small fonts (fraction, e.g. 0.10 = +10%).</summary>
+        public double SmallFontBoost      { get; set; } = 0.10;
+        /// <summary>Absolute floor so no scaled text becomes unreadable.</summary>
+        public double FontFloorSize       { get; set; } = 8.0;
     }
 
     /// <summary>Network behaviour parameters (HTTP, update checker, retry).</summary>

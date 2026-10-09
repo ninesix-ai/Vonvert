@@ -345,7 +345,8 @@
     "BgmVolume": "볼륨",
     "BgmLoop": "반복",
     "BgmDucking": "음성 시 자동 낮춤",
-    "BgmEngineHint": "배경 음악을 들으려면 음성 엔진을 시작하세요."
+    "BgmEngineHint": "배경 음악을 들으려면 음성 엔진을 시작하세요.",
+    "FontScale": "글자 크기"
   },
   "persona": {
     "PersonaNone": "역할 없음(모든 것을 표시)",

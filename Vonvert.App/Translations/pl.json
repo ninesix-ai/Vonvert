@@ -345,7 +345,8 @@
     "BgmVolume": "Głośność",
     "BgmLoop": "Pętla",
     "BgmDucking": "Ściszaj przy mowie",
-    "BgmEngineHint": "Uruchom silnik głosowy, aby usłyszeć muzykę w tle."
+    "BgmEngineHint": "Uruchom silnik głosowy, aby usłyszeć muzykę w tle.",
+    "FontScale": "Rozmiar czcionki"
   },
   "persona": {
     "PersonaNone": "Brak roli (pokaż wszystko)",

@@ -345,7 +345,8 @@
     "BgmVolume": "Lautstärke",
     "BgmLoop": "Endlosschleife",
     "BgmDucking": "Bei Sprache ausblenden",
-    "BgmEngineHint": "Starte die Voice-Engine, um Hintergrundmusik zu hören."
+    "BgmEngineHint": "Starte die Voice-Engine, um Hintergrundmusik zu hören.",
+    "FontScale": "Schriftgröße"
   },
   "persona": {
     "PersonaNone": "Keine Rolle (alles anzeigen)",

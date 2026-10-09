@@ -257,6 +257,7 @@ public partial class MainWindow
         MyPersonaView?.RefreshLocalizedContent(); // direct call: immune to the card's load/unload subscription lifetime
         RefreshBgmClipLabels();              // re-translate the built-in ambience clip names
         UpdateBgmTrackText();                 // keep the "No track" placeholder in sync
+        ReapplyFontScale();                  // labels were rewritten; re-scale the fresh text
         RefreshSectionTitle();               // active tab's title in the new language
     }
 

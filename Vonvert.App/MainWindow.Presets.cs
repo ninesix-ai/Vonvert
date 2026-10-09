@@ -50,6 +50,7 @@ public partial class MainWindow
         // Re-seed the expert panel with a fresh editable copy of the applied preset.
         _editProfile = preset.Clone();
         try { ExpertPanel?.Load(_editProfile); } catch (Exception ex) { AppLog.Warning(ex, "ExpertPanel.Load failed"); }
+        ReapplyFontScale();   // the panel rebuilt its rows; scale the freshly generated controls
 
         // Update section title
         if (SectionTitle != null) SectionTitle.Text = displayName;
@@ -126,6 +127,7 @@ public partial class MainWindow
     {
         if (ExpertPanel == null || ExpertModeCombo == null) return;
         ExpertPanel.SetMode(ExpertModeCombo.SelectedIndex == 1);   // index 1 = Professional
+        ReapplyFontScale();   // SetMode rebuilds every group; scale the new controls
     }
 
     /// <summary>Live-apply an expert-panel edit to the engine (raised by the panel).</summary>

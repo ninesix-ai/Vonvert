@@ -345,7 +345,8 @@
     "BgmVolume": "Ses seviyesi",
     "BgmLoop": "Döngü",
     "BgmDucking": "Konuşmada kısalt",
-    "BgmEngineHint": "Arka plan müziğini duymak için ses motorunu başlatın."
+    "BgmEngineHint": "Arka plan müziğini duymak için ses motorunu başlatın.",
+    "FontScale": "Yazı boyutu"
   },
   "persona": {
     "PersonaNone": "Rol yok (her şeyi göster)",

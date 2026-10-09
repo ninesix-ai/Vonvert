@@ -345,7 +345,8 @@
     "BgmVolume": "音量",
     "BgmLoop": "ループ",
     "BgmDucking": "音声で自動で下げる",
-    "BgmEngineHint": "BGM を聴くには音声エンジンを起動してください。"
+    "BgmEngineHint": "BGM を聴くには音声エンジンを起動してください。",
+    "FontScale": "文字サイズ"
   },
   "persona": {
     "PersonaNone": "役割なし（すべて表示）",

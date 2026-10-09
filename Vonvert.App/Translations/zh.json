@@ -345,7 +345,8 @@
     "BgmVolume": "音量",
     "BgmLoop": "循环",
     "BgmDucking": "说话时自动压低",
-    "BgmEngineHint": "启动变声引擎后才能听到背景音乐。"
+    "BgmEngineHint": "启动变声引擎后才能听到背景音乐。",
+    "FontScale": "字号"
   },
   "persona": {
     "PersonaNone": "不使用角色（显示全部）",

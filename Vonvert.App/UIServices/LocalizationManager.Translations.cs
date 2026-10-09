@@ -31,6 +31,12 @@ public partial class LocalizationManager
     // dynamically by GetSoundDisplayName, so no C# properties are needed.
     private Dictionary<string, string> _soundNames = new();
 
+    // Built-in BGM ambience clip names live in an "ambience" JSON section keyed by
+    // the stable clip Id (rain/white-noise/...), mirroring how "sounds" pads are
+    // localized: the Id is language-invariant, so it is looked up dynamically by
+    // GetAmbienceDisplayName and needs no C# string property.
+    private Dictionary<string, string> _ambienceNames = new();
+
     // ── Generic getter (avoids ambiguity with G() overloads) ─────────
 
     private string G([CallerMemberName] string? key = null)
@@ -84,6 +90,7 @@ public partial class LocalizationManager
             _paramStrings = obj["params"]?.ToObject<Dictionary<string, string>>() ?? new();
             _personaStrings = obj["persona"]?.ToObject<Dictionary<string, string>>() ?? new();
             _soundNames = obj["sounds"]?.ToObject<Dictionary<string, string>>() ?? new();
+            _ambienceNames = obj["ambience"]?.ToObject<Dictionary<string, string>>() ?? new();
         }
         else
         {
@@ -92,6 +99,7 @@ public partial class LocalizationManager
             _paramStrings = new();
             _personaStrings = new();
             _soundNames = new();
+            _ambienceNames = new();
         }
 
         // English fallback: fill in any keys the target language is missing, in all
@@ -104,6 +112,7 @@ public partial class LocalizationManager
             ApplyEnglishFallback(_paramStrings, enObj, "params");
             ApplyEnglishFallback(_personaStrings, enObj, "persona");
             ApplyEnglishFallback(_soundNames, enObj, "sounds");
+            ApplyEnglishFallback(_ambienceNames, enObj, "ambience");
         }
 
         // Fire PropertyChanged for every public property so bindings refresh
@@ -174,6 +183,18 @@ public partial class LocalizationManager
     /// </summary>
     public string GetSoundDisplayName(string id, string englishFallback)
         => !string.IsNullOrEmpty(id) && _soundNames.TryGetValue(id, out var localized)
+            ? localized
+            : englishFallback;
+
+    /// <summary>
+    /// Localized display name for a built-in BGM ambience clip, looked up by its
+    /// stable Id (rain/white-noise/...). Any unknown Id falls back to
+    /// <paramref name="englishFallback"/>, and English fallback in LoadLanguage fills
+    /// missing "ambience" keys, so a non-English locale degrades to English, not to
+    /// the raw id.
+    /// </summary>
+    public string GetAmbienceDisplayName(string id, string englishFallback)
+        => !string.IsNullOrEmpty(id) && _ambienceNames.TryGetValue(id, out var localized)
             ? localized
             : englishFallback;
 

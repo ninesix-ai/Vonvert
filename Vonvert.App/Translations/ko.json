@@ -334,7 +334,18 @@
     "CompressionLabel": "압축 레벨:",
     "QualityLabel": "품질:",
     "AllFiles": "모든 파일",
-    "Cancel": "취소"
+    "Cancel": "취소",
+    "BgmTitle": "배경 음악",
+    "BgmClip": "앰비언스",
+    "BgmLoadFile": "오디오 파일 불러오기…",
+    "BgmNoTrack": "트랙 없음",
+    "BgmPlay": "재생",
+    "BgmPause": "일시 정지",
+    "BgmStop": "정지",
+    "BgmVolume": "볼륨",
+    "BgmLoop": "반복",
+    "BgmDucking": "음성 시 자동 낮춤",
+    "BgmEngineHint": "배경 음악을 들으려면 음성 엔진을 시작하세요."
   },
   "persona": {
     "PersonaNone": "역할 없음(모든 것을 표시)",
@@ -533,5 +544,17 @@
     "thunder": "천둥",
     "ocean": "해양 파도",
     "campfire": "야영 화로"
+  },
+  "ambience": {
+    "rain": "비",
+    "white-noise": "백색 소음",
+    "cafe": "카페",
+    "forest": "숲속 새소리",
+    "ocean": "파도",
+    "radio-static": "라디오 잡음",
+    "fan": "선풍기",
+    "keyboard": "키보드 타이핑",
+    "campfire": "모닥불",
+    "livestream": "방송실 환경음"
   }
 }

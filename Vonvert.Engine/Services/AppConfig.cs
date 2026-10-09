@@ -64,6 +64,22 @@ public sealed class AppConfig
         public bool     FloatTopmost   { get; set; } = true;
         /// <summary>Whether the floating window auto-opens on startup (when at least one pad is pinned).</summary>
         public bool     FloatAutoOpen  { get; set; } = false;
+
+        // ── Background music (BGM). Persisted so the chosen track and its mix
+        //    settings survive restarts; playback itself is never auto-resumed —
+        //    the user presses Play (and the engine must be running). ──
+        /// <summary>Last chosen built-in ambience clip Id ("" = none). Re-extracted
+        /// from the embedded resource on load. Takes precedence over <see cref="BgmCustomPath"/>.</summary>
+        public string BgmClipId      { get; set; } = string.Empty;
+        /// <summary>Absolute path of a user-loaded BGM audio file ("" = none). Used
+        /// only when <see cref="BgmClipId"/> is empty and the file still exists.</summary>
+        public string BgmCustomPath  { get; set; } = string.Empty;
+        /// <summary>BGM mix level, 0..1 (unity). Applied to the player's 0..2 range.</summary>
+        public double BgmVolume      { get; set; } = 0.5;
+        /// <summary>Loop the BGM track when it reaches its end.</summary>
+        public bool   BgmLoop        { get; set; } = true;
+        /// <summary>When true, BGM is ducked (lowered) automatically while the voice is present.</summary>
+        public bool   BgmDucking     { get; set; } = true;
     }
 
     /// <summary>Role/persona state persisted under the "persona" JSON key.

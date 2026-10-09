@@ -334,7 +334,18 @@
     "CompressionLabel": "圧縮レベル：",
     "QualityLabel": "品質：",
     "AllFiles": "すべてのファイル",
-    "Cancel": "キャンセル"
+    "Cancel": "キャンセル",
+    "BgmTitle": "BGM",
+    "BgmClip": "アンビエンス",
+    "BgmLoadFile": "音声ファイルを読み込み…",
+    "BgmNoTrack": "トラックなし",
+    "BgmPlay": "再生",
+    "BgmPause": "一時停止",
+    "BgmStop": "停止",
+    "BgmVolume": "音量",
+    "BgmLoop": "ループ",
+    "BgmDucking": "音声で自動で下げる",
+    "BgmEngineHint": "BGM を聴くには音声エンジンを起動してください。"
   },
   "persona": {
     "PersonaNone": "役割なし（すべて表示）",
@@ -533,5 +544,17 @@
     "thunder": "雷",
     "ocean": "オーシャン・ウェイブス",
     "campfire": "キャンプファイア"
+  },
+  "ambience": {
+    "rain": "雨",
+    "white-noise": "白色雑音",
+    "cafe": "カフェ",
+    "forest": "森の鳥",
+    "ocean": "波の音",
+    "radio-static": "ラジオノイズ",
+    "fan": "扇風機",
+    "keyboard": "キーボード入力",
+    "campfire": "焚き火",
+    "livestream": "配信ルームの環境音"
   }
 }

@@ -334,7 +334,18 @@
     "CompressionLabel": "Compression:",
     "QualityLabel": "Quality:",
     "AllFiles": "Wszystkie pliki",
-    "Cancel": "Anuluj"
+    "Cancel": "Anuluj",
+    "BgmTitle": "Muzyka w tle",
+    "BgmClip": "Otoczenie",
+    "BgmLoadFile": "Wczytaj plik audio…",
+    "BgmNoTrack": "Brak ścieżki",
+    "BgmPlay": "Odtwórz",
+    "BgmPause": "Pauza",
+    "BgmStop": "Zatrzymaj",
+    "BgmVolume": "Głośność",
+    "BgmLoop": "Pętla",
+    "BgmDucking": "Ściszaj przy mowie",
+    "BgmEngineHint": "Uruchom silnik głosowy, aby usłyszeć muzykę w tle."
   },
   "persona": {
     "PersonaNone": "Brak roli (pokaż wszystko)",
@@ -533,5 +544,17 @@
     "thunder": "Grom",
     "ocean": "Fale Oceanu",
     "campfire": "Ognisko Wschodniocieplne"
+  },
+  "ambience": {
+    "rain": "Deszcz",
+    "white-noise": "Szum biały",
+    "cafe": "Kawiarnia",
+    "forest": "Ptaki leśne",
+    "ocean": "Fale oceanu",
+    "radio-static": "Szum radiowy",
+    "fan": "Wentylator",
+    "keyboard": "Pisanie na klawiaturze",
+    "campfire": "Ognisko",
+    "livestream": "Szum pomieszczenia na żywo"
   }
 }

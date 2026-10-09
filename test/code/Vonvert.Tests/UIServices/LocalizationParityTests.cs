@@ -233,4 +233,37 @@ public class LocalizationParityTests
         Assert.Contains("SUPPORTED_LANGUAGES", text);
         Assert.DoesNotContain("for lang in (\"en\", \"zh\")", text);
     }
+
+    [Theory(DisplayName = "L10N-14: every supported language has the same ambience key set as en")]
+    [MemberData(nameof(TranslatedLanguages))]
+    public void AmbienceKeys_ParityAgainstEnglish(string lang) => AssertSameKeys(lang, "ambience");
+
+    [Fact(DisplayName = "L10N-06c: every built-in ambience clip id has an en ambience entry")]
+    public void BuiltInAmbienceIds_AreTranslated()
+    {
+        var enAmb = ReadTopLevel("en", "ambience");
+        foreach (var clip in Vonvert.Engine.AudioEngine.BuiltinAmbienceLibrary.All)
+            Assert.True(enAmb.Contains(clip.Id),
+                $"built-in ambience '{clip.Id}' has no en ambience entry (clip name would strand in English)");
+    }
+
+    [Fact(DisplayName = "L10N-15: GetAmbienceDisplayName localizes by id and falls back to the caller's english name")]
+    public void GetAmbienceDisplayName_LocalizesAndFallsBack()
+    {
+        var lm = LocalizationManager.Instance;
+        string original = lm.Language;
+        try
+        {
+            lm.Language = "en";
+            Assert.Equal("Rain", lm.GetAmbienceDisplayName("rain", "Rain"));
+            // unknown / user id: never surface the raw id, keep the caller's fallback
+            Assert.Equal("MyTrack", lm.GetAmbienceDisplayName("user_track", "MyTrack"));
+
+            lm.Language = "zh";
+            var zh = lm.GetAmbienceDisplayName("rain", "Rain");
+            Assert.False(string.IsNullOrWhiteSpace(zh));
+            Assert.NotEqual("rain", zh);
+        }
+        finally { lm.Language = original; }
+    }
 }

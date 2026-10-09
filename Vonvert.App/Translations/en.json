@@ -334,7 +334,18 @@
     "CompressionLabel": "Compression",
     "QualityLabel": "Quality",
     "AllFiles": "All files",
-    "Cancel": "Cancel"
+    "Cancel": "Cancel",
+    "BgmTitle": "Background Music",
+    "BgmClip": "Ambience",
+    "BgmLoadFile": "Load audio file…",
+    "BgmNoTrack": "No track",
+    "BgmPlay": "Play",
+    "BgmPause": "Pause",
+    "BgmStop": "Stop",
+    "BgmVolume": "Volume",
+    "BgmLoop": "Loop",
+    "BgmDucking": "Duck under voice",
+    "BgmEngineHint": "Start the voice engine to hear background music."
   },
   "persona": {
     "PersonaNone": "No role (show everything)",
@@ -533,5 +544,17 @@
     "thunder": "Thunder",
     "ocean": "Ocean Waves",
     "campfire": "Campfire"
+  },
+  "ambience": {
+    "rain": "Rain",
+    "white-noise": "White Noise",
+    "cafe": "Coffee Shop",
+    "forest": "Forest Birds",
+    "ocean": "Ocean Waves",
+    "radio-static": "Radio Static",
+    "fan": "Fan",
+    "keyboard": "Keyboard Typing",
+    "campfire": "Campfire",
+    "livestream": "Stream Room Floor"
   }
 }

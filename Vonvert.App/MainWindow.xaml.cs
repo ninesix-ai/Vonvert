@@ -164,6 +164,7 @@ public partial class MainWindow : Window, IAppServices
             if (ExpertModeCombo != null)
                 ExpertModeCombo.SelectedIndex = 0;   // default to Simple mode
         } catch (Exception ex) { AppLog.Warning(ex, "MainPresetPicker init failed"); }
+        try { InitBgmCard(); } catch (Exception ex) { AppLog.Warning(ex, "InitBgmCard failed"); }
         try { InitSpectrumVisualizer(); } catch (Exception ex) { AppLog.Warning(ex, "InitSpectrumVisualizer failed"); }
 
         // Out-of-the-box experience: auto-apply the single built-in preset

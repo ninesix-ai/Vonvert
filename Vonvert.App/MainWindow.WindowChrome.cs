@@ -255,6 +255,8 @@ public partial class MainWindow
         }
         ExpertPanel?.Relabel();              // re-translate the data-driven expert panel labels
         MyPersonaView?.RefreshLocalizedContent(); // direct call: immune to the card's load/unload subscription lifetime
+        RefreshBgmClipLabels();              // re-translate the built-in ambience clip names
+        UpdateBgmTrackText();                 // keep the "No track" placeholder in sync
         RefreshSectionTitle();               // active tab's title in the new language
     }
 

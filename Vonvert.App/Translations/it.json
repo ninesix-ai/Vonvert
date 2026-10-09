@@ -334,7 +334,18 @@
     "CompressionLabel": "Compression:",
     "QualityLabel": "Quality:",
     "AllFiles": "Tutti i file",
-    "Cancel": "Annulla"
+    "Cancel": "Annulla",
+    "BgmTitle": "Musica di sottofondo",
+    "BgmClip": "Ambiente",
+    "BgmLoadFile": "Carica file audio…",
+    "BgmNoTrack": "Nessuna traccia",
+    "BgmPlay": "Riproduci",
+    "BgmPause": "Pausa",
+    "BgmStop": "Ferma",
+    "BgmVolume": "Volume",
+    "BgmLoop": "Ripeti",
+    "BgmDucking": "Abbassa con la voce",
+    "BgmEngineHint": "Avvia il motore vocale per ascoltare la musica di sottofondo."
   },
   "persona": {
     "PersonaNone": "Nessun ruolo (mostra tutto)",
@@ -533,5 +544,17 @@
     "thunder": "Tuono",
     "ocean": "Onde Marine",
     "campfire": "Focolaio"
+  },
+  "ambience": {
+    "rain": "Pioggia",
+    "white-noise": "Rumore bianco",
+    "cafe": "Caffetteria",
+    "forest": "Uccelli del bosco",
+    "ocean": "Onde dell'oceano",
+    "radio-static": "Statico radio",
+    "fan": "Ventilatore",
+    "keyboard": "Digitazione sulla tastiera",
+    "campfire": "Falò",
+    "livestream": "Rumore di fondo della stanza"
   }
 }

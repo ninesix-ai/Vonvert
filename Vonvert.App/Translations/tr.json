@@ -334,7 +334,18 @@
     "CompressionLabel": "Compression:",
     "QualityLabel": "Quality:",
     "AllFiles": "Tüm Dosyalar",
-    "Cancel": "İptal"
+    "Cancel": "İptal",
+    "BgmTitle": "Arka plan müziği",
+    "BgmClip": "Ortam sesi",
+    "BgmLoadFile": "Ses dosyası yükle…",
+    "BgmNoTrack": "Parça yok",
+    "BgmPlay": "Oynat",
+    "BgmPause": "Duraklat",
+    "BgmStop": "Durdur",
+    "BgmVolume": "Ses seviyesi",
+    "BgmLoop": "Döngü",
+    "BgmDucking": "Konuşmada kısalt",
+    "BgmEngineHint": "Arka plan müziğini duymak için ses motorunu başlatın."
   },
   "persona": {
     "PersonaNone": "Rol yok (her şeyi göster)",
@@ -533,5 +544,17 @@
     "thunder": "Thunder",
     "ocean": "Deniz Dalgalari",
     "campfire": "Kamp Tüyüğü"
+  },
+  "ambience": {
+    "rain": "Yağmur",
+    "white-noise": "Beyaz gürültü",
+    "cafe": "Kafeterya",
+    "forest": "Orman kuşları",
+    "ocean": "Okyanus dalgaları",
+    "radio-static": "Radyo gürültüsü",
+    "fan": "Vantilatör",
+    "keyboard": "Klavye yazımı",
+    "campfire": "Kamp ateşi",
+    "livestream": "Yayın odası uğultusu"
   }
 }

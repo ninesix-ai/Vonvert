@@ -334,7 +334,18 @@
     "CompressionLabel": "压缩",
     "QualityLabel": "质量",
     "AllFiles": "所有文件",
-    "Cancel": "取消"
+    "Cancel": "取消",
+    "BgmTitle": "背景音乐",
+    "BgmClip": "氛围音",
+    "BgmLoadFile": "载入音频文件…",
+    "BgmNoTrack": "未选择曲目",
+    "BgmPlay": "播放",
+    "BgmPause": "暂停",
+    "BgmStop": "停止",
+    "BgmVolume": "音量",
+    "BgmLoop": "循环",
+    "BgmDucking": "说话时自动压低",
+    "BgmEngineHint": "启动变声引擎后才能听到背景音乐。"
   },
   "persona": {
     "PersonaNone": "不使用角色（显示全部）",
@@ -533,5 +544,17 @@
     "thunder": "雷声",
     "ocean": "海浪",
     "campfire": "篝火"
+  },
+  "ambience": {
+    "rain": "雨声",
+    "white-noise": "白噪音",
+    "cafe": "咖啡厅",
+    "forest": "森林鸟鸣",
+    "ocean": "海浪",
+    "radio-static": "收音机静电",
+    "fan": "风扇",
+    "keyboard": "键盘打字",
+    "campfire": "篝火",
+    "livestream": "直播间底噪"
   }
 }

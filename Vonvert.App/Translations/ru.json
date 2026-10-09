@@ -334,7 +334,18 @@
     "CompressionLabel": "Сжатие",
     "QualityLabel": "Качество",
     "AllFiles": "Все файлы",
-    "Cancel": "Отмена"
+    "Cancel": "Отмена",
+    "BgmTitle": "Фоновая музыка",
+    "BgmClip": "Окружение",
+    "BgmLoadFile": "Загрузить аудиофайл…",
+    "BgmNoTrack": "Нет трека",
+    "BgmPlay": "Воспроизвести",
+    "BgmPause": "Пауза",
+    "BgmStop": "Стоп",
+    "BgmVolume": "Громкость",
+    "BgmLoop": "Цикл",
+    "BgmDucking": "Приглушать под голос",
+    "BgmEngineHint": "Запустите голосовой движок, чтобы слышать фоновую музыку."
   },
   "persona": {
     "PersonaNone": "Нет роли (показать всё)",
@@ -533,5 +544,17 @@
     "thunder": "Гром",
     "ocean": "Океанские волны",
     "campfire": "Костёр"
+  },
+  "ambience": {
+    "rain": "Дождь",
+    "white-noise": "Белый шум",
+    "cafe": "Кафе",
+    "forest": "Птицы в лесу",
+    "ocean": "Волны океана",
+    "radio-static": "Помехи радио",
+    "fan": "Вентилятор",
+    "keyboard": "Печатание на клавиатуре",
+    "campfire": "Костёр",
+    "livestream": "Фоновый шум студии"
   }
 }

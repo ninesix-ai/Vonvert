@@ -216,6 +216,11 @@ public partial class ExpertParamsControl : UserControl
         grid.Children.Add(slider);
         grid.Children.Add(value);
 
+        // Click the value to type an exact number instead of nudging the slider; the
+        // commit drives slider.Value, so this row's existing ValueChanged pipeline
+        // (profile write + label reformat + ParameterChanged) runs unchanged.
+        SliderValueEditHelper.Attach(value, slider);
+
         if (p.TipKey != null) { ApplyTip(label, p.TipKey); ApplyTip(slider, p.TipKey); }
 
         _refresh.Add(() =>

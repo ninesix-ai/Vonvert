@@ -79,7 +79,7 @@
                             <SolidColorBrush Color="#4D8B5CF6"/>
                         </Border.BorderBrush>
                         <vc:SelectableTextBlock x:Name="UpdateBadgeText" FontSize="10" FontWeight="SemiBold"
-                                   Foreground="#FFA78BFA" VerticalAlignment="Center"/>
+                                   Foreground="{DynamicResource AccentHover}" VerticalAlignment="Center"/>
                     </Border>
                     </StackPanel>
                 </ScrollViewer>
@@ -95,7 +95,7 @@
                     <!-- Plain text is non-interactive; IsHitTestVisible=False keeps the whole button area clickable -->
                     <TextBlock x:Name="VoiceToggleLabel"
                                Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=VoiceToggle, Mode=OneWay}"
-                               FontSize="12" FontWeight="SemiBold" Foreground="#FF9CA3AF"
+                               FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextSub}"
                                FontFamily="{StaticResource FontFallback}"
                                IsHitTestVisible="False"/>
                 </Button>

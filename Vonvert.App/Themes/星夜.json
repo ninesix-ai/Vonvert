@@ -42,5 +42,6 @@
   "iconCatMemes": "#FFD28CB2",
   "iconCatMusic": "#FF8EB88F",
   "iconCatRetro": "#FF6AA3AE",
-  "iconCatAmbient": "#FFA1A8B1"
+  "iconCatAmbient": "#FFA1A8B1",
+  "accentHover": "#FFCC88FF"
 }

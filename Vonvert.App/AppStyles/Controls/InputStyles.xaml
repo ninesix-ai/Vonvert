@@ -18,7 +18,7 @@
                 <ContentPresenter Grid.Column="0" Margin="12,0,0,0" VerticalAlignment="Center"
                                   HorizontalAlignment="Left"/>
                 <Path Grid.Column="1" x:Name="arrow"
-                      Data="M0,0 L5,5 L10,0" Stroke="#8B5CF6" StrokeThickness="1.8"
+                      Data="M0,0 L5,5 L10,0" Stroke="{DynamicResource Accent}" StrokeThickness="1.8"
                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
         </Border>
@@ -50,7 +50,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="bd" Property="Background" Value="{DynamicResource CtrlHover}"/>
-                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter TargetName="bd" Property="Background">
@@ -58,7 +58,7 @@
                                     <DynamicResource ResourceKey="ComboSelectedGrad"/>
                                 </Setter.Value>
                             </Setter>
-                            <Setter Property="Foreground" Value="#A89CF8"/>
+                            <Setter Property="Foreground" Value="{DynamicResource AccentHover}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

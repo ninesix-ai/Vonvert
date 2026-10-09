@@ -35,6 +35,7 @@ public class ThemeDefinition
     public string SurfaceLift { get; set; } = "#FF211D33";
     public string Border { get; set; } = "#FF2F2A48";
     public string Accent { get; set; } = "#FF8B5CF6";
+    public string AccentHover { get; set; } = "#FFA78BFA";
     public string TextPrimary { get; set; } = "#FFF3F1FB";
     public string TextSub { get; set; } = "#FF8B87A8";
     public string Warning { get; set; } = "#FFFBBF24";
@@ -288,6 +289,7 @@ public sealed class ThemeEngine : IDisposable
         Brush("SurfaceLift", t.SurfaceLift);
         Brush("Border", t.Border);
         Brush("Accent", t.Accent);
+        Brush("AccentHover", t.AccentHover);
         Brush("TextPrimary", t.TextPrimary);
         Brush("TextSub", t.TextSub);
         Brush("Warning", t.Warning);

@@ -32,7 +32,7 @@
                                     <DynamicResource ResourceKey="AccentGrad"/>
                                 </Setter.Value>
                             </Setter>
-                            <Setter TargetName="track" Property="BorderBrush"   Value="#8B5CF6"/>
+                            <Setter TargetName="track" Property="BorderBrush"   Value="{DynamicResource Accent}"/>
                             <Setter TargetName="thumb" Property="Background"    Value="White"/>
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
@@ -58,7 +58,7 @@
                             </Trigger.ExitActions>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="track" Property="BorderBrush" Value="#8B5CF6"/>
+                            <Setter TargetName="track" Property="BorderBrush" Value="{DynamicResource Accent}"/>
                         </Trigger>
                         <Trigger Property="IsFocused" Value="True">
                             <Setter TargetName="track" Property="BorderBrush" Value="{DynamicResource Accent}"/>

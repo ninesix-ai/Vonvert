@@ -10,6 +10,7 @@
     <Color x:Key="C_SurfaceLift">#FF211D33</Color>
     <Color x:Key="C_Border">#FF2F2A48</Color>
     <Color x:Key="C_Accent">#FF8B5CF6</Color>
+    <Color x:Key="C_AccentHover">#FFA78BFA</Color>
     <Color x:Key="C_TextPrimary">#FFF3F1FB</Color>
     <Color x:Key="C_TextSub">#FF8B87A8</Color>
     <Color x:Key="C_Warning">#FFFBBF24</Color>
@@ -59,6 +60,7 @@
     <SolidColorBrush x:Key="SurfaceLift" Color="{StaticResource C_SurfaceLift}"/>
     <SolidColorBrush x:Key="Border"      Color="{StaticResource C_Border}"/>
     <SolidColorBrush x:Key="Accent"      Color="{StaticResource C_Accent}"/>
+    <SolidColorBrush x:Key="AccentHover" Color="{StaticResource C_AccentHover}"/>
     <SolidColorBrush x:Key="TextPrimary" Color="{StaticResource C_TextPrimary}"/>
     <SolidColorBrush x:Key="TextSub"     Color="{StaticResource C_TextSub}"/>
     <SolidColorBrush x:Key="Warning"     Color="{StaticResource C_Warning}"/>

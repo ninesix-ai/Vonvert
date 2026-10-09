@@ -46,7 +46,7 @@ public sealed class ThemeEngineTests : IDisposable
     private static readonly string[] XamlTokenFields =
     {
         nameof(ThemeDefinition.Bg), nameof(ThemeDefinition.Surface), nameof(ThemeDefinition.SurfaceLift),
-        nameof(ThemeDefinition.Border), nameof(ThemeDefinition.Accent), nameof(ThemeDefinition.TextPrimary),
+        nameof(ThemeDefinition.Border), nameof(ThemeDefinition.Accent), nameof(ThemeDefinition.AccentHover), nameof(ThemeDefinition.TextPrimary),
         nameof(ThemeDefinition.TextSub), nameof(ThemeDefinition.Warning), nameof(ThemeDefinition.TileSurface),
         nameof(ThemeDefinition.TileSelected), nameof(ThemeDefinition.PowerOn), nameof(ThemeDefinition.PowerOff),
         nameof(ThemeDefinition.WarnWash), nameof(ThemeDefinition.OkWash), nameof(ThemeDefinition.IconVoices),

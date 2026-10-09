@@ -9,7 +9,7 @@
   "accent": "#FF7C3AED",
   "textPrimary": "#FF221E38",
   "textSub": "#FF635D80",
-  "warning": "#FFD97706",
+  "warning": "#FFB45309",
   "tileSurface": "#FFFFFFFF",
   "tileSelected": "#FFEFEDF8",
   "powerOn": "#FF059669",
@@ -35,12 +35,13 @@
   "iconRecord": "#FFDB2777",
   "iconSettings": "#FF7C3AED",
   "iconAbout": "#FF059669",
-  "iconSoundboard": "#FFD97706",
+  "iconSoundboard": "#FFB45309",
   "iconCatDrums": "#FFB45309",
   "iconCatTones": "#FF7C3AED",
   "iconCatSFX": "#FF0369A1",
   "iconCatMemes": "#FFBE185D",
   "iconCatMusic": "#FF047857",
   "iconCatRetro": "#FF0F766E",
-  "iconCatAmbient": "#FF475569"
+  "iconCatAmbient": "#FF475569",
+  "accentHover": "#FF6D28D9"
 }

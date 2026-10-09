@@ -22,7 +22,7 @@
                             <Setter TargetName="thumb" Property="Background" Value="#5A5578"/>
                         </Trigger>
                         <Trigger Property="IsDragging" Value="True">
-                            <Setter TargetName="thumb" Property="Background" Value="#736C99"/>
+                            <Setter TargetName="thumb" Property="Background" Value="{DynamicResource ToggleOffThumb}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -50,16 +50,16 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="RepeatButton">
-                    <Border x:Name="btn" Background="#1E1A30" CornerRadius="0"
+                    <Border x:Name="btn" Background="{DynamicResource CtrlSurface}" CornerRadius="0"
                             SnapsToDevicePixels="True">
-                        <Path x:Name="arrow" Fill="#8B87A8"
+                        <Path x:Name="arrow" Fill="{DynamicResource TextSub}"
                               HorizontalAlignment="Center" VerticalAlignment="Center"
                               Data="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="btn" Property="Background" Value="#282344"/>
-                            <Setter TargetName="arrow" Property="Fill" Value="#D6D2E8"/>
+                            <Setter TargetName="btn" Property="Background" Value="{DynamicResource CtrlHover}"/>
+                            <Setter TargetName="arrow" Property="Fill" Value="{DynamicResource CtrlText}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="btn" Property="Background" Value="#3D3A52"/>

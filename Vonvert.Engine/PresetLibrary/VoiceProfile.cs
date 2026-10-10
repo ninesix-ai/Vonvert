@@ -77,6 +77,8 @@ public partial class VoiceProfile
     public float GateFloorDb     { get; set; } = -45f;
     // Gain
     public float PreAmpGain      { get; set; } = 1.0f;
+    // VST plugins (discovered and loaded by VstManager at chain-build time)
+    public List<VstPluginConfig> VstPlugins { get; set; } = new();
     // DSP chain effect order (free routing). Empty = default order.
     public List<string> EffectOrder { get; set; } = new();
 
@@ -90,6 +92,11 @@ public partial class VoiceProfile
         var copy = (VoiceProfile)MemberwiseClone();
         copy.GraphicEqGains = (float[])GraphicEqGains.Clone();
         copy.EffectOrder = new List<string>(EffectOrder);
+        copy.VstPlugins = VstPlugins.Select(v => new VstPluginConfig
+        {
+            DllPath = v.DllPath, IsEnabled = v.IsEnabled,
+            Parameters = new List<float>(v.Parameters)
+        }).ToList();
         return copy;
     }
 }

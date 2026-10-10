@@ -327,6 +327,20 @@ public partial class VoiceProfile
             chain.Add(new LoudnessMeterEffect { IsEnabled = true });
         }
 
+        // ── VST Plugins (loaded after all built-in effects) ─────────────────
+        foreach (var vst in VstPlugins)
+        {
+            if (!IsSafeVstPath(vst.DllPath)) continue;
+            try
+            {
+                chain.Add(new VstEffect(vst.DllPath) { IsEnabled = vst.IsEnabled });
+            }
+            catch (Exception ex)
+            {
+                AppLog.Warning(ex, "CreateDSPChain: Failed to load VST '{Path}'", vst.DllPath);
+            }
+        }
+
         // ── Free routing: apply custom effect order if specified ─────────
         if (EffectOrder.Count > 0)
         {
@@ -334,5 +348,38 @@ public partial class VoiceProfile
         }
 
         return chain;
+    }
+
+    // ── VST path validation ──────────────────────────────────────────────────
+
+    /// <summary>
+    /// Validate that a VST plugin DLL path is safe: non-empty, no traversal
+    /// sequences, ends with .dll, and exists on disk.
+    /// </summary>
+    internal static bool IsSafeVstPath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return false;
+
+        try
+        {
+            // Reject path traversal attempts
+            if (path.Contains("..")) return false;
+
+            var fullPath = System.IO.Path.GetFullPath(path);
+            var ext = System.IO.Path.GetExtension(fullPath);
+
+            // Must be a .dll file
+            if (!ext.Equals(".dll", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            // Must exist on disk
+            if (!System.IO.File.Exists(fullPath)) return false;
+
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

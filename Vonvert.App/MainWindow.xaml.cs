@@ -160,7 +160,10 @@ public partial class MainWindow : Window, IAppServices
                 MainPresetPicker.RefreshTiles();
             }
             if (ExpertPanel != null)
+            {
                 ExpertPanel.ParameterChanged += OnExpertParameterChanged;
+                ExpertPanel.AuditionRequested += ExpertPanel_AuditionRequested;
+            }
             if (ExpertModeCombo != null)
                 ExpertModeCombo.SelectedIndex = 0;   // default to Simple mode
         } catch (Exception ex) { AppLog.Warning(ex, "MainPresetPicker init failed"); }

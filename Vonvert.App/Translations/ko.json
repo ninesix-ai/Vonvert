@@ -500,7 +500,8 @@
     "P_DuckRatio": "비율",
     "P_DuckAttack": "어택 (ms)",
     "P_DuckRelease": "릴리스 (ms)",
-    "P_DuckRange": "범위 (dB)"
+    "P_DuckRange": "범위 (dB)",
+    "P_AuditionTip": "이 효과 미리듣기"
   },
   "sounds": {
     "kick": "긱",

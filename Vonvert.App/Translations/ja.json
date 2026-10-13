@@ -500,7 +500,8 @@
     "P_DuckRatio": "比率",
     "P_DuckAttack": "アタック (ms)",
     "P_DuckRelease": "リリース (ms)",
-    "P_DuckRange": "レンジ (dB)"
+    "P_DuckRange": "レンジ (dB)",
+    "P_AuditionTip": "この効果をプレビュー"
   },
   "sounds": {
     "kick": "キック",

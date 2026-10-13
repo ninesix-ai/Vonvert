@@ -500,7 +500,8 @@
     "P_DuckRatio": "Oran",
     "P_DuckAttack": "Attack (ms)",
     "P_DuckRelease": "Release (ms)",
-    "P_DuckRange": "Aralık (dB)"
+    "P_DuckRange": "Aralık (dB)",
+    "P_AuditionTip": "Bu efekti önizle"
   },
   "sounds": {
     "kick": "Kick",

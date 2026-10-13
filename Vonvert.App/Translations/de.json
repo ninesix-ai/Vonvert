@@ -500,7 +500,8 @@
     "P_DuckRatio": "Verhältnis",
     "P_DuckAttack": "Attack (ms)",
     "P_DuckRelease": "Release (ms)",
-    "P_DuckRange": "Bereich (dB)"
+    "P_DuckRange": "Bereich (dB)",
+    "P_AuditionTip": "Effekt vorhören"
   },
   "sounds": {
     "kick": "Kick",

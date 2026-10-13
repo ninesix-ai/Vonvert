@@ -500,7 +500,8 @@
     "P_DuckRatio": "Relación",
     "P_DuckAttack": "Ataque (ms)",
     "P_DuckRelease": "Relajación (ms)",
-    "P_DuckRange": "Rango (dB)"
+    "P_DuckRange": "Rango (dB)",
+    "P_AuditionTip": "Escuchar este efecto"
   },
   "sounds": {
     "kick": "Kick",

@@ -492,7 +492,8 @@
     "P_DuckRatio": "Relação",
     "P_DuckAttack": "Ataque (ms)",
     "P_DuckRelease": "Soltura (ms)",
-    "P_DuckRange": "Faixa (dB)"
+    "P_DuckRange": "Faixa (dB)",
+    "P_AuditionTip": "Ouvir prévia deste efeito"
   },
   "sounds": {
     "kick": "Kick",

@@ -492,7 +492,8 @@
     "P_DuckRatio": "Ratio",
     "P_DuckAttack": "Attaque (ms)",
     "P_DuckRelease": "Relâche (ms)",
-    "P_DuckRange": "Plage (dB)"
+    "P_DuckRange": "Plage (dB)",
+    "P_AuditionTip": "Écouter cet effet"
   },
   "sounds": {
     "kick": "Kick",

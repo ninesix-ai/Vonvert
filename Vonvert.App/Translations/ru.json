@@ -492,7 +492,8 @@
     "P_DuckRatio": "Коэффициент",
     "P_DuckAttack": "Атака (мс)",
     "P_DuckRelease": "Спад (мс)",
-    "P_DuckRange": "Диапазон (дБ)"
+    "P_DuckRange": "Диапазон (дБ)",
+    "P_AuditionTip": "Прослушать этот эффект"
   },
   "sounds": {
     "kick": "Kick",

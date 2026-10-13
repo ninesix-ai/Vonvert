@@ -492,7 +492,8 @@
     "P_DuckRatio": "比率",
     "P_DuckAttack": "启动（ms）",
     "P_DuckRelease": "释放（ms）",
-    "P_DuckRange": "范围（dB）"
+    "P_DuckRange": "范围（dB）",
+    "P_AuditionTip": "试听此效果"
   },
   "sounds": {
     "kick": "底鼓",

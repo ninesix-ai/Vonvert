@@ -45,6 +45,14 @@ public partial class ExpertParamsControl : UserControl
     /// <summary>Raised after the user changes any parameter or effect toggle.</summary>
     public event Action? ParameterChanged;
 
+    /// <summary>Raised when a per-effect audition button is clicked.
+    /// (group, working profile, stop) — stop=true cancels the current audition.</summary>
+    public event Action<DspGroup, VoiceProfile, bool>? AuditionRequested;
+
+    // The effect currently auditioned (drives the play/stop glyph and toggle-to-stop).
+    private DspGroup? _auditioningGroup;
+    private TextBlock? _auditionGlyph;
+
     public ExpertParamsControl()
     {
         InitializeComponent();
@@ -72,6 +80,8 @@ public partial class ExpertParamsControl : UserControl
         try
         {
             Host.Children.Clear();
+            _auditioningGroup = null;
+            _auditionGlyph = null;
             _refresh.Clear();
             _labels.Clear();
             _tips.Clear();
@@ -101,6 +111,28 @@ public partial class ExpertParamsControl : UserControl
         _tips.Add((target, tipKey));
     }
 
+    // The play glyph toggles to stop while an audition is active; clicking the same
+    // effect again stops it (stop=true); clicking a different effect moves the marker.
+    private void OnAuditionClick(DspGroup group, TextBlock glyph)
+    {
+        if (_profile == null) return;
+
+        if (_auditioningGroup == group)
+        {
+            glyph.Text = "\u25B6";
+            _auditioningGroup = null;
+            _auditionGlyph = null;
+            AuditionRequested?.Invoke(group, _profile, true);
+            return;
+        }
+
+        if (_auditionGlyph != null) _auditionGlyph.Text = "\u25B6";
+        glyph.Text = "\u25A0";
+        _auditionGlyph = glyph;
+        _auditioningGroup = group;
+        AuditionRequested?.Invoke(group, _profile, false);
+    }
+
     private TextBlock MakeLabel(string key, double size, string brush, FontWeight? weight = null)
     {
         var tb = new TextBlock { Text = L.GetParamLabel(key), FontSize = size, VerticalAlignment = VerticalAlignment.Center };
@@ -125,14 +157,34 @@ public partial class ExpertParamsControl : UserControl
         card.SetResourceReference(BorderBrushProperty, "Border");
         card.BorderThickness = new Thickness(1);
 
-        // ── Header: name (+ enable switch) ──
+        // ── Header: name (+ audition button + enable switch) ──
         var header = new Grid { Margin = new Thickness(0, 0, 0, 6) };
-        header.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        header.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // title
+        header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });                        // audition
+        header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });                        // enable
 
         var title = MakeLabel(group.NameKey, 12.5, "TextPrimary", FontWeights.SemiBold);
         Grid.SetColumn(title, 0);
         header.Children.Add(title);
+
+        // Audition button only for groups that own a switchable effect (excludes pure gain).
+        if (group.SetEnable != null)
+        {
+            var glyph = new TextBlock { Text = "\u25B6", FontSize = 10, VerticalAlignment = VerticalAlignment.Center };
+            var auditionBtn = new Button
+            {
+                Content = glyph,
+                Padding = new Thickness(5, 1, 5, 1),
+                Margin = new Thickness(0, 0, 6, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+                Focusable = false,
+            };
+            ApplyTip(auditionBtn, "P_AuditionTip");
+            var g = group;
+            auditionBtn.Click += (_, _) => OnAuditionClick(g, glyph);
+            Grid.SetColumn(auditionBtn, 1);
+            header.Children.Add(auditionBtn);
+        }
 
         ToggleButton? enableToggle = null;
         if (group.HasEnable)
@@ -141,7 +193,7 @@ public partial class ExpertParamsControl : UserControl
             enableToggle.SetResourceReference(StyleProperty, "MiniToggle");
             enableToggle.Checked += (_, _) => { if (_profile != null && group.SetEnable != null && !_building) { group.SetEnable(_profile, true); ParameterChanged?.Invoke(); } };
             enableToggle.Unchecked += (_, _) => { if (_profile != null && group.SetEnable != null && !_building) { group.SetEnable(_profile, false); ParameterChanged?.Invoke(); } };
-            Grid.SetColumn(enableToggle, 1);
+            Grid.SetColumn(enableToggle, 2);
             header.Children.Add(enableToggle);
         }
         body.Children.Add(header);

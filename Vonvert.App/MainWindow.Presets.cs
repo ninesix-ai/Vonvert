@@ -137,6 +137,34 @@ public partial class MainWindow
         ApplyPreset(_editProfile);
     }
 
+    /// <summary>Play a one-effect audition clip on the local-only channel. Reuses the
+    /// shared _previewCts so an audition and a preset hover never stack, and a newer
+    /// request (or a stop) cancels the in-flight render.</summary>
+    private void ExpertPanel_AuditionRequested(DspGroup group, VoiceProfile profile, bool stop)
+    {
+        if (stop)
+        {
+            _previewCts?.Cancel();
+            return;
+        }
+
+        _previewCts?.Cancel();
+        _previewCts = new CancellationTokenSource();
+        var token = _previewCts.Token;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                var bytes = await Task.Run(() => EffectAudition.GeneratePreviewBytes(profile, group), token);
+                if (token.IsCancellationRequested) return;
+                App.Audition?.Play(bytes, 0.45f);
+            }
+            catch (OperationCanceledException) { /* superseded by a newer request */ }
+            catch (Exception ex) { AppLog.Debug(ex, "Effect audition failed"); }
+        }, token);
+    }
+
     private void ExpertSaveAs_Click(object s, RoutedEventArgs e)
     {
         if (_editProfile == null || App.Presets == null || MainPresetPicker == null) return;

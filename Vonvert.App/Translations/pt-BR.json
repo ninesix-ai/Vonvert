@@ -351,7 +351,10 @@
     "ExportLogsHint": "Empacota os logs do aplicativo e as informações de versão em um zip para solução de problemas. Os logs podem conter caminhos de arquivos; revise antes de compartilhar.",
     "LogsExportOk": "Diagnóstico exportado",
     "LogsExportEmpty": "Nenhum log para exportar",
-    "LogsExportFailed": "Falha ao exportar os logs"
+    "LogsExportFailed": "Falha ao exportar os logs",
+    "AboutLegal": "Informações legais",
+    "AboutPrivacyLink": "Política de Privacidade",
+    "AboutTermsLink": "Termos de Serviço"
   },
   "persona": {
     "PersonaNone": "Nenhum papel (mostrar tudo)",

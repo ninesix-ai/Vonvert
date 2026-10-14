@@ -351,7 +351,10 @@
     "ExportLogsHint": "Sorun giderme için uygulama günlüklerini ve sürüm bilgilerini bir zip dosyasında paketler. Günlükler dosya yolları içerebilir; paylaşmadan önce gözden geçirin.",
     "LogsExportOk": "Tanı bilgileri dışa aktarıldı",
     "LogsExportEmpty": "Dışa aktarılacak günlük yok",
-    "LogsExportFailed": "Günlükler dışa aktarılamadı"
+    "LogsExportFailed": "Günlükler dışa aktarılamadı",
+    "AboutLegal": "Yasal",
+    "AboutPrivacyLink": "Gizlilik Politikası",
+    "AboutTermsLink": "Kullanım Şartları"
   },
   "persona": {
     "PersonaNone": "Rol yok (her şeyi göster)",

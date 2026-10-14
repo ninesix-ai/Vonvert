@@ -351,7 +351,10 @@
     "ExportLogsHint": "Empaqueta registros de la app e información de versión en un zip para resolver problemas. Los registros pueden contener rutas de archivos; revísalos antes de compartirlos.",
     "LogsExportOk": "Diagnóstico exportado",
     "LogsExportEmpty": "No hay registros para exportar",
-    "LogsExportFailed": "Error al exportar los registros"
+    "LogsExportFailed": "Error al exportar los registros",
+    "AboutLegal": "Legal",
+    "AboutPrivacyLink": "Política de privacidad",
+    "AboutTermsLink": "Términos del servicio"
   },
   "persona": {
     "PersonaNone": "Sin rol (mostrar todo)",

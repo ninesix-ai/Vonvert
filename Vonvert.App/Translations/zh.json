@@ -351,7 +351,10 @@
     "ExportLogsHint": "将应用日志与版本信息打包为 zip 以便排障。日志可能包含文件路径，分享前请审阅。",
     "LogsExportOk": "诊断信息已导出",
     "LogsExportEmpty": "没有可导出的日志",
-    "LogsExportFailed": "导出日志失败"
+    "LogsExportFailed": "导出日志失败",
+    "AboutLegal": "法律",
+    "AboutPrivacyLink": "隐私政策",
+    "AboutTermsLink": "服务条款"
   },
   "persona": {
     "PersonaNone": "不使用角色（显示全部）",

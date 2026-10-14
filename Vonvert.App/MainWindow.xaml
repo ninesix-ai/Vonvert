@@ -671,6 +671,10 @@
                                             <Button Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=ChangeLocation, Mode=OneWay}"
                                                     Style="{StaticResource OutlineButton}" HorizontalAlignment="Left"
                                                     Click="DataLocation_Changed" FontFamily="{StaticResource FontFallback}"/>
+                                            <Button Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=ExportLogs, Mode=OneWay}"
+                                                    ToolTip="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=ExportLogsHint, Mode=OneWay}"
+                                                    Style="{StaticResource OutlineButton}" HorizontalAlignment="Left"
+                                                    Margin="0,8,0,0" Click="LogsExport_Click" FontFamily="{StaticResource FontFallback}"/>
                                         </StackPanel>
                                     </Border>
                                 </StackPanel>

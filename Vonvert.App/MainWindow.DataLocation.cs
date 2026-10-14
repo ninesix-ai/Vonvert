@@ -56,6 +56,42 @@ public partial class MainWindow
         ShowToast(L.DataLocationChangedRestart, "success");
     }
 
+    /// <summary>Bundle app logs + crash + a PII-light diagnostics snapshot into a
+    /// user-chosen zip (Settings > Data location). Never touches the live engine.</summary>
+    private void LogsExport_Click(object s, RoutedEventArgs e)
+    {
+        var crash = Path.Combine(Path.GetTempPath(), "Vonvert_crash.txt");
+        var dlg = new Microsoft.Win32.SaveFileDialog
+        {
+            Title = L.ExportLogs,
+            FileName = $"vonvert-diagnostics-{DateTime.Now:yyyyMMdd-HHmm}.zip",
+            DefaultExt = "zip",
+            AddExtension = true,
+            Filter = "Zip archive (*.zip)|*.zip",
+            InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
+        };
+        if (dlg.ShowDialog() != true) return;
+
+        try
+        {
+            int count = Directory.Exists(AppLog.LogDirectory)
+                ? Directory.GetFiles(AppLog.LogDirectory, "*.log").Length : 0;
+            string appVer = VersionInfoService.GetShortVersion();
+            string engineVer = typeof(AppLog).Assembly.GetName().Version?.ToString() ?? "unknown";
+            var diag = LogExportService.BuildDiagnosticsText(appVer, engineVer, count);
+
+            if (LogExportService.ExportBundle(dlg.FileName, AppLog.LogDirectory, crash, diag))
+                ShowToast(L.LogsExportOk, "success");
+            else
+                ShowToast(L.LogsExportEmpty, "error");
+        }
+        catch (Exception ex)
+        {
+            AppLog.Warning(ex, "Diagnostic log export failed");
+            ShowToast(L.LogsExportFailed, "error");
+        }
+    }
+
     private static bool PathsEqual(string a, string b)
     {
         try

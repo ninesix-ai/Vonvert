@@ -145,9 +145,14 @@ public partial class MainWindow
 
     private void OnBgmVolumeChanged(object s, RoutedPropertyChangedEventArgs<double> e)
     {
+        // The XAML-initial Value on BgmVolumeSlider fires this during InitializeComponent,
+        // before the engine/BGM exist and before InitBgmCard has applied the persisted
+        // volume. Guard like the sibling handlers so the ctor does not dereference a null
+        // App.Engine.BGM; InitBgmCard sets the real value once the engine is live.
+        if (!_bgmUiReady) return;
         App.Engine.BGM.Volume = (float)Math.Clamp(e.NewValue, 0.0, 1.0);
         UpdateBgmVolumeText(e.NewValue);
-        if (_bgmUiReady) ScheduleBgmSave();
+        ScheduleBgmSave();
     }
 
     private void OnBgmLoopChanged(object s, RoutedEventArgs e)

@@ -180,6 +180,57 @@ def _unblock(path: str) -> int:
 # reports exit codes as an unsigned DWORD here, so compare the masked value.
 MANAGED_EXCEPTION_EXIT = 0xE0434352
 
+# Titles shown by App.xaml.cs when a startup exception is caught and surfaced as a
+# modal dialog. A crash leaves the process alive (the dialog blocks it), so "still
+# running" alone is NOT proof of a healthy launch — the error dialog must be excluded.
+_CRASH_DIALOG_TITLES = ("Vonvert Fatal", "Vonvert Error")
+
+
+def _visible_error_dialog(pid: int) -> bool:
+    """True if the process owns a visible top-level window titled like a crash dialog.
+
+    Uses only the Windows API via ctypes (no external deps), so it works wherever
+    build.py runs. A successful launch shows the real main window (a different title);
+    only an unhandled startup exception produces one of _CRASH_DIALOG_TITLES."""
+    import ctypes
+    from ctypes import wintypes
+    user32 = ctypes.windll.user32
+    found = False
+
+    @ctypes.WINFUNCTYPE(ctypes.c_bool, wintypes.HWND, wintypes.LPARAM)
+    def enum_proc(hwnd, _lparam):
+        nonlocal found
+        if found:
+            return True
+        win_pid = wintypes.DWORD()
+        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(win_pid))
+        if win_pid.value != pid or not user32.IsWindowVisible(hwnd):
+            return True
+        length = user32.GetWindowTextLengthW(hwnd)
+        if not length:
+            return True
+        buf = ctypes.create_unicode_buffer(length + 1)
+        user32.GetWindowTextW(hwnd, buf, length + 1)
+        if buf.value in _CRASH_DIALOG_TITLES:
+            found = True
+        return True
+
+    user32.EnumWindows(enum_proc, 0)
+    return found
+
+
+def _fail_with_crash_dialog(proc) -> bool:
+    """Report that the only window up is a crash dialog, close it, fail the build."""
+    cprint("  FAILED: the window that is up is the startup CRASH dialog, not the app.", RED)
+    cprint("  An unhandled exception was caught during startup (see the dialog /", RED)
+    cprint("  %TEMP%\\Vonvert_crash.txt and the app log under the data root).", RED)
+    try:
+        proc.kill()
+        proc.wait(timeout=5)
+    except Exception:
+        pass
+    return False
+
 
 def verify_launch(publish_dir: str, wait_s: float = 6.0) -> bool:
     """
@@ -218,6 +269,8 @@ def verify_launch(publish_dir: str, wait_s: float = 6.0) -> bool:
             time.sleep(wait_s)
             rc = proc.poll()
             if rc is None:
+                if _visible_error_dialog(proc.pid):
+                    return _fail_with_crash_dialog(proc)
                 cprint("  RETRY OK: launched after a refused first attempt.", YELLOW)
                 cprint("  A machine policy can block a just-written unsigned binary", YELLOW)
                 cprint("  until it has been evaluated; sign the output (--sign) to", YELLOW)
@@ -225,6 +278,8 @@ def verify_launch(publish_dir: str, wait_s: float = 6.0) -> bool:
                 cprint(f"  Window left open (PID {proc.pid}); close it when done.", GREEN)
                 return True
     if rc is None:
+        if _visible_error_dialog(proc.pid):
+            return _fail_with_crash_dialog(proc)
         cprint(f"  OK: window is up (PID {proc.pid}).", GREEN)
         cprint("  Left running on purpose for you to test - close it manually when done.", GRAY)
         return True

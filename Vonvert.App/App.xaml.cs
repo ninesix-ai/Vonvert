@@ -116,7 +116,11 @@ public partial class App : Application
         }
 
         bool isNewInstance;
-        _singleInstanceMutex = new Mutex(true, "Vonvert_SingleInstance_Mutex", out isNewInstance);
+        // Portable builds use a per-exe-dir lock so they can run alongside the
+        // installed build (and other portable dirs); installed runs keep the global lock.
+        string mutexName = AppPaths.MutexNameFor(
+            AppPaths.IsPortable, AppDomain.CurrentDomain.BaseDirectory);
+        _singleInstanceMutex = new Mutex(true, mutexName, out isNewInstance);
         if (!isNewInstance)
         {
             // Another instance marker exists. Try to bring a LIVE instance's

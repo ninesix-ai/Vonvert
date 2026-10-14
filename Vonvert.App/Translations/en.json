@@ -354,7 +354,9 @@
     "LogsExportFailed": "Failed to export logs",
     "AboutLegal": "Legal",
     "AboutPrivacyLink": "Privacy Policy",
-    "AboutTermsLink": "Terms of Service"
+    "AboutTermsLink": "Terms of Service",
+    "PortableModeNote": "Portable mode: data is stored next to the program and controlled by launch options.",
+    "PortableChangeDisabledHint": "Relocation is disabled in portable mode."
   },
   "persona": {
     "PersonaNone": "No role (show everything)",

@@ -20,4 +20,8 @@ public partial class LocalizationManager
     public string LogsExportOk      => G();
     public string LogsExportEmpty   => G();
     public string LogsExportFailed  => G();
+
+    // ── Portable mode (Settings > Data location) ──
+    public string PortableModeNote          => G();
+    public string PortableChangeDisabledHint => G();
 }

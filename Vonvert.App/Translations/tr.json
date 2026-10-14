@@ -354,7 +354,9 @@
     "LogsExportFailed": "Günlükler dışa aktarılamadı",
     "AboutLegal": "Yasal",
     "AboutPrivacyLink": "Gizlilik Politikası",
-    "AboutTermsLink": "Kullanım Şartları"
+    "AboutTermsLink": "Kullanım Şartları",
+    "PortableModeNote": "Taşınabilir mod: veriler programın yanında saklanır ve başlatma seçenekleriyle yönetilir.",
+    "PortableChangeDisabledHint": "Taşınabilir modda konum değiştirme devre dışıdır."
   },
   "persona": {
     "PersonaNone": "Rol yok (her şeyi göster)",

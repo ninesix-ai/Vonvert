@@ -354,7 +354,9 @@
     "LogsExportFailed": "Nie udało się wyeksportować logów",
     "AboutLegal": "Informacje prawne",
     "AboutPrivacyLink": "Polityka prywatności",
-    "AboutTermsLink": "Warunki świadczenia usług"
+    "AboutTermsLink": "Warunki świadczenia usług",
+    "PortableModeNote": "Tryb przenośny: dane są przechowywane obok programu i zarządzane opcjami uruchamiania.",
+    "PortableChangeDisabledHint": "Zmiana lokalizacji jest wyłączona w trybie przenośnym."
   },
   "persona": {
     "PersonaNone": "Brak roli (pokaż wszystko)",

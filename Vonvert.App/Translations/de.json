@@ -354,7 +354,9 @@
     "LogsExportFailed": "Export der Protokolle fehlgeschlagen",
     "AboutLegal": "Rechtliches",
     "AboutPrivacyLink": "Datenschutzerklärung",
-    "AboutTermsLink": "Nutzungsbedingungen"
+    "AboutTermsLink": "Nutzungsbedingungen",
+    "PortableModeNote": "Portabler Modus: Daten werden neben dem Programm gespeichert und über Startoptionen verwaltet.",
+    "PortableChangeDisabledHint": "Im portablen Modus ist das Verschieben deaktiviert."
   },
   "persona": {
     "PersonaNone": "Keine Rolle (alles anzeigen)",

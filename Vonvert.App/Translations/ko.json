@@ -354,7 +354,9 @@
     "LogsExportFailed": "로그 내보내기 실패",
     "AboutLegal": "법적 고지",
     "AboutPrivacyLink": "개인정보 처리방침",
-    "AboutTermsLink": "서비스 이용약관"
+    "AboutTermsLink": "서비스 이용약관",
+    "PortableModeNote": "이식 모드: 데이터가 프로그램 옆에 저장되며 시작 옵션으로 관리됩니다.",
+    "PortableChangeDisabledHint": "이식 모드에서는 위치 변경이 비활성화됩니다."
   },
   "persona": {
     "PersonaNone": "역할 없음(모든 것을 표시)",

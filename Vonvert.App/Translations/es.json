@@ -354,7 +354,9 @@
     "LogsExportFailed": "Error al exportar los registros",
     "AboutLegal": "Legal",
     "AboutPrivacyLink": "Política de privacidad",
-    "AboutTermsLink": "Términos del servicio"
+    "AboutTermsLink": "Términos del servicio",
+    "PortableModeNote": "Modo portable: los datos se guardan junto al programa y se controlan con las opciones de inicio.",
+    "PortableChangeDisabledHint": "El traslado está deshabilitado en modo portable."
   },
   "persona": {
     "PersonaNone": "Sin rol (mostrar todo)",

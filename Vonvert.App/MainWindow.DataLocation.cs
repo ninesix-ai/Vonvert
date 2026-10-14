@@ -15,6 +15,21 @@ public partial class MainWindow
     private void InitDataLocationView()
     {
         if (DataRootText != null) DataRootText.Text = AppPaths.Root;
+        if (AppPaths.IsPortable)
+        {
+            // Portable mode ignores the pointer redirect, so relocating has no effect —
+            // disable it and explain, while keeping log export working on exe\data\logs.
+            if (ChangeLocationButton != null)
+            {
+                ChangeLocationButton.IsEnabled = false;
+                ChangeLocationButton.ToolTip = L.PortableChangeDisabledHint;
+            }
+            if (PortableNote != null)
+            {
+                PortableNote.Text = L.PortableModeNote;
+                PortableNote.Visibility = System.Windows.Visibility.Visible;
+            }
+        }
     }
 
     private void DataLocation_Changed(object s, RoutedEventArgs e)

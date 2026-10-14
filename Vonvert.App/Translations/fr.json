@@ -354,7 +354,9 @@
     "LogsExportFailed": "Échec de l'exportation des journaux",
     "AboutLegal": "Mentions légales",
     "AboutPrivacyLink": "Politique de confidentialité",
-    "AboutTermsLink": "Conditions d'utilisation"
+    "AboutTermsLink": "Conditions d'utilisation",
+    "PortableModeNote": "Mode portable : les données sont stockées à côté du programme et gérées par les options de démarrage.",
+    "PortableChangeDisabledHint": "Le déplacement est désactivé en mode portable."
   },
   "persona": {
     "PersonaNone": "Aucun rôle (afficher tout)",

@@ -354,7 +354,9 @@
     "LogsExportFailed": "导出日志失败",
     "AboutLegal": "法律",
     "AboutPrivacyLink": "隐私政策",
-    "AboutTermsLink": "服务条款"
+    "AboutTermsLink": "服务条款",
+    "PortableModeNote": "便携模式：数据存放在程序目录旁，由启动选项控制。",
+    "PortableChangeDisabledHint": "便携模式下不可更改位置。"
   },
   "persona": {
     "PersonaNone": "不使用角色（显示全部）",

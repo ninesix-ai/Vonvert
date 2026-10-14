@@ -354,7 +354,9 @@
     "LogsExportFailed": "Esportazione dei registri non riuscita",
     "AboutLegal": "Note legali",
     "AboutPrivacyLink": "Informativa sulla privacy",
-    "AboutTermsLink": "Termini di servizio"
+    "AboutTermsLink": "Termini di servizio",
+    "PortableModeNote": "Modalità portatile: i dati sono archiviati accanto al programma e gestiti dalle opzioni di avvio.",
+    "PortableChangeDisabledHint": "Lo spostamento è disabilitato in modalità portatile."
   },
   "persona": {
     "PersonaNone": "Nessun ruolo (mostra tutto)",

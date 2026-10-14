@@ -354,7 +354,9 @@
     "LogsExportFailed": "Falha ao exportar os logs",
     "AboutLegal": "Informações legais",
     "AboutPrivacyLink": "Política de Privacidade",
-    "AboutTermsLink": "Termos de Serviço"
+    "AboutTermsLink": "Termos de Serviço",
+    "PortableModeNote": "Modo portátil: os dados são armazenados ao lado do programa e controlados pelas opções de inicialização.",
+    "PortableChangeDisabledHint": "A realocação está desativada no modo portátil."
   },
   "persona": {
     "PersonaNone": "Nenhum papel (mostrar tudo)",

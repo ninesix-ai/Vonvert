@@ -354,7 +354,9 @@
     "LogsExportFailed": "ログのエクスポートに失敗しました",
     "AboutLegal": "法的情報",
     "AboutPrivacyLink": "プライバシーポリシー",
-    "AboutTermsLink": "利用規約"
+    "AboutTermsLink": "利用規約",
+    "PortableModeNote": "ポータブルモード：データはプログラムと同じフォルダに保存され、起動オプションで管理されます。",
+    "PortableChangeDisabledHint": "ポータブルモードでは保存場所の変更は無効です。"
   },
   "persona": {
     "PersonaNone": "役割なし（すべて表示）",

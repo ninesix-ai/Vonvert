@@ -351,7 +351,10 @@
     "ExportLogsHint": "Bundles app logs and version info into a zip for troubleshooting. Logs may contain file paths — review before sharing.",
     "LogsExportOk": "Diagnostics exported",
     "LogsExportEmpty": "No logs to export",
-    "LogsExportFailed": "Failed to export logs"
+    "LogsExportFailed": "Failed to export logs",
+    "AboutLegal": "Legal",
+    "AboutPrivacyLink": "Privacy Policy",
+    "AboutTermsLink": "Terms of Service"
   },
   "persona": {
     "PersonaNone": "No role (show everything)",

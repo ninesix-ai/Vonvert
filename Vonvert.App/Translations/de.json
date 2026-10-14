@@ -351,7 +351,10 @@
     "ExportLogsHint": "Paketiert App-Protokolle und Versionsinfo als ZIP zur Fehleranalyse. Protokolle können Dateipfade enthalten – vor dem Teilen prüfen.",
     "LogsExportOk": "Diagnose exportiert",
     "LogsExportEmpty": "Keine Protokolle zum Exportieren",
-    "LogsExportFailed": "Export der Protokolle fehlgeschlagen"
+    "LogsExportFailed": "Export der Protokolle fehlgeschlagen",
+    "AboutLegal": "Rechtliches",
+    "AboutPrivacyLink": "Datenschutzerklärung",
+    "AboutTermsLink": "Nutzungsbedingungen"
   },
   "persona": {
     "PersonaNone": "Keine Rolle (alles anzeigen)",

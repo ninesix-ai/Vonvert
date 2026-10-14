@@ -17,6 +17,11 @@ public partial class LocalizationManager
     public string AboutUserGuideLink    => G();
     public string AboutMonitorGuideLink => G();
 
+    // ── Legal links (privacy policy / terms of service) ──
+    public string AboutLegal        => G();
+    public string AboutPrivacyLink  => G();
+    public string AboutTermsLink    => G();
+
     // ── Third-party licenses & attribution ──
     public string ThirdPartyLicenses => G();
     public string LicenseIntro       => G();

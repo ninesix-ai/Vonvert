@@ -351,7 +351,10 @@
     "ExportLogsHint": "Raccoglie i registri dell'app e le info di versione in uno zip per la risoluzione dei problemi. I registri possono contenere percorsi di file; controllali prima di condividerli.",
     "LogsExportOk": "Diagnostica esportata",
     "LogsExportEmpty": "Nessun registro da esportare",
-    "LogsExportFailed": "Esportazione dei registri non riuscita"
+    "LogsExportFailed": "Esportazione dei registri non riuscita",
+    "AboutLegal": "Note legali",
+    "AboutPrivacyLink": "Informativa sulla privacy",
+    "AboutTermsLink": "Termini di servizio"
   },
   "persona": {
     "PersonaNone": "Nessun ruolo (mostra tutto)",

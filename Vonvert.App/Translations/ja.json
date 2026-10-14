@@ -351,7 +351,10 @@
     "ExportLogsHint": "トラブルシューティング用にアプリのログとバージョン情報を zip にまとめます。ログにファイルパスが含まれる場合があるため、共有前に確認してください。",
     "LogsExportOk": "診断情報をエクスポートしました",
     "LogsExportEmpty": "エクスポートできるログがありません",
-    "LogsExportFailed": "ログのエクスポートに失敗しました"
+    "LogsExportFailed": "ログのエクスポートに失敗しました",
+    "AboutLegal": "法的情報",
+    "AboutPrivacyLink": "プライバシーポリシー",
+    "AboutTermsLink": "利用規約"
   },
   "persona": {
     "PersonaNone": "役割なし（すべて表示）",

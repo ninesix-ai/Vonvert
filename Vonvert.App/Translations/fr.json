@@ -351,7 +351,10 @@
     "ExportLogsHint": "Empaquette les journaux de l'application et les infos de version dans un zip pour le dépannage. Les journaux peuvent contenir des chemins de fichiers ; vérifiez avant de partager.",
     "LogsExportOk": "Diagnostic exporté",
     "LogsExportEmpty": "Aucun journal à exporter",
-    "LogsExportFailed": "Échec de l'exportation des journaux"
+    "LogsExportFailed": "Échec de l'exportation des journaux",
+    "AboutLegal": "Mentions légales",
+    "AboutPrivacyLink": "Politique de confidentialité",
+    "AboutTermsLink": "Conditions d'utilisation"
   },
   "persona": {
     "PersonaNone": "Aucun rôle (afficher tout)",

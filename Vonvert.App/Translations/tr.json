@@ -346,7 +346,12 @@
     "BgmLoop": "Döngü",
     "BgmDucking": "Konuşmada kısalt",
     "BgmEngineHint": "Arka plan müziğini duymak için ses motorunu başlatın.",
-    "FontScale": "Yazı boyutu"
+    "FontScale": "Yazı boyutu",
+    "ExportLogs": "Tanı günlüklerini dışa aktar",
+    "ExportLogsHint": "Sorun giderme için uygulama günlüklerini ve sürüm bilgilerini bir zip dosyasında paketler. Günlükler dosya yolları içerebilir; paylaşmadan önce gözden geçirin.",
+    "LogsExportOk": "Tanı bilgileri dışa aktarıldı",
+    "LogsExportEmpty": "Dışa aktarılacak günlük yok",
+    "LogsExportFailed": "Günlükler dışa aktarılamadı"
   },
   "persona": {
     "PersonaNone": "Rol yok (her şeyi göster)",

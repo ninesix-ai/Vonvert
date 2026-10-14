@@ -346,7 +346,12 @@
     "BgmLoop": "Endlosschleife",
     "BgmDucking": "Bei Sprache ausblenden",
     "BgmEngineHint": "Starte die Voice-Engine, um Hintergrundmusik zu hören.",
-    "FontScale": "Schriftgröße"
+    "FontScale": "Schriftgröße",
+    "ExportLogs": "Diagnoseprotokolle exportieren",
+    "ExportLogsHint": "Paketiert App-Protokolle und Versionsinfo als ZIP zur Fehleranalyse. Protokolle können Dateipfade enthalten – vor dem Teilen prüfen.",
+    "LogsExportOk": "Diagnose exportiert",
+    "LogsExportEmpty": "Keine Protokolle zum Exportieren",
+    "LogsExportFailed": "Export der Protokolle fehlgeschlagen"
   },
   "persona": {
     "PersonaNone": "Keine Rolle (alles anzeigen)",

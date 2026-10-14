@@ -346,7 +346,12 @@
     "BgmLoop": "ループ",
     "BgmDucking": "音声で自動で下げる",
     "BgmEngineHint": "BGM を聴くには音声エンジンを起動してください。",
-    "FontScale": "文字サイズ"
+    "FontScale": "文字サイズ",
+    "ExportLogs": "診断ログをエクスポート",
+    "ExportLogsHint": "トラブルシューティング用にアプリのログとバージョン情報を zip にまとめます。ログにファイルパスが含まれる場合があるため、共有前に確認してください。",
+    "LogsExportOk": "診断情報をエクスポートしました",
+    "LogsExportEmpty": "エクスポートできるログがありません",
+    "LogsExportFailed": "ログのエクスポートに失敗しました"
   },
   "persona": {
     "PersonaNone": "役割なし（すべて表示）",

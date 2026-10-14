@@ -346,7 +346,12 @@
     "BgmLoop": "Loop",
     "BgmDucking": "Duck under voice",
     "BgmEngineHint": "Start the voice engine to hear background music.",
-    "FontScale": "Font size"
+    "FontScale": "Font size",
+    "ExportLogs": "Export diagnostic logs",
+    "ExportLogsHint": "Bundles app logs and version info into a zip for troubleshooting. Logs may contain file paths — review before sharing.",
+    "LogsExportOk": "Diagnostics exported",
+    "LogsExportEmpty": "No logs to export",
+    "LogsExportFailed": "Failed to export logs"
   },
   "persona": {
     "PersonaNone": "No role (show everything)",

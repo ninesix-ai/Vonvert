@@ -346,7 +346,12 @@
     "BgmLoop": "循环",
     "BgmDucking": "说话时自动压低",
     "BgmEngineHint": "启动变声引擎后才能听到背景音乐。",
-    "FontScale": "字号"
+    "FontScale": "字号",
+    "ExportLogs": "导出诊断日志",
+    "ExportLogsHint": "将应用日志与版本信息打包为 zip 以便排障。日志可能包含文件路径，分享前请审阅。",
+    "LogsExportOk": "诊断信息已导出",
+    "LogsExportEmpty": "没有可导出的日志",
+    "LogsExportFailed": "导出日志失败"
   },
   "persona": {
     "PersonaNone": "不使用角色（显示全部）",

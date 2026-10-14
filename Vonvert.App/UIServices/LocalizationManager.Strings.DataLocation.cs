@@ -13,4 +13,11 @@ public partial class LocalizationManager
     public string DataLocationInvalid     => G();
     public string MigrateDataPromptFmt    => G();
     public string DataMigrationFailed     => G();
+
+    // ── Diagnostic log export (Settings > Data location) ──
+    public string ExportLogs        => G();
+    public string ExportLogsHint    => G();
+    public string LogsExportOk      => G();
+    public string LogsExportEmpty   => G();
+    public string LogsExportFailed  => G();
 }

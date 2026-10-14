@@ -346,7 +346,12 @@
     "BgmLoop": "Boucle",
     "BgmDucking": "Abaisser pendant la voix",
     "BgmEngineHint": "Démarrez le moteur vocal pour entendre la musique de fond.",
-    "FontScale": "Taille du texte"
+    "FontScale": "Taille du texte",
+    "ExportLogs": "Exporter les journaux de diagnostic",
+    "ExportLogsHint": "Empaquette les journaux de l'application et les infos de version dans un zip pour le dépannage. Les journaux peuvent contenir des chemins de fichiers ; vérifiez avant de partager.",
+    "LogsExportOk": "Diagnostic exporté",
+    "LogsExportEmpty": "Aucun journal à exporter",
+    "LogsExportFailed": "Échec de l'exportation des journaux"
   },
   "persona": {
     "PersonaNone": "Aucun rôle (afficher tout)",

@@ -25,6 +25,13 @@ public static class AppPaths
     // ── Test seams (internal; the app never sets these) ──────────────
     internal static string? RootOverride;          // forces Root when non-null
     internal static string? PointerDirOverride;    // relocates the pointer file for tests
+    internal static string[]? PortableArgsOverride;   // forces the command-line for tests
+    internal static string? PortableExeDirOverride;   // forces the exe directory for tests
+
+    private const string PortableFlag = "--portable";
+    private const string PortableMarkerFileName = "vonvert.portable";
+    private const string PortableDataSubdir = "data";
+    private const string InstalledMutexName = "Vonvert_SingleInstance_Mutex";
 
     /// <summary>Fixed per-build default; also the home of the pointer file.</summary>
     public static string DefaultRoot => Path.Combine(
@@ -36,6 +43,7 @@ public static class AppPaths
         PointerDirOverride ?? DefaultRoot, "data_location.txt");
 
     private static string? _cached;
+    private static bool? _isPortable;
 
     /// <summary>The active data root. Resolved once, then cached.</summary>
     public static string Root
@@ -47,8 +55,72 @@ public static class AppPaths
         }
     }
 
+    /// <summary>True only when a portable trigger is present AND <c>exe\data</c> is usable.</summary>
+    public static bool IsPortable
+    {
+        get
+        {
+            _ = Root;                       // ensure Resolve() has run and populated _isPortable
+            return _isPortable == true;
+        }
+    }
+
+    /// <summary>Pure: does this launch request portable mode (flag or marker file)? Best-effort on IO.</summary>
+    public static bool IsPortableRequested(string[]? args, string? exeDir)
+    {
+        if (args != null)
+            foreach (var a in args)
+                if (string.Equals(a, PortableFlag, StringComparison.OrdinalIgnoreCase))
+                    return true;
+        try
+        {
+            if (!string.IsNullOrEmpty(exeDir) &&
+                File.Exists(Path.Combine(exeDir, PortableMarkerFileName)))
+                return true;
+        }
+        catch { /* detection is best-effort */ }
+        return false;
+    }
+
+    /// <summary>Create and return <c>exe\data</c>, or null when it cannot be made writable
+    /// (e.g. the app sits in a read-only location). Never logs — may run before AppLog exists.</summary>
+    private static string? TryResolvePortableRoot(string exeDir)
+    {
+        try
+        {
+            var data = Path.Combine(exeDir, PortableDataSubdir);
+            Directory.CreateDirectory(data);          // idempotent; throws when read-only
+            return IsUsablePath(data) ? data : null;
+        }
+        catch { return null; }
+    }
+
+    /// <summary>Single-instance lock name: portable instances get a per-exe-dir name so a
+    /// portable build and the installed build (and different portable dirs) can run at once.</summary>
+    public static string MutexNameFor(bool portable, string exeDir)
+    {
+        if (!portable) return InstalledMutexName;
+        string key;
+        try { key = Path.TrimEndingDirectorySeparator(Path.GetFullPath(exeDir)); }
+        catch { key = exeDir ?? string.Empty; }
+        using var sha = System.Security.Cryptography.SHA256.Create();
+        var hash = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(key.ToUpperInvariant()));
+        return "Vonvert_Portable_" + Convert.ToHexString(hash.AsSpan(0, 8));
+    }
+
     private static string Resolve()
     {
+        // Portable first: honour the trigger, and if exe\data is writable make it the single
+        // data root, IGNORING the pointer redirect (user explicitly asked to follow the exe).
+        string exeDir = PortableExeDirOverride ?? AppDomain.CurrentDomain.BaseDirectory;
+        string[] args = PortableArgsOverride ?? Environment.GetCommandLineArgs();
+        _isPortable = false;
+        if (IsPortableRequested(args, exeDir))
+        {
+            var proot = TryResolvePortableRoot(exeDir);
+            if (proot != null) { _isPortable = true; return proot; }
+        }
+
         try
         {
             if (File.Exists(PointerFilePath))
@@ -116,5 +188,5 @@ public static class AppPaths
     }
 
     /// <summary>Clear the cached root so the next <see cref="Root"/> read re-resolves (used after a change).</summary>
-    public static void Invalidate() => _cached = null;
+    public static void Invalidate() { _cached = null; _isPortable = null; }
 }

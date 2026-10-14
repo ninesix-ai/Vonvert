@@ -665,10 +665,13 @@
                                             <vc:SelectableTextBlock x:Name="DataRootText" Text="" FontSize="12"
                                                        Foreground="{DynamicResource TextSub}" TextWrapping="Wrap"
                                                        FontFamily="{StaticResource FontFallback}"/>
+                                            <vc:SelectableTextBlock x:Name="PortableNote" Text="" FontSize="11"
+                                                       Foreground="{DynamicResource Accent}" TextWrapping="Wrap"
+                                                       Visibility="Collapsed" Margin="0,4,0,0" FontFamily="{StaticResource FontFallback}"/>
                                             <vc:SelectableTextBlock Text="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=DataLocationHint, Mode=OneWay}"
                                                        FontSize="11" Foreground="{DynamicResource TextSub}" TextWrapping="Wrap"
                                                        Margin="0,6,0,10" FontFamily="{StaticResource FontFallback}"/>
-                                            <Button Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=ChangeLocation, Mode=OneWay}"
+                                            <Button x:Name="ChangeLocationButton" Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=ChangeLocation, Mode=OneWay}"
                                                     Style="{StaticResource OutlineButton}" HorizontalAlignment="Left"
                                                     Click="DataLocation_Changed" FontFamily="{StaticResource FontFallback}"/>
                                             <Button Content="{Binding Source={x:Static local:LocalizationManager.Instance}, Path=ExportLogs, Mode=OneWay}"

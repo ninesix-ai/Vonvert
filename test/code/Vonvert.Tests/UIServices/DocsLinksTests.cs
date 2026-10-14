@@ -69,6 +69,8 @@ public sealed class DocsLinksTests
         {
             DocsLinks.MonitorGuide, DocsLinks.MonitorGuideZh,
             DocsLinks.UserGuide,    DocsLinks.UserGuideZh,
+            DocsLinks.PrivacyPolicy, DocsLinks.PrivacyPolicyZh,
+            DocsLinks.TermsOfService, DocsLinks.TermsOfServiceZh,
         })
             Assert.True(File.Exists(Path.Combine(docs, relative.Replace('/', Path.DirectorySeparatorChar))),
                 $"{relative} is linked from the app but is missing from docs/");

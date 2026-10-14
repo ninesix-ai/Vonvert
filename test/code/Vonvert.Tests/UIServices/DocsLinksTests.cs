@@ -100,4 +100,22 @@ public sealed class DocsLinksTests
         Assert.Contains("USER-GUIDE.zh.md", zhText);
         Assert.Contains("VB-CABLE.zh.md", zhText);
     }
+
+    [Theory(DisplayName = "DL-007: privacy/terms links resolve zh to the Chinese mirror")]
+    [InlineData("zh")]
+    public void DL007_PrivacyTermsChineseUsesZh(string lang)
+    {
+        Assert.EndsWith("/docs/zh/PRIVACY-POLICY.zh.md", DocsLinks.PrivacyPolicyUrl(lang));
+        Assert.EndsWith("/docs/zh/TERMS-OF-SERVICE.zh.md", DocsLinks.TermsOfServiceUrl(lang));
+    }
+
+    [Theory(DisplayName = "DL-008: privacy/terms links fall back to English for non-zh languages")]
+    [InlineData("en")]
+    [InlineData("de")]
+    [InlineData("")]
+    public void DL008_PrivacyTermsFallbackIsEnglish(string lang)
+    {
+        Assert.EndsWith("/docs/PRIVACY-POLICY.md", DocsLinks.PrivacyPolicyUrl(lang));
+        Assert.EndsWith("/docs/TERMS-OF-SERVICE.md", DocsLinks.TermsOfServiceUrl(lang));
+    }
 }

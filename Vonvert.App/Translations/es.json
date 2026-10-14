@@ -346,7 +346,12 @@
     "BgmLoop": "Bucle",
     "BgmDucking": "Bajar con la voz",
     "BgmEngineHint": "Inicia el motor de voz para oír la música de fondo.",
-    "FontScale": "Tamaño de fuente"
+    "FontScale": "Tamaño de fuente",
+    "ExportLogs": "Exportar registros de diagnóstico",
+    "ExportLogsHint": "Empaqueta registros de la app e información de versión en un zip para resolver problemas. Los registros pueden contener rutas de archivos; revísalos antes de compartirlos.",
+    "LogsExportOk": "Diagnóstico exportado",
+    "LogsExportEmpty": "No hay registros para exportar",
+    "LogsExportFailed": "Error al exportar los registros"
   },
   "persona": {
     "PersonaNone": "Sin rol (mostrar todo)",

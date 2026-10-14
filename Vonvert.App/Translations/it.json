@@ -346,7 +346,12 @@
     "BgmLoop": "Ripeti",
     "BgmDucking": "Abbassa con la voce",
     "BgmEngineHint": "Avvia il motore vocale per ascoltare la musica di sottofondo.",
-    "FontScale": "Dimensione testo"
+    "FontScale": "Dimensione testo",
+    "ExportLogs": "Esporta registri di diagnostica",
+    "ExportLogsHint": "Raccoglie i registri dell'app e le info di versione in uno zip per la risoluzione dei problemi. I registri possono contenere percorsi di file; controllali prima di condividerli.",
+    "LogsExportOk": "Diagnostica esportata",
+    "LogsExportEmpty": "Nessun registro da esportare",
+    "LogsExportFailed": "Esportazione dei registri non riuscita"
   },
   "persona": {
     "PersonaNone": "Nessun ruolo (mostra tutto)",

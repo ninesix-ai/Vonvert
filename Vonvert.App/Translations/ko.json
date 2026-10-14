@@ -346,7 +346,12 @@
     "BgmLoop": "반복",
     "BgmDucking": "음성 시 자동 낮춤",
     "BgmEngineHint": "배경 음악을 들으려면 음성 엔진을 시작하세요.",
-    "FontScale": "글자 크기"
+    "FontScale": "글자 크기",
+    "ExportLogs": "진단 로그 내보내기",
+    "ExportLogsHint": "문제 해결을 위해 앱 로그와 버전 정보를 zip으로 포장합니다. 로그에 파일 경로가 포함될 수 있으니 공유 전에 검토하세요.",
+    "LogsExportOk": "진단 정보를 내보냈습니다",
+    "LogsExportEmpty": "내보낼 로그가 없습니다",
+    "LogsExportFailed": "로그 내보내기 실패"
   },
   "persona": {
     "PersonaNone": "역할 없음(모든 것을 표시)",

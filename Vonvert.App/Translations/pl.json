@@ -346,7 +346,12 @@
     "BgmLoop": "Pętla",
     "BgmDucking": "Ściszaj przy mowie",
     "BgmEngineHint": "Uruchom silnik głosowy, aby usłyszeć muzykę w tle.",
-    "FontScale": "Rozmiar czcionki"
+    "FontScale": "Rozmiar czcionki",
+    "ExportLogs": "Eksportuj logi diagnostyczne",
+    "ExportLogsHint": "Pakuje logi aplikacji i informacje o wersji do pliku zip w celu rozwiązywania problemów. Logi mogą zawierać ścieżki plików — sprawdź przed udostępnieniem.",
+    "LogsExportOk": "Wyprowadzono informacje diagnostyczne",
+    "LogsExportEmpty": "Brak logów do wyeksportowania",
+    "LogsExportFailed": "Nie udało się wyeksportować logów"
   },
   "persona": {
     "PersonaNone": "Brak roli (pokaż wszystko)",

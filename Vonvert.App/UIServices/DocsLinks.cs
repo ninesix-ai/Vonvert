@@ -19,12 +19,22 @@ public static class DocsLinks
     public const string MonitorGuideZh     = "zh/FULLSCREEN-MONITOR.zh.md";
     public const string UserGuide          = "USER-GUIDE.md";
     public const string UserGuideZh        = "zh/USER-GUIDE.zh.md";
+    public const string PrivacyPolicy      = "PRIVACY-POLICY.md";
+    public const string PrivacyPolicyZh    = "zh/PRIVACY-POLICY.zh.md";
+    public const string TermsOfService     = "TERMS-OF-SERVICE.md";
+    public const string TermsOfServiceZh   = "zh/TERMS-OF-SERVICE.zh.md";
 
     /// <summary>Address of the fullscreen-monitor guide for a UI language.</summary>
     public static string MonitorGuideUrl(string? language) => Resolve(language, MonitorGuide, MonitorGuideZh);
 
     /// <summary>Address of the general user guide for a UI language.</summary>
     public static string UserGuideUrl(string? language) => Resolve(language, UserGuide, UserGuideZh);
+
+    /// <summary>Address of the privacy policy for a UI language.</summary>
+    public static string PrivacyPolicyUrl(string? language) => Resolve(language, PrivacyPolicy, PrivacyPolicyZh);
+
+    /// <summary>Address of the terms of service for a UI language.</summary>
+    public static string TermsOfServiceUrl(string? language) => Resolve(language, TermsOfService, TermsOfServiceZh);
 
     private static string Resolve(string? language, string englishFile, string chineseFile)
         => $"{BaseUrl}/{(language == "zh" ? chineseFile : englishFile)}";

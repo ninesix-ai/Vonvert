@@ -23,6 +23,12 @@ public partial class MainWindow
     private void MonitorGuideLink_Click(object s, RoutedEventArgs e)
         => OpenDocs(DocsLinks.MonitorGuideUrl(LocalizationManager.Instance.Language));
 
+    private void PrivacyPolicyLink_Click(object s, RoutedEventArgs e)
+        => OpenDocs(DocsLinks.PrivacyPolicyUrl(LocalizationManager.Instance.Language));
+
+    private void TermsLink_Click(object s, RoutedEventArgs e)
+        => OpenDocs(DocsLinks.TermsOfServiceUrl(LocalizationManager.Instance.Language));
+
     /// <summary>Best-effort hand-off to the default browser; a machine without a browser
     /// association must not take the window down with it.</summary>
     private void OpenDocs(string url)

@@ -251,7 +251,7 @@ def verify_launch(publish_dir: str, wait_s: float = 6.0) -> bool:
         return True
 
     try:
-        proc = subprocess.Popen([exe], cwd=publish_dir)
+        proc = subprocess.Popen([exe, "--test-mode"], cwd=publish_dir)
     except OSError as exc:
         cprint(f"  FAILED: could not start Vonvert.exe: {exc}", RED)
         return False
@@ -265,7 +265,7 @@ def verify_launch(publish_dir: str, wait_s: float = 6.0) -> bool:
         for attempt in (2, 3):
             time.sleep(5)
             print(f"  retry {attempt - 1} of 2 ...", flush=True)
-            proc = subprocess.Popen([exe], cwd=publish_dir)
+            proc = subprocess.Popen([exe, "--test-mode"], cwd=publish_dir)
             time.sleep(wait_s)
             rc = proc.poll()
             if rc is None:

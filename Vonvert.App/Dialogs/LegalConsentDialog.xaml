@@ -1,0 +1,26 @@
+<Window x:Class="Vonvert.App.LegalConsentDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="560" Height="560" WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize" ShowInTaskbar="False" WindowStyle="SingleBorderWindow">
+    <DockPanel Margin="18">
+        <TextBlock x:Name="TitleText" DockPanel.Dock="Top" FontSize="17"
+                   FontWeight="Bold" Margin="0,0,0,10"/>
+        <StackPanel DockPanel.Dock="Bottom" Margin="0,12,0,0">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <TextBlock x:Name="ReadFullText" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <TextBlock Margin="0,0,10,0"><Hyperlink x:Name="PrivacyLink" Click="Privacy_Click"/></TextBlock>
+                <TextBlock><Hyperlink x:Name="TermsLink" Click="Terms_Click"/></TextBlock>
+            </StackPanel>
+            <CheckBox x:Name="AckCheck" Content="I have read and accept."
+                      Margin="0,0,0,10" Checked="Ack_Changed" Unchecked="Ack_Changed"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="DeclineBtn" Click="Decline_Click" Padding="16,6" Margin="0,0,8,0"/>
+                <Button x:Name="AgreeBtn" Click="Agree_Click" Padding="16,6" IsEnabled="False"/>
+            </StackPanel>
+        </StackPanel>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel x:Name="ContentHost"/>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

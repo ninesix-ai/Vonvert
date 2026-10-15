@@ -27,4 +27,11 @@ public static class StartupArgs
         if (string.IsNullOrWhiteSpace(value) || value.StartsWith("-")) return null;
         return value;
     }
+
+    public const string TestModeFlag = "--test-mode";
+
+    /// <summary>True when the launch runs under automation (E2E / build smoke),
+    /// which must skip the interactive first-run consent dialog.</summary>
+    public static bool IsTestMode(string[]? args) =>
+        args != null && System.Array.IndexOf(args, TestModeFlag) >= 0;
 }

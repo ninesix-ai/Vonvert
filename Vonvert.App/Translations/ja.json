@@ -356,7 +356,19 @@
     "AboutPrivacyLink": "プライバシーポリシー",
     "AboutTermsLink": "利用規約",
     "PortableModeNote": "ポータブルモード：データはプログラムと同じフォルダに保存され、起動オプションで管理されます。",
-    "PortableChangeDisabledHint": "ポータブルモードでは保存場所の変更は無効です。"
+    "PortableChangeDisabledHint": "ポータブルモードでは保存場所の変更は無効です。",
+    "LegalTitle": "使用前に",
+    "LegalIntro": "Vonvert は音声を実時間で変更します。使用する前に以下をお読みいただき、同意ください。",
+    "LegalProhibitedHead": "Vonvert を次に使用することは禁止されています：",
+    "LegalBullets": "• 他人を欺く、詐欺、または金銭目的でのなりすまし;\n• 他人の嫌わせ、いじめ、ストーカー、威迫;\n• 無敵の声のクローン作成または身代わり;\n• 音声認識またはその他のセキュリティシステムの回選;\n• 政治的・金銭的操作のための欺磬的内容の作成;\n• 適用法に違反するあらゆる行為。",
+    "LegalPrivacyHead": "プライバシー",
+    "LegalInfo": "• すべての音声は 100% ローカルで処理され、マイクはアップロードされません。\n• 唯一の通信は、アップデート確認のための GitHub の公開 Releases API への GET です（音声なし、識別子なし）。\n• Apache-2.0 ライセンス。",
+    "LegalReadFull": "全文：",
+    "LegalPrivacyLink": "プライバシーポリシー",
+    "LegalTermsLink": "利用規約",
+    "LegalAck": "利用規約とプライバシーポリシーを読み、同意します。",
+    "LegalAgree": "同意して続行",
+    "LegalDecline": "拒否して終了"
   },
   "persona": {
     "PersonaNone": "役割なし（すべて表示）",

@@ -356,7 +356,19 @@
     "AboutPrivacyLink": "Politique de confidentialité",
     "AboutTermsLink": "Conditions d'utilisation",
     "PortableModeNote": "Mode portable : les données sont stockées à côté du programme et gérées par les options de démarrage.",
-    "PortableChangeDisabledHint": "Le déplacement est désactivé en mode portable."
+    "PortableChangeDisabledHint": "Le déplacement est désactivé en mode portable.",
+    "LegalTitle": "Avant de commencer",
+    "LegalIntro": "Vonvert modifie votre voix en temps réel. Veuillez lire et accepter ce qui suit avant de l'utiliser.",
+    "LegalProhibitedHead": "N'utilisez jamais Vonvert pour :",
+    "LegalBullets": "• commettre des fraudes, des arnaques ou usurper l'identité d'autrui pour en tirer un profit ;\n• harceler, intimider, traquer ou menacer autrui ;\n• effectuer du clonage vocal non autorisé ou une usurpation d'identité ;\n• contourner l'authentification vocale ou d'autres systèmes de sécurité ;\n• créer du contenu trompeur à des fins de manipulation politique ou financière ;\n• enfreindre toute loi applicable.",
+    "LegalPrivacyHead": "Votre vie privée",
+    "LegalInfo": "• Tout l'audio est traité à 100 % localement ; votre microphone n'est jamais téléversé.\n• La seule requête réseau est un GET vers l'API publique des Releases de GitHub pour la vérification des mises à jour (sans audio, sans identifiant).\n• Sous licence Apache-2.0.",
+    "LegalReadFull": "Texte intégral :",
+    "LegalPrivacyLink": "Politique de confidentialité",
+    "LegalTermsLink": "Conditions d'utilisation",
+    "LegalAck": "J'ai lu et j'accepte les Conditions d'utilisation et la Politique de confidentialité.",
+    "LegalAgree": "Accepter et continuer",
+    "LegalDecline": "Refuser et quitter"
   },
   "persona": {
     "PersonaNone": "Aucun rôle (afficher tout)",

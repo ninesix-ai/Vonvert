@@ -356,7 +356,19 @@
     "AboutPrivacyLink": "隐私政策",
     "AboutTermsLink": "服务条款",
     "PortableModeNote": "便携模式：数据存放在程序目录旁，由启动选项控制。",
-    "PortableChangeDisabledHint": "便携模式下不可更改位置。"
+    "PortableChangeDisabledHint": "便携模式下不可更改位置。",
+    "LegalTitle": "开始使用前",
+    "LegalIntro": "Vonvert 可实时改变你的声音。使用前请阅读并接受以下内容。",
+    "LegalProhibitedHead": "严禁将 Vonvert 用于：",
+    "LegalBullets": "• 实施欺诈、诈骗或冒充他人牺利；\n• 骚扰、欺凌、跟踪或威胁他人；\n• 未经授权的语音克隆或身份盗用；\n• 绕过语音认证或其他安全系统；\n• 制作用于政治或金融操纵的欺骗性内容；\n• 任何违反适用法律的行为。",
+    "LegalPrivacyHead": "你的隐私",
+    "LegalInfo": "• 所有音频 100% 在本地处理，麦克风绝不上传。\n• 唯一的网络请求是向 GitHub 公开 Releases API 发出的 GET，用于检查更新（不含音频、不含标识符）。\n• 采用 Apache-2.0 许可。",
+    "LegalReadFull": "全文：",
+    "LegalPrivacyLink": "隐私政策",
+    "LegalTermsLink": "服务条款",
+    "LegalAck": "我已阅读并接受服务条款与隐私政策。",
+    "LegalAgree": "同意并继续",
+    "LegalDecline": "不同意并退出"
   },
   "persona": {
     "PersonaNone": "不使用角色（显示全部）",

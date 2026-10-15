@@ -187,6 +187,22 @@ public partial class App : Application
         // (which happens because MainWindow hasn't been created yet)
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
+        // First-run legal consent gate. Automation launches (--test-mode) skip the
+        // interactive dialog; a real first run blocks until the user accepts, and
+        // declining exits WITHOUT creating the main window or the engine.
+        if (!StartupArgs.IsTestMode(e.Args) &&
+            !LegalConsent.IsAccepted(AppPaths.Root, LegalConsent.ConsentVersion))
+        {
+            var consent = new LegalConsentDialog(LocalizationManager.Instance);
+            if (consent.ShowDialog() != true)
+            {
+                AppLog.Information("Legal consent declined — exiting before startup.");
+                Shutdown(0);
+                return;
+            }
+            LegalConsent.Record(AppPaths.Root, LegalConsent.ConsentVersion);
+        }
+
         // Create and show MainWindow FIRST (same as v1) - before heavy audio
         // service initialization - so the UI always appears immediately.
         MainWindow window;

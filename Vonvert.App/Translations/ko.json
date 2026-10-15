@@ -356,7 +356,19 @@
     "AboutPrivacyLink": "개인정보 처리방침",
     "AboutTermsLink": "서비스 이용약관",
     "PortableModeNote": "이식 모드: 데이터가 프로그램 옆에 저장되며 시작 옵션으로 관리됩니다.",
-    "PortableChangeDisabledHint": "이식 모드에서는 위치 변경이 비활성화됩니다."
+    "PortableChangeDisabledHint": "이식 모드에서는 위치 변경이 비활성화됩니다.",
+    "LegalTitle": "시작하기 전에",
+    "LegalIntro": "Vonvert는 목소리를 실시간으로 변경합니다. 사용 전에 다음을 읽고 동의하십시오.",
+    "LegalProhibitedHead": "Vonvert를 다음에 사용하는 것을 금지합니다:",
+    "LegalBullets": "• 이듥 목적으로 다른 사람을 속이거나 사기치거나 사역하는 행위;\n• 다른 사람을 건로운하거나 따돌림하거나 스토킹하거나 협너낭하는 행위;\n• 무단 음성 복제 또는 신분 도용;\n• 음성 인증 또는 기타 보안 시스템 우회;\n• 정치바 금전적 조좁을 위한 기만적 콘테츠 제작;\n• 적용 법론을 위반하는 모든 행위.",
+    "LegalPrivacyHead": "개인정보",
+    "LegalInfo": "• 모든 오디오는 100% 로컬에서 처리되며, 마이크는 업로드되지 않습니다.\n• 유일한 네트워크 욐청은 업데이트 확인을 위한 GitHub 공개 Releases API롱한 GET 욐청입니다(오디오 없음, 식별자 없음).\n• Apache-2.0 라이선스.",
+    "LegalReadFull": "전문:",
+    "LegalPrivacyLink": "개인정보 처리방치",
+    "LegalTermsLink": "서비스 약관",
+    "LegalAck": "서비스 약관과 개인정보 처리방치를 읽고 동의합니다.",
+    "LegalAgree": "동의 후 계속",
+    "LegalDecline": "거북 후 종료"
   },
   "persona": {
     "PersonaNone": "역할 없음(모든 것을 표시)",

@@ -356,7 +356,19 @@
     "AboutPrivacyLink": "Política de privacidad",
     "AboutTermsLink": "Términos del servicio",
     "PortableModeNote": "Modo portable: los datos se guardan junto al programa y se controlan con las opciones de inicio.",
-    "PortableChangeDisabledHint": "El traslado está deshabilitado en modo portable."
+    "PortableChangeDisabledHint": "El traslado está deshabilitado en modo portable.",
+    "LegalTitle": "Antes de empezar",
+    "LegalIntro": "Vonvert cambia tu voz en tiempo real. Lee y acepta lo siguiente antes de usarlo.",
+    "LegalProhibitedHead": "Nunca uses Vonvert para:",
+    "LegalBullets": "• defraudar, estafar o suplantar a otra persona con fines de lucro;\n• acosar, intimidar, hostigar o amenazar a otros;\n• realizar clonación de voz no autorizada o suplantación de identidad;\n• evadir sistemas de autenticación por voz u otros sistemas de seguridad;\n• crear contenido engañoso para manipulación política o financiera;\n• hacer cualquier cosa que incumpla la ley aplicable.",
+    "LegalPrivacyHead": "Tu privacidad",
+    "LegalInfo": "• Todo el audio se procesa al 100 % localmente; tu micrófono nunca se sube.\n• La única solicitud de red es un GET a la API pública de Releases de GitHub para comprobar actualizaciones (sin audio, sin identificadores).\n• Bajo licencia Apache-2.0.",
+    "LegalReadFull": "Texto completo:",
+    "LegalPrivacyLink": "Política de privacidad",
+    "LegalTermsLink": "Términos del servicio",
+    "LegalAck": "He leído y acepto los Términos del servicio y la Política de privacidad.",
+    "LegalAgree": "Aceptar y continuar",
+    "LegalDecline": "Rechazar y salir"
   },
   "persona": {
     "PersonaNone": "Sin rol (mostrar todo)",

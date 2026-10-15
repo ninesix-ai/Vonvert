@@ -45,4 +45,13 @@ public sealed class StartupArgsTests
         Assert.Null(StartupArgs.GetPurgeRoot(new[] { "--purge-root", "--other" }));
         Assert.Null(StartupArgs.GetPurgeRoot(new[] { "--purge-root", "  " }));
     }
+
+    // A5: --test-mode presence -> automation mode (skips interactive first-run consent).
+    [Fact]
+    public void DetectsTestMode()
+    {
+        Assert.True(StartupArgs.IsTestMode(new[] { "app", "--test-mode" }));
+        Assert.False(StartupArgs.IsTestMode(new[] { "app" }));
+        Assert.False(StartupArgs.IsTestMode(null));
+    }
 }

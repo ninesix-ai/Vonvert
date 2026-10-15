@@ -356,7 +356,19 @@
     "AboutPrivacyLink": "Gizlilik Politikası",
     "AboutTermsLink": "Kullanım Şartları",
     "PortableModeNote": "Taşınabilir mod: veriler programın yanında saklanır ve başlatma seçenekleriyle yönetilir.",
-    "PortableChangeDisabledHint": "Taşınabilir modda konum değiştirme devre dışıdır."
+    "PortableChangeDisabledHint": "Taşınabilir modda konum değiştirme devre dışıdır.",
+    "LegalTitle": "Başlamadan önce",
+    "LegalIntro": "Vonvert sesinizi gerçek zamanlı olarak değiştirir. Kullanmadan önce lütfen aşağıdakileri okuyun ve kabul edin.",
+    "LegalProhibitedHead": "Vonvert'i amaçlı KULLANMAYIN:",
+    "LegalBullets": "• kazanç için başkasını dolandırmak, sahtekârlık yapmak veya taklit etmek;\n• başkalarını taciz etmek, yıldırmak, takip etmek veya tehdit etmek;\n• izinsiz ses klonlama veya kimlik hırsızlığı;\n• sesle kimlik doğrulama veya diğer güvenlik sistemlerini atlatmak;\n• siyasi veya mali manipülasyon için yanıltıcı içerik oluşturmak;\n• yürürlükteki yasalara aykırı herhangi bir eylem.",
+    "LegalPrivacyHead": "Gizliliğiniz",
+    "LegalInfo": "• Tüm ses %100 yerel olarak işlenir; mikrofonunuza asla yüklenmez.\n• Tek ağ isteği, güncellemeleri kontrol etmek için GitHub'ın genel Releases API'sine yapılan bir GET'tir (ses yok, tanımlayıcı yok).\n• Apache-2.0 ile lisanslanmıştır.",
+    "LegalReadFull": "Tam metin:",
+    "LegalPrivacyLink": "Gizlilik Politikası",
+    "LegalTermsLink": "Kullanım Koşulları",
+    "LegalAck": "Kullanım Koşulları'nı ve Gizlilik Politikası'nı okudum ve kabul ediyorum.",
+    "LegalAgree": "Kabul et ve devam et",
+    "LegalDecline": "Reddet ve çık"
   },
   "persona": {
     "PersonaNone": "Rol yok (her şeyi göster)",

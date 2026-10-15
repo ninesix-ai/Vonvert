@@ -356,7 +356,19 @@
     "AboutPrivacyLink": "Polityka prywatności",
     "AboutTermsLink": "Warunki świadczenia usług",
     "PortableModeNote": "Tryb przenośny: dane są przechowywane obok programu i zarządzane opcjami uruchamiania.",
-    "PortableChangeDisabledHint": "Zmiana lokalizacji jest wyłączona w trybie przenośnym."
+    "PortableChangeDisabledHint": "Zmiana lokalizacji jest wyłączona w trybie przenośnym.",
+    "LegalTitle": "Zanim rozpocznesz",
+    "LegalIntro": "Vonvert zmienia Twój głos w czasie rzeczywistym. Przed użyciem przeczytaj i zaakceptuj poniższe.",
+    "LegalProhibitedHead": "Nigdy nie używaj Vonvert do:",
+    "LegalBullets": "• oszukiwania, wyłudzania lub podszywania się pod inną osobę w celu osiągnięcia korzyści;\n• nękania, zastraszania, prześladowania lub grożenia innym;\n• nieautoryzowanego klonowania głosu lub kradzieży tożsamości;\n• omijania systemów uwierzytelniania głosem lub innych systemów bezpieczeństwa;\n• tworzenia wprowadzających w błąd treści do manipulacji politycznej lub finansowej;\n• wszelkich czynności naruszających obowiązujące prawo.",
+    "LegalPrivacyHead": "Twoja prywatność",
+    "LegalInfo": "• Całe audio jest przetwarzane w 100% lokalnie; mikrofon nigdy nie jest przesyłany.\n• Jedynym żądaniem sieciowym jest GET do publicznego API Releases GitHub w celu sprawdzania aktualizacji (bez audio, bez identyfikatorów).\n• Licencja Apache-2.0.",
+    "LegalReadFull": "Pełny tekst:",
+    "LegalPrivacyLink": "Polityka prywatności",
+    "LegalTermsLink": "Warunki usługi",
+    "LegalAck": "Przeczytałem i akceptuję Warunki usługi oraz Politykę prywatności.",
+    "LegalAgree": "Akceptuj i kontynuuj",
+    "LegalDecline": "Odrzuć i zamknij"
   },
   "persona": {
     "PersonaNone": "Brak roli (pokaż wszystko)",
